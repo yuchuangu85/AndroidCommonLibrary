@@ -7,3 +7,22 @@
 
 >Android常用依赖库分析，包含：EventBus、Picasso、Glide、Gson、okhttp、RxAndroid、RxJava、etc...
 
+## 项目对应工具表格
+
+|项目|开发工具|Gradle版本|
+|-|-|:-:|
+|EventBus|Android Studio 3.2.1|4.6|
+|Picasso|||
+|Glide|||
+|Gson|||
+|okhttp|||
+|Retrofit|||
+|RxAndroid|||
+|RxJava|||
+|Dagger2|||
+|butterknife|||
+|guava|||
+|Xposed|||
+|dexposed|||
+||||
+||||
