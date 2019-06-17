@@ -1,5 +1,8 @@
 buildscript {
     repositories {
+        jcenter()
+        mavenCentral()
+        google()
         maven { url "https://plugins.gradle.org/m2/" }
     }
 
@@ -10,9 +13,9 @@ buildscript {
 
 apply plugin: 'java'
 // plugin to make it easier/safer to use EventBus annotation processor
-apply plugin: 'net.ltgt.apt-idea'
+//apply plugin: 'net.ltgt.apt-idea'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 // we have tests in the main source set so they can be shared with the Android test module
 // to make Gradle pick them up, add the dir to the test source set
@@ -25,12 +28,12 @@ sourceSets {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile(project(':eventbus')) {
+    implementation fileTree(include: '*.jar', dir: 'libs')
+    implementation(project(':eventbus')) {
         exclude group: "com.google.android" // Does not seem to work...
     }
-    apt project(':eventbus-annotation-processor')
-    compile 'junit:junit:4.12'
+    implementation 'junit:junit:4.12'
+    implementation project(':eventbus-annotation-processor')
 }
 
 tasks.withType(JavaCompile) {

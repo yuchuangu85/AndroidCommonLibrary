@@ -1,10 +1,10 @@
 buildscript {
     ext {
-        _buildToolsVersion = '26.0.3' // When updating, don't forget to adjust .travis.yml
-        _compileSdkVersion = 26
+        _buildToolsVersion = '28.0.3' // When updating, don't forget to adjust .travis.yml
+        _compileSdkVersion = 28
     }
-}
 
+}
 allprojects {
     repositories {
         jcenter()
@@ -12,7 +12,6 @@ allprojects {
         google()
     }
 }
-
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {
@@ -20,8 +19,7 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
-
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
-    distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
+    gradleVersion = '4.6'
 }
+

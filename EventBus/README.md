@@ -78,6 +78,10 @@ Via Maven:
 
 Or download [the latest JAR](https://search.maven.org/remote_content?g=org.greenrobot&a=eventbus&v=LATEST) from Maven Central.
 
+compile jar:
+
+AS-->projects-->EventBus-->Tasks-->build-->compileReleaseSource
+
 Homepage, Documentation, Links
 ------------------------------
 For more details please check the [EventBus website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
