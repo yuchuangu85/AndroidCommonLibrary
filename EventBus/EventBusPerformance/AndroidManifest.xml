@@ -4,10 +4,6 @@
     android:versionCode="1"
     android:versionName="2.0.0" >
 
-    <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="17" />
-
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
