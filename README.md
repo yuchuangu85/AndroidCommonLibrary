@@ -9,9 +9,9 @@
 
 ## 项目对应工具表格
 
-|项目|开发工具|Gradle版本|
+|项目|Github地址|版本|
 |-|-|:-:|
-|EventBus|Android Studio 3.2.1|4.6|
+|EventBus|https://github.com/greenrobot/EventBus|3.1.1|
 |Picasso|||
 |Glide|||
 |Gson|||
