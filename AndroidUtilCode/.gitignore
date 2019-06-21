@@ -1,0 +1,15 @@
+*.iml
+*__bus__.json
+.gradle
+/local.properties
+.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+/apk
+*.phrof
+/busMaven
+将删除 .gitignore
+将删除 build.gradle
+将删除 src/
