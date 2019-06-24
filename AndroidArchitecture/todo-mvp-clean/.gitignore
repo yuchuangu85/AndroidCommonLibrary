@@ -18,3 +18,4 @@ gradlew
 将删除 gradle/
 将删除 local.properties
 将删除 settings.gradle
+todo-mvp-clean.iml
