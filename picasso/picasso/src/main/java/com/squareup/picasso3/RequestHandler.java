@@ -18,8 +18,10 @@ package com.squareup.picasso3;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.NetworkInfo;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import java.io.IOException;
 
 import static com.squareup.picasso3.Utils.checkNotNull;
@@ -42,103 +44,109 @@ import static com.squareup.picasso3.Utils.checkNotNull;
  * @see Picasso.Builder#addRequestHandler(RequestHandler)
  */
 public abstract class RequestHandler {
-  /**
-   * {@link Result} represents the result of a {@link #load(Picasso, Request, Callback)} call
-   * in a {@link RequestHandler}.
-   *
-   * @see RequestHandler
-   * @see #load(Picasso, Request, Callback)
-   */
-  public static final class Result {
-    private final Picasso.LoadedFrom loadedFrom;
-    @Nullable private final Bitmap bitmap;
-    @Nullable private final Drawable drawable;
-    private final int exifRotation;
+    /**
+     * {@link Result} represents the result of a {@link #load(Picasso, Request, Callback)} call
+     * in a {@link RequestHandler}.
+     *
+     * @see RequestHandler
+     * @see #load(Picasso, Request, Callback)
+     */
+    public static final class Result {
+        private final Picasso.LoadedFrom loadedFrom;
+        @Nullable
+        private final Bitmap bitmap;
+        @Nullable
+        private final Drawable drawable;
+        private final int exifRotation;
 
-    public Result(@NonNull Bitmap bitmap, @NonNull Picasso.LoadedFrom loadedFrom) {
-      this(checkNotNull(bitmap, "bitmap == null"), null, loadedFrom, 0);
+        public Result(@NonNull Bitmap bitmap, @NonNull Picasso.LoadedFrom loadedFrom) {
+            this(checkNotNull(bitmap, "bitmap == null"), null, loadedFrom, 0);
+        }
+
+        public Result(@NonNull Bitmap bitmap, @NonNull Picasso.LoadedFrom loadedFrom,
+                      int exifRotation) {
+            this(checkNotNull(bitmap, "bitmap == null"), null, loadedFrom, exifRotation);
+        }
+
+        public Result(@NonNull Drawable drawable, @NonNull Picasso.LoadedFrom loadedFrom) {
+            this(null, checkNotNull(drawable, "drawable == null"), loadedFrom, 0);
+        }
+
+        private Result(
+                @Nullable Bitmap bitmap,
+                @Nullable Drawable drawable,
+                @NonNull Picasso.LoadedFrom loadedFrom,
+                int exifRotation) {
+            this.bitmap = bitmap;
+            this.drawable = drawable;
+            this.loadedFrom = checkNotNull(loadedFrom, "loadedFrom == null");
+            this.exifRotation = exifRotation;
+        }
+
+        /**
+         * The loaded {@link Bitmap}.
+         * Mutually exclusive with {@link #getDrawable()}.
+         */
+        @Nullable
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+
+        /**
+         * The loaded {@link Drawable}.
+         * Mutually exclusive with {@link #getBitmap()}.
+         */
+        @Nullable
+        public Drawable getDrawable() {
+            return drawable;
+        }
+
+        /**
+         * Returns the resulting {@link Picasso.LoadedFrom} generated from a
+         * {@link #load(Picasso, Request, Callback)} call.
+         */
+        @NonNull
+        public Picasso.LoadedFrom getLoadedFrom() {
+            return loadedFrom;
+        }
+
+        /**
+         * Returns the resulting EXIF rotation generated from a
+         * {@link #load(Picasso, Request, Callback)} call.
+         */
+        public int getExifRotation() {
+            return exifRotation;
+        }
     }
 
-    public Result(@NonNull Bitmap bitmap, @NonNull Picasso.LoadedFrom loadedFrom,
-        int exifRotation) {
-      this(checkNotNull(bitmap, "bitmap == null"), null, loadedFrom, exifRotation);
-    }
+    public interface Callback {
+        void onSuccess(@Nullable Result result);
 
-    public Result(@NonNull Drawable drawable, @NonNull Picasso.LoadedFrom loadedFrom) {
-      this(null, checkNotNull(drawable, "drawable == null"), loadedFrom, 0);
-    }
-
-    private Result(
-        @Nullable Bitmap bitmap,
-        @Nullable Drawable drawable,
-        @NonNull Picasso.LoadedFrom loadedFrom,
-        int exifRotation) {
-      this.bitmap = bitmap;
-      this.drawable = drawable;
-      this.loadedFrom = checkNotNull(loadedFrom, "loadedFrom == null");
-      this.exifRotation = exifRotation;
+        void onError(@NonNull Throwable t);
     }
 
     /**
-     * The loaded {@link Bitmap}.
-     * Mutually exclusive with {@link #getDrawable()}.
+     * Whether or not this {@link RequestHandler} can handle a request with the given {@link Request}.
      */
-    @Nullable public Bitmap getBitmap() {
-      return bitmap;
-    }
+    public abstract boolean canHandleRequest(@NonNull Request data);
 
     /**
-     * The loaded {@link Drawable}.
-     * Mutually exclusive with {@link #getBitmap()}.
+     * Loads an image for the given {@link Request}.
+     *
+     * @param request the data from which the image should be resolved.
      */
-    @Nullable public Drawable getDrawable() {
-      return drawable;
+    public abstract void load(@NonNull Picasso picasso, @NonNull Request request,
+                              @NonNull Callback callback) throws IOException;
+
+    int getRetryCount() {
+        return 0;
     }
 
-    /**
-     * Returns the resulting {@link Picasso.LoadedFrom} generated from a
-     * {@link #load(Picasso, Request, Callback)} call.
-     */
-    @NonNull public Picasso.LoadedFrom getLoadedFrom() {
-      return loadedFrom;
+    boolean shouldRetry(boolean airplaneMode, @Nullable NetworkInfo info) {
+        return false;
     }
 
-    /**
-     * Returns the resulting EXIF rotation generated from a
-     * {@link #load(Picasso, Request, Callback)} call.
-     */
-    public int getExifRotation() {
-      return exifRotation;
+    boolean supportsReplay() {
+        return false;
     }
-  }
-
-  public interface Callback {
-    void onSuccess(@Nullable Result result);
-
-    void onError(@NonNull Throwable t);
-  }
-
-  /**
-   * Whether or not this {@link RequestHandler} can handle a request with the given {@link Request}.
-   */
-  public abstract boolean canHandleRequest(@NonNull Request data);
-
-  /**
-   * Loads an image for the given {@link Request}.
-   * @param request the data from which the image should be resolved.
-   */
-  public abstract void load(@NonNull Picasso picasso, @NonNull Request request,
-      @NonNull Callback callback) throws IOException;
-
-  int getRetryCount() {
-    return 0;
-  }
-
-  boolean shouldRetry(boolean airplaneMode, @Nullable NetworkInfo info) {
-    return false;
-  }
-
-  boolean supportsReplay() {
-    return false;
-  }
 }
