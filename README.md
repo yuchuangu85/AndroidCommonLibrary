@@ -5,27 +5,27 @@
   </a>
 </p>
 
->Android常用依赖库分析，包含：EventBus、Picasso、Glide、Gson、okhttp、RxAndroid、RxJava、etc...
+> Android常用依赖库分析，包含：EventBus、Picasso、Glide、Gson、okhttp、RxAndroid、RxJava、etc...
 
 ## 项目信息表格
 
-|项目|Github地址|版本|
-|---|-----|:-----:|
-|EventBus|https://github.com/greenrobot/EventBus|3.1.1|
-|Picasso|||
-|Glide|||
-|Gson|||
-|okhttp|||
-|Retrofit|||
-|RxAndroid|||
-|RxJava|||
-|Dagger2|||
-|butterknife|||
-|guava|||
-|Xposed|||
-|dexposed|||
-|AndroidArchitecture|https://github.com/googlesamples/android-architecture||
-|AndroidCleanArchitectureBoilerplate|https://github.com/bufferapp/android-clean-architecture-boilerplate||
-|AndroidUtilCode|https://github.com/Blankj/AndroidUtilCode|abc7a5da|
-||||
-||||
+| 项目                                  | Github地址                                                            | 版本       |
+| ----------------------------------- | ------------------------------------------------------------------- |:--------:|
+| EventBus                            | https://github.com/greenrobot/EventBus                              | 3.1.1    |
+| Picasso                             |                                                                     |          |
+| Glide                               |                                                                     |          |
+| Gson                                |                                                                     |          |
+| okhttp                              |                                                                     |          |
+| Retrofit                            |                                                                     |          |
+| RxAndroid                           |                                                                     |          |
+| RxJava                              |                                                                     |          |
+| Dagger2                             |                                                                     |          |
+| butterknife                         |                                                                     |          |
+| guava                               |                                                                     |          |
+| Xposed                              |                                                                     |          |
+| dexposed                            |                                                                     |          |
+| AndroidArchitecture                 | https://github.com/googlesamples/android-architecture               |          |
+| AndroidCleanArchitectureBoilerplate | https://github.com/bufferapp/android-clean-architecture-boilerplate |          |
+| AndroidUtilCode                     | https://github.com/Blankj/AndroidUtilCode                           | abc7a5da |
+|                                     |                                                                     |          |
+|                                     |                                                                     |          |
