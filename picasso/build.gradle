@@ -1,0 +1,110 @@
+buildscript {
+  ext.versions = [
+    'compileSdk': 28,
+    'minSdk': 14,
+    'targetSdk': 28,
+    'sourceCompatibility': JavaVersion.VERSION_1_7,
+    'targetCompatibility': JavaVersion.VERSION_1_7,
+    'okhttp': '3.11.0',
+    'okio': '2.1.0',
+  ]
+
+  ext.deps = [
+    androidPlugin: 'com.android.tools.build:gradle:3.4.2',
+    okhttp: "com.squareup.okhttp3:okhttp:${versions.okhttp}",
+    okio: "com.squareup.okio:okio:${versions.okio}",
+    mockWebServer: "com.squareup.okhttp3:mockwebserver:${versions.okhttp}",
+    pollexor: 'com.squareup:pollexor:2.0.4',
+    androidxAnnotations: 'androidx.annotation:annotation:1.0.0',
+    androidxCore: 'androidx.core:core:1.0.0',
+    androidxExifInterface: 'androidx.exifinterface:exifinterface:1.0.0',
+    androidxFragment: 'androidx.fragment:fragment:1.0.0',
+    androidxLifecycle: 'androidx.lifecycle:lifecycle-common:2.0.0',
+    errorProne: 'com.google.errorprone:error_prone_core:2.3.2',
+    junit: 'junit:junit:4.12',
+    truth: 'com.google.truth:truth:0.42',
+    robolectric: 'org.robolectric:robolectric:4.0.1',
+    mockito: 'org.mockito:mockito-core:2.23.0',
+    nullaway: 'com.uber.nullaway:nullaway:0.6.0'
+  ]
+
+  ext.isCi = "true" == System.getenv('CI')
+
+  repositories {
+    google()
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+
+  dependencies {
+    classpath deps.androidPlugin
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.16'
+  }
+}
+
+apply plugin: 'com.github.ben-manes.versions'
+
+subprojects {
+  repositories {
+    google()
+    jcenter()
+  }
+
+  tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+        '-Xep:UnnecessaryDefaultInEnumSwitch:ERROR',
+        '-Xep:TypeParameterUnusedInFormals:ERROR',
+        '-Xep:OperatorPrecedence:ERROR',
+        '-Xep:ReferenceEquality:ERROR',
+        '-Xep:FloatingPointLiteralPrecision:ERROR',
+        '-Xep:DateFormatConstant:ERROR',
+        '-Xep:PrivateConstructorForUtilityClass:ERROR',
+        '-Xep:DateFormatConstant:ERROR',
+        '-XepExcludedPaths:.*/build/.*'
+    ]
+
+    if (!name.toLowerCase().contains("test")) {
+      // NullAway args
+      options.compilerArgs += [
+          '-Xep:NullAway:ERROR',
+          '-XepOpt:NullAway:AnnotatedPackages=com.squareup.picasso3'
+      ]
+    }
+
+  }
+
+  tasks.withType(Test) {
+    testLogging {
+      events "failed"
+      exceptionFormat "full"
+      showExceptions true
+      showStackTraces true
+      showCauses true
+    }
+  }
+
+  plugins.apply('checkstyle')
+
+  task('checkstyle', type: Checkstyle) {
+    configFile rootProject.file('checkstyle.xml')
+    source 'src/main/java'
+    ignoreFailures false
+    showViolations true
+    include '**/*.java'
+
+    classpath = files()
+  }
+
+  group = GROUP
+  version = VERSION_NAME
+
+  afterEvaluate {
+    tasks.findByName('check').dependsOn('checkstyle')
+  }
+
+  apply plugin: 'net.ltgt.errorprone'
+
+  dependencies {
+    errorprone deps.errorProne
+  }
+}

@@ -1,0 +1,34 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion versions.compileSdk
+
+  defaultConfig {
+    minSdkVersion versions.minSdk
+    targetSdkVersion versions.targetSdk
+    applicationId 'com.example.picasso'
+  }
+
+  compileOptions {
+    sourceCompatibility versions.sourceCompatibility
+    targetCompatibility versions.targetCompatibility
+  }
+
+  lintOptions {
+    lintConfig file('lint.xml')
+    textOutput 'stdout'
+    textReport true
+
+    // https://github.com/square/okhttp/issues/896
+    ignore 'InvalidPackage'
+  }
+}
+
+dependencies {
+  compileOnly deps.androidxAnnotations
+  implementation deps.androidxCore
+  implementation deps.androidxFragment
+  implementation project(':picasso')
+
+  annotationProcessor deps.nullaway
+}

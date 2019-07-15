@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lint>
+  <issue id="NewApi">
+    <ignore path="src/main/res/values/styles.xml" />
+  </issue>
+  <issue id="IconColors" severity="ignore"/>
+  <issue id="IconDensities" severity="ignore"/>
+  <issue id="IconLocation" severity="ignore"/>
+</lint>
