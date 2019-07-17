@@ -16,14 +16,15 @@
 
 package com.example.android.architecture.blueprints.todoapp.addedittask;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.example.android.architecture.blueprints.todoapp.UseCase;
 import com.example.android.architecture.blueprints.todoapp.UseCaseHandler;
 import com.example.android.architecture.blueprints.todoapp.addedittask.domain.usecase.GetTask;
 import com.example.android.architecture.blueprints.todoapp.addedittask.domain.usecase.SaveTask;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -50,13 +51,13 @@ public class AddEditTaskPresenter implements AddEditTaskContract.Presenter {
     /**
      * Creates a presenter for the add/edit view.
      *
-     * @param taskId      ID of the task to edit or null for a new task
-     * @param addTaskView the add/edit view
+     * @param taskId                 ID of the task to edit or null for a new task
+     * @param addTaskView            the add/edit view
      * @param shouldLoadDataFromRepo whether data needs to be loaded or not (for config changes)
      */
     public AddEditTaskPresenter(@NonNull UseCaseHandler useCaseHandler, @Nullable String taskId,
-            @NonNull AddEditTaskContract.View addTaskView, @NonNull GetTask getTask,
-            @NonNull SaveTask saveTask, boolean shouldLoadDataFromRepo) {
+                                @NonNull AddEditTaskContract.View addTaskView, @NonNull GetTask getTask,
+                                @NonNull SaveTask saveTask, boolean shouldLoadDataFromRepo) {
         mUseCaseHandler = checkNotNull(useCaseHandler, "useCaseHandler cannot be null!");
         mTaskId = taskId;
         mAddTaskView = checkNotNull(addTaskView, "addTaskView cannot be null!");

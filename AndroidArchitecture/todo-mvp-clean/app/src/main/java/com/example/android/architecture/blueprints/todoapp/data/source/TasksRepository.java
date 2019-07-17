@@ -16,8 +16,6 @@
 
 package com.example.android.architecture.blueprints.todoapp.data.source;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 
@@ -26,6 +24,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -67,6 +68,7 @@ public class TasksRepository implements TasksDataSource {
      *
      * @param tasksRemoteDataSource the backend data source
      * @param tasksLocalDataSource  the device storage data source
+     *
      * @return the {@link TasksRepository} instance
      */
     public static TasksRepository getInstance(TasksDataSource tasksRemoteDataSource,

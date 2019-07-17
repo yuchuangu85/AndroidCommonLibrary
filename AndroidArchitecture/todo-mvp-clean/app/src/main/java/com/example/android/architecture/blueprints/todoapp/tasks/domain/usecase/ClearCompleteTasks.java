@@ -16,10 +16,11 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase;
 
-import android.support.annotation.NonNull;
 
 import com.example.android.architecture.blueprints.todoapp.UseCase;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository;
+
+import androidx.annotation.NonNull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,7 +42,9 @@ public class ClearCompleteTasks
         getUseCaseCallback().onSuccess(new ResponseValue());
     }
 
-    public static class RequestValues implements UseCase.RequestValues { }
+    public static class RequestValues implements UseCase.RequestValues {
+    }
 
-    public static class ResponseValue implements UseCase.ResponseValue { }
+    public static class ResponseValue implements UseCase.ResponseValue {
+    }
 }

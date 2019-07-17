@@ -16,22 +16,23 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import android.app.Activity;
-import android.support.annotation.NonNull;
 
 import com.example.android.architecture.blueprints.todoapp.UseCase;
 import com.example.android.architecture.blueprints.todoapp.UseCaseHandler;
 import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskActivity;
-import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
+import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase.ActivateTask;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase.ClearCompleteTasks;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase.CompleteTask;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase.GetTasks;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Listens to user actions from the UI ({@link TasksFragment}), retrieves the data and updates the
@@ -53,9 +54,9 @@ public class TasksPresenter implements TasksContract.Presenter {
     private final UseCaseHandler mUseCaseHandler;
 
     public TasksPresenter(@NonNull UseCaseHandler useCaseHandler,
-            @NonNull TasksContract.View tasksView, @NonNull GetTasks getTasks,
-            @NonNull CompleteTask completeTask, @NonNull ActivateTask activateTask,
-            @NonNull ClearCompleteTasks clearCompleteTasks) {
+                          @NonNull TasksContract.View tasksView, @NonNull GetTasks getTasks,
+                          @NonNull CompleteTask completeTask, @NonNull ActivateTask activateTask,
+                          @NonNull ClearCompleteTasks clearCompleteTasks) {
         mUseCaseHandler = checkNotNull(useCaseHandler, "usecaseHandler cannot be null");
         mTasksView = checkNotNull(tasksView, "tasksView cannot be null!");
         mGetTasks = checkNotNull(getTasks, "getTask cannot be null!");

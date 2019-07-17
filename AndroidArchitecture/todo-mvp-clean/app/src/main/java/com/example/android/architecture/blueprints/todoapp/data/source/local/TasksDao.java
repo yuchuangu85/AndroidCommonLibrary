@@ -16,15 +16,16 @@
 
 package com.example.android.architecture.blueprints.todoapp.data.source.local;
 
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 
 import java.util.List;
+
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
 
 /**
  * Data Access Object for the tasks table.
@@ -44,6 +45,7 @@ public interface TasksDao {
      * Select a task by id.
      *
      * @param taskId the task id.
+     *
      * @return the task with taskId.
      */
     @Query("SELECT * FROM Tasks WHERE entryid = :taskId")
@@ -61,6 +63,7 @@ public interface TasksDao {
      * Update a task.
      *
      * @param task task to be updated
+     *
      * @return the number of tasks updated. This should always be 1.
      */
     @Update

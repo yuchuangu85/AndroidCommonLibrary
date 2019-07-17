@@ -45,7 +45,7 @@ public abstract class UseCase<Q extends UseCase.RequestValues, P extends UseCase
     }
 
     void run() {
-       executeUseCase(mRequestValues);
+        executeUseCase(mRequestValues);
     }
 
     protected abstract void executeUseCase(Q requestValues);
@@ -64,6 +64,7 @@ public abstract class UseCase<Q extends UseCase.RequestValues, P extends UseCase
 
     public interface UseCaseCallback<R> {
         void onSuccess(R response);
+
         void onError();
     }
 }

@@ -16,14 +16,15 @@
 
 package com.example.android.architecture.blueprints.todoapp.data.source.local;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
 
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 import com.example.android.architecture.blueprints.todoapp.util.AppExecutors;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,13 +42,13 @@ public class TasksLocalDataSource implements TasksDataSource {
 
     // Prevent direct instantiation.
     private TasksLocalDataSource(@NonNull AppExecutors appExecutors,
-            @NonNull TasksDao tasksDao) {
+                                 @NonNull TasksDao tasksDao) {
         mAppExecutors = appExecutors;
         mTasksDao = tasksDao;
     }
 
     public static TasksLocalDataSource getInstance(@NonNull AppExecutors appExecutors,
-            @NonNull TasksDao tasksDao) {
+                                                   @NonNull TasksDao tasksDao) {
         if (INSTANCE == null) {
             synchronized (TasksLocalDataSource.class) {
                 if (INSTANCE == null) {

@@ -17,9 +17,6 @@
 package com.example.android.architecture.blueprints.todoapp.data.source.local;
 
 import android.arch.persistence.room.Room;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.filters.LargeTest;
-import android.support.test.runner.AndroidJUnit4;
 
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
@@ -31,6 +28,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
