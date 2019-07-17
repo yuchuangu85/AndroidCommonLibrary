@@ -9,6 +9,9 @@ buildscript {
         _minSdkVersion = 21
         _targetSdkVersion = 28
     }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.2'
+    }
 
 }
 allprojects {
@@ -25,7 +28,7 @@ if (JavaVersion.current().isJava8Compatible()) {
         }
     }
 }
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.6'
-}
+//task wrapper(type: Wrapper) {
+//    gradleVersion = '5.1.1'
+//}
 
