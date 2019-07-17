@@ -5,7 +5,7 @@
   </a>
 </p>
 
->Android常用依赖库分析，包含：EventBus、Picasso、Glide、Gson、okhttp、RxAndroid、RxJava、etc...
+> Android常用依赖库分析，包含：EventBus、Picasso、Glide、Gson、okhttp、RxAndroid、RxJava、etc...
 
 ## 项目信息表格
 

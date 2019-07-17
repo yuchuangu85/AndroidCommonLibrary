@@ -16,23 +16,24 @@
 
 package com.example.android.architecture.blueprints.todoapp.custom.action;
 
-import org.hamcrest.Matcher;
-
 import android.content.res.Resources.NotFoundException;
 import android.support.design.widget.NavigationView;
-import android.support.test.espresso.PerformException;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.test.espresso.util.HumanReadables;
-import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
-import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import org.hamcrest.Matcher;
+
+import androidx.core.widget.DrawerLayout;
+import androidx.test.espresso.PerformException;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.espresso.util.HumanReadables;
+
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static org.hamcrest.Matchers.allOf;
 
 /**
@@ -58,6 +59,7 @@ public final class NavigationViewActions {
      * <ul>
      *
      * @param menuItemId the resource id of the menu item
+     *
      * @return a {@link ViewAction} that navigates on a menu item
      */
     public static ViewAction navigateTo(final int menuItemId) {

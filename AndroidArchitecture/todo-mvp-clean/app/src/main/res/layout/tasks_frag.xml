@@ -15,9 +15,9 @@
   -->
 
 <com.example.android.architecture.blueprints.todoapp.tasks.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/refresh_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                                                                                         android:id="@+id/refresh_layout"
+                                                                                         android:layout_width="match_parent"
+                                                                                         android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/tasksContainer"
@@ -41,12 +41,12 @@
                 android:layout_marginLeft="@dimen/list_item_padding"
                 android:layout_marginRight="@dimen/list_item_padding"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin" />
+                android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
             <ListView
                 android:id="@+id/tasks_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <LinearLayout
@@ -61,7 +61,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_assignment_turned_in_24dp" />
+                android:src="@drawable/ic_assignment_turned_in_24dp"/>
 
             <TextView
                 android:id="@+id/noTasksMain"
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/no_tasks_all"
-                android:layout_marginBottom="@dimen/list_item_padding" />
+                android:layout_marginBottom="@dimen/list_item_padding"/>
 
             <TextView
                 android:id="@+id/noTasksAdd"
@@ -78,7 +78,7 @@
                 android:layout_gravity="center"
                 android:background="@drawable/touch_feedback"
                 android:gravity="center"
-                android:text="@string/no_tasks_add" />
+                android:text="@string/no_tasks_add"/>
 
         </LinearLayout>
     </RelativeLayout>

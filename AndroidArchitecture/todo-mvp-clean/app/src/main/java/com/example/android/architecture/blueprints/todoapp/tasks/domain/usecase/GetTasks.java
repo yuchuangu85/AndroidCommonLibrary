@@ -16,19 +16,20 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks.domain.usecase;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import android.support.annotation.NonNull;
 
 import com.example.android.architecture.blueprints.todoapp.UseCase;
-import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository;
 import com.example.android.architecture.blueprints.todoapp.tasks.TasksFilterType;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.filter.FilterFactory;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.filter.TaskFilter;
+import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Fetches the list of tasks.

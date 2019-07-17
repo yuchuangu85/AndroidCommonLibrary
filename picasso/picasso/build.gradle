@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion versions.compileSdk
+
+  defaultConfig {
+    minSdkVersion versions.minSdk
+    consumerProguardFiles 'consumer-proguard-rules.txt'
+  }
+
+  compileOptions {
+    sourceCompatibility versions.sourceCompatibility
+    targetCompatibility versions.targetCompatibility
+  }
+
+  lintOptions {
+    textOutput 'stdout'
+    textReport true
+    lintConfig rootProject.file('lint.xml')
+  }
+
+  testOptions {
+    unitTests {
+      includeAndroidResources = true
+    }
+  }
+}
+
+dependencies {
+  api deps.okhttp
+  api deps.okio
+  api deps.androidxLifecycle
+  implementation deps.androidxAnnotations
+  implementation deps.androidxCore
+  implementation deps.androidxExifInterface
+  testImplementation deps.junit
+  testImplementation deps.truth
+  testImplementation deps.robolectric
+  testImplementation deps.mockito
+  testImplementation deps.mockWebServer
+
+  annotationProcessor deps.nullaway
+}
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

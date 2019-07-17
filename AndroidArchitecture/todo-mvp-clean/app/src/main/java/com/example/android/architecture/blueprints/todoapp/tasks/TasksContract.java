@@ -16,13 +16,14 @@
 
 package com.example.android.architecture.blueprints.todoapp.tasks;
 
-import android.support.annotation.NonNull;
 
+import com.example.android.architecture.blueprints.todoapp.BasePresenter;
 import com.example.android.architecture.blueprints.todoapp.BaseView;
 import com.example.android.architecture.blueprints.todoapp.tasks.domain.model.Task;
-import com.example.android.architecture.blueprints.todoapp.BasePresenter;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 /**
  * This specifies the contract between the view and the presenter.
