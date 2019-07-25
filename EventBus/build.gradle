@@ -1,19 +1,10 @@
 buildscript {
-    repositories {
-        google()
-    }
     ext {
         _buildToolsVersion = '28.0.3' // When updating, don't forget to adjust .travis.yml
         _compileSdkVersion = 28
-
-        _minSdkVersion = 21
-        _targetSdkVersion = 28
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-    }
-
 }
+
 allprojects {
     repositories {
         jcenter()
@@ -21,6 +12,7 @@ allprojects {
         google()
     }
 }
+
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {

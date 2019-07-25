@@ -29,9 +29,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 28
-
+        minSdkVersion 7
+        targetSdkVersion 17
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [eventBusIndex: 'org.greenrobot.eventbusperf.MyEventBusIndex']

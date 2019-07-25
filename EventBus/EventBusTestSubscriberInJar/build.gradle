@@ -2,14 +2,14 @@ apply plugin: 'java'
 
 group = 'de.greenrobot'
 version = '3.0.0'
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
 
 configurations {
     provided
 }
 
 dependencies {
-    compile project(':eventbus')
+    implementation project(':eventbus')
     provided project(':eventbus-annotation-processor')
 }
 

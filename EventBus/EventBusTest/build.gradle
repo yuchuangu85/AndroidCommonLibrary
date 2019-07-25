@@ -16,6 +16,7 @@ dependencies {
     androidTestImplementation project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
     // Trying to repro bug:
+//    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
     implementation fileTree(dir: 'libs', include: '*.jar')
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test:rules:1.0.2'
@@ -26,8 +27,8 @@ android {
     compileSdkVersion _compileSdkVersion
 
     compileOptions {
-        sourceCompatibility = 'JavaVersion.VERSION_1_8'
-        targetCompatibility = 'JavaVersion.VERSION_1_8'
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
     }
 
     sourceSets {
@@ -41,8 +42,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion _minSdkVersion
-        targetSdkVersion _targetSdkVersion
+        minSdkVersion 9
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
