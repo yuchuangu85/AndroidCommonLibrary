@@ -15,26 +15,28 @@
  */
 package okhttp3.internal;
 
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public final class UtilTest {
-  @Test public void immutableMap() {
-    Map<String, String> map = new LinkedHashMap<>();
-    map.put("a", "A");
-    Map<String, String> immutableCopy = Util.immutableMap(map);
-    assertThat(Collections.singletonMap("a", "A")).isEqualTo(immutableCopy);
-    map.clear();
-    assertThat(Collections.singletonMap("a", "A")).isEqualTo(immutableCopy);
-    try {
-      immutableCopy.clear();
-      fail();
-    } catch (UnsupportedOperationException expected) {
+    @Test
+    public void immutableMap() {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("a", "A");
+        Map<String, String> immutableCopy = Util.immutableMap(map);
+        assertThat(Collections.singletonMap("a", "A")).isEqualTo(immutableCopy);
+        map.clear();
+        assertThat(Collections.singletonMap("a", "A")).isEqualTo(immutableCopy);
+        try {
+            immutableCopy.clear();
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
     }
-  }
 }

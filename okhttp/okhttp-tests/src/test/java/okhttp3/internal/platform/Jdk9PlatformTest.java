@@ -22,25 +22,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 public class Jdk9PlatformTest {
-  @Test
-  public void buildsWhenJdk9() {
-    assumeTrue(getPlatform().equals("jdk9"));
+    @Test
+    public void buildsWhenJdk9() {
+        assumeTrue(getPlatform().equals("jdk9"));
 
-    assertThat(Jdk9Platform.buildIfSupported()).isNotNull();
-  }
+        assertThat(Jdk9Platform.buildIfSupported()).isNotNull();
+    }
 
-  @Test
-  public void findsAlpnMethods() {
-    assumeTrue(getPlatform().equals("jdk9"));
+    @Test
+    public void findsAlpnMethods() {
+        assumeTrue(getPlatform().equals("jdk9"));
 
-    Jdk9Platform platform = Jdk9Platform.buildIfSupported();
+        Jdk9Platform platform = Jdk9Platform.buildIfSupported();
 
-    assertThat(platform.getProtocolMethod.getName()).isEqualTo("getApplicationProtocol");
-    assertThat(platform.setProtocolMethod.getName()).isEqualTo("setApplicationProtocols");
-  }
+        assertThat(platform.getProtocolMethod.getName()).isEqualTo("getApplicationProtocol");
+        assertThat(platform.setProtocolMethod.getName()).isEqualTo("setApplicationProtocols");
+    }
 
-  @Test
-  public void testToStringIsClassname() {
-    assertThat(new Jdk9Platform(null, null).toString()).isEqualTo("Jdk9Platform");
-  }
+    @Test
+    public void testToStringIsClassname() {
+        assertThat(new Jdk9Platform(null, null).toString()).isEqualTo("Jdk9Platform");
+    }
 }

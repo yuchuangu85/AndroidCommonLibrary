@@ -15,6 +15,9 @@
  */
 package okhttp3.mockwebserver;
 
+import org.junit.After;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -22,80 +25,81 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.After;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomDispatcherTest {
-  private MockWebServer mockWebServer = new MockWebServer();
+    private MockWebServer mockWebServer = new MockWebServer();
 
-  @After public void tearDown() throws Exception {
-    mockWebServer.shutdown();
-  }
+    @After
+    public void tearDown() throws Exception {
+        mockWebServer.shutdown();
+    }
 
-  @Test public void simpleDispatch() throws Exception {
-    mockWebServer.start();
-    final List<RecordedRequest> requestsMade = new ArrayList<>();
-    final Dispatcher dispatcher = new Dispatcher() {
-      @Override
-      public MockResponse dispatch(RecordedRequest request) {
-        requestsMade.add(request);
-        return new MockResponse();
-      }
-    };
-    assertThat(requestsMade.size()).isEqualTo(0);
-    mockWebServer.setDispatcher(dispatcher);
-    final URL url = mockWebServer.url("/").url();
-    final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.getResponseCode(); // Force the connection to hit the "server".
-    // Make sure our dispatcher got the request.
-    assertThat(requestsMade.size()).isEqualTo(1);
-  }
+    @Test
+    public void simpleDispatch() throws Exception {
+        mockWebServer.start();
+        final List<RecordedRequest> requestsMade = new ArrayList<>();
+        final Dispatcher dispatcher = new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                requestsMade.add(request);
+                return new MockResponse();
+            }
+        };
+        assertThat(requestsMade.size()).isEqualTo(0);
+        mockWebServer.setDispatcher(dispatcher);
+        final URL url = mockWebServer.url("/").url();
+        final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.getResponseCode(); // Force the connection to hit the "server".
+        // Make sure our dispatcher got the request.
+        assertThat(requestsMade.size()).isEqualTo(1);
+    }
 
-  @Test public void outOfOrderResponses() throws Exception {
-    AtomicInteger firstResponseCode = new AtomicInteger();
-    AtomicInteger secondResponseCode = new AtomicInteger();
-    mockWebServer.start();
-    final String secondRequest = "/bar";
-    final String firstRequest = "/foo";
-    final CountDownLatch latch = new CountDownLatch(1);
-    final Dispatcher dispatcher = new Dispatcher() {
-      @Override
-      public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-        if (request.getPath().equals(firstRequest)) {
-          latch.await();
-        }
-        return new MockResponse();
-      }
-    };
-    mockWebServer.setDispatcher(dispatcher);
-    final Thread startsFirst = buildRequestThread(firstRequest, firstResponseCode);
-    startsFirst.start();
-    final Thread endsFirst = buildRequestThread(secondRequest, secondResponseCode);
-    endsFirst.start();
-    endsFirst.join();
-    // First response is still waiting.
-    assertThat(firstResponseCode.get()).isEqualTo(0);
-    // Second response is done.
-    assertThat(secondResponseCode.get()).isEqualTo(200);
-    latch.countDown();
-    startsFirst.join();
-    // And now it's done!
-    assertThat(firstResponseCode.get()).isEqualTo(200);
-    // (Still done).
-    assertThat(secondResponseCode.get()).isEqualTo(200);
-  }
+    @Test
+    public void outOfOrderResponses() throws Exception {
+        AtomicInteger firstResponseCode = new AtomicInteger();
+        AtomicInteger secondResponseCode = new AtomicInteger();
+        mockWebServer.start();
+        final String secondRequest = "/bar";
+        final String firstRequest = "/foo";
+        final CountDownLatch latch = new CountDownLatch(1);
+        final Dispatcher dispatcher = new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                if (request.getPath().equals(firstRequest)) {
+                    latch.await();
+                }
+                return new MockResponse();
+            }
+        };
+        mockWebServer.setDispatcher(dispatcher);
+        final Thread startsFirst = buildRequestThread(firstRequest, firstResponseCode);
+        startsFirst.start();
+        final Thread endsFirst = buildRequestThread(secondRequest, secondResponseCode);
+        endsFirst.start();
+        endsFirst.join();
+        // First response is still waiting.
+        assertThat(firstResponseCode.get()).isEqualTo(0);
+        // Second response is done.
+        assertThat(secondResponseCode.get()).isEqualTo(200);
+        latch.countDown();
+        startsFirst.join();
+        // And now it's done!
+        assertThat(firstResponseCode.get()).isEqualTo(200);
+        // (Still done).
+        assertThat(secondResponseCode.get()).isEqualTo(200);
+    }
 
-  private Thread buildRequestThread(String path, AtomicInteger responseCode) {
-    return new Thread(() -> {
-      URL url = mockWebServer.url(path).url();
-      HttpURLConnection conn;
-      try {
-        conn = (HttpURLConnection) url.openConnection();
-        responseCode.set(conn.getResponseCode()); // Force the connection to hit the "server".
-      } catch (IOException ignored) {
-      }
-    });
-  }
+    private Thread buildRequestThread(String path, AtomicInteger responseCode) {
+        return new Thread(() -> {
+            URL url = mockWebServer.url(path).url();
+            HttpURLConnection conn;
+            try {
+                conn = (HttpURLConnection) url.openConnection();
+                responseCode.set(conn.getResponseCode()); // Force the connection to hit the "server".
+            } catch (IOException ignored) {
+            }
+        });
+    }
 }

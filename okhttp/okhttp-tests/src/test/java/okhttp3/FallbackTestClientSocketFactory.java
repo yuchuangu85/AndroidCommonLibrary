@@ -18,6 +18,7 @@ package okhttp3;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -28,35 +29,37 @@ import javax.net.ssl.SSLSocketFactory;
  * reflection-based calls to SSLSocket from Platform.
  */
 public class FallbackTestClientSocketFactory extends DelegatingSSLSocketFactory {
-  /**
-   * The cipher suite used during TLS connection fallback to indicate a fallback. See
-   * https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
-   */
-  public static final String TLS_FALLBACK_SCSV = "TLS_FALLBACK_SCSV";
+    /**
+     * The cipher suite used during TLS connection fallback to indicate a fallback. See
+     * https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
+     */
+    public static final String TLS_FALLBACK_SCSV = "TLS_FALLBACK_SCSV";
 
-  public FallbackTestClientSocketFactory(SSLSocketFactory delegate) {
-    super(delegate);
-  }
-
-  @Override protected SSLSocket configureSocket(SSLSocket sslSocket) throws IOException {
-    return new TlsFallbackScsvDisabledSSLSocket(sslSocket);
-  }
-
-  private static class TlsFallbackScsvDisabledSSLSocket extends DelegatingSSLSocket {
-
-    public TlsFallbackScsvDisabledSSLSocket(SSLSocket socket) {
-      super(socket);
+    public FallbackTestClientSocketFactory(SSLSocketFactory delegate) {
+        super(delegate);
     }
 
-    @Override public void setEnabledCipherSuites(String[] suites) {
-      List<String> enabledCipherSuites = new ArrayList<>(suites.length);
-      for (String suite : suites) {
-        if (!suite.equals(TLS_FALLBACK_SCSV)) {
-          enabledCipherSuites.add(suite);
+    @Override
+    protected SSLSocket configureSocket(SSLSocket sslSocket) throws IOException {
+        return new TlsFallbackScsvDisabledSSLSocket(sslSocket);
+    }
+
+    private static class TlsFallbackScsvDisabledSSLSocket extends DelegatingSSLSocket {
+
+        public TlsFallbackScsvDisabledSSLSocket(SSLSocket socket) {
+            super(socket);
         }
-      }
-      delegate.setEnabledCipherSuites(
-          enabledCipherSuites.toArray(new String[enabledCipherSuites.size()]));
+
+        @Override
+        public void setEnabledCipherSuites(String[] suites) {
+            List<String> enabledCipherSuites = new ArrayList<>(suites.length);
+            for (String suite : suites) {
+                if (!suite.equals(TLS_FALLBACK_SCSV)) {
+                    enabledCipherSuites.add(suite);
+                }
+            }
+            delegate.setEnabledCipherSuites(
+                    enabledCipherSuites.toArray(new String[enabledCipherSuites.size()]));
+        }
     }
-  }
 }

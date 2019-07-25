@@ -17,6 +17,7 @@ package okhttp3.internal.http2.hpackjson;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,71 +25,76 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import okio.Okio;
 
 /**
  * Utilities for reading HPACK tests.
  */
 public final class HpackJsonUtil {
-  /** Earliest draft that is code-compatible with latest. */
-  private static final int BASE_DRAFT = 9;
+    /**
+     * Earliest draft that is code-compatible with latest.
+     */
+    private static final int BASE_DRAFT = 9;
 
-  private static final String STORY_RESOURCE_FORMAT = "/hpack-test-case/%s/story_%02d.json";
+    private static final String STORY_RESOURCE_FORMAT = "/hpack-test-case/%s/story_%02d.json";
 
-  private static final Moshi MOSHI = new Moshi.Builder().build();
-  private static final JsonAdapter<Story> STORY_JSON_ADAPTER = MOSHI.adapter(Story.class);
+    private static final Moshi MOSHI = new Moshi.Builder().build();
+    private static final JsonAdapter<Story> STORY_JSON_ADAPTER = MOSHI.adapter(Story.class);
 
-  private static Story readStory(InputStream jsonResource) throws IOException {
-    return STORY_JSON_ADAPTER.fromJson(Okio.buffer(Okio.source(jsonResource)));
-  }
+    private static Story readStory(InputStream jsonResource) throws IOException {
+        return STORY_JSON_ADAPTER.fromJson(Okio.buffer(Okio.source(jsonResource)));
+    }
 
-  private static Story readStory(File file) throws IOException {
-    return STORY_JSON_ADAPTER.fromJson(Okio.buffer(Okio.source(file)));
-  }
+    private static Story readStory(File file) throws IOException {
+        return STORY_JSON_ADAPTER.fromJson(Okio.buffer(Okio.source(file)));
+    }
 
-  /** Iterate through the hpack-test-case resources, only picking stories for the current draft. */
-  public static String[] storiesForCurrentDraft() throws URISyntaxException {
-    File testCaseDirectory = new File(HpackJsonUtil.class.getResource("/hpack-test-case").toURI());
-    List<String> storyNames = new ArrayList<>();
-    for (File path : testCaseDirectory.listFiles()) {
-      if (path.isDirectory() && Arrays.asList(path.list()).contains("story_00.json")) {
-        try {
-          Story firstStory = readStory(new File(path, "story_00.json"));
-          if (firstStory.getDraft() >= BASE_DRAFT) {
-            storyNames.add(path.getName());
-          }
-        } catch (IOException ignored) {
-          // Skip this path.
+    /**
+     * Iterate through the hpack-test-case resources, only picking stories for the current draft.
+     */
+    public static String[] storiesForCurrentDraft() throws URISyntaxException {
+        File testCaseDirectory = new File(HpackJsonUtil.class.getResource("/hpack-test-case").toURI());
+        List<String> storyNames = new ArrayList<>();
+        for (File path : testCaseDirectory.listFiles()) {
+            if (path.isDirectory() && Arrays.asList(path.list()).contains("story_00.json")) {
+                try {
+                    Story firstStory = readStory(new File(path, "story_00.json"));
+                    if (firstStory.getDraft() >= BASE_DRAFT) {
+                        storyNames.add(path.getName());
+                    }
+                } catch (IOException ignored) {
+                    // Skip this path.
+                }
+            }
         }
-      }
+        return storyNames.toArray(new String[storyNames.size()]);
     }
-    return storyNames.toArray(new String[storyNames.size()]);
-  }
 
-  /**
-   * Reads stories named "story_xx.json" from the folder provided.
-   */
-  public static List<Story> readStories(String testFolderName) throws Exception {
-    List<Story> result = new ArrayList<>();
-    int i = 0;
-    while (true) { // break after last test.
-      String storyResourceName = String.format(STORY_RESOURCE_FORMAT, testFolderName, i);
-      InputStream storyInputStream = HpackJsonUtil.class.getResourceAsStream(storyResourceName);
-      if (storyInputStream == null) {
-        break;
-      }
-      try {
-        Story story = readStory(storyInputStream);
-        story.setFileName(storyResourceName);
-        result.add(story);
-        i++;
-      } finally {
-        storyInputStream.close();
-      }
+    /**
+     * Reads stories named "story_xx.json" from the folder provided.
+     */
+    public static List<Story> readStories(String testFolderName) throws Exception {
+        List<Story> result = new ArrayList<>();
+        int i = 0;
+        while (true) { // break after last test.
+            String storyResourceName = String.format(STORY_RESOURCE_FORMAT, testFolderName, i);
+            InputStream storyInputStream = HpackJsonUtil.class.getResourceAsStream(storyResourceName);
+            if (storyInputStream == null) {
+                break;
+            }
+            try {
+                Story story = readStory(storyInputStream);
+                story.setFileName(storyResourceName);
+                result.add(story);
+                i++;
+            } finally {
+                storyInputStream.close();
+            }
+        }
+        return result;
     }
-    return result;
-  }
 
-  private HpackJsonUtil() {
-  } // Utilities only.
+    private HpackJsonUtil() {
+    } // Utilities only.
 }

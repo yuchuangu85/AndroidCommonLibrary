@@ -20,25 +20,29 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PlatformTest {
-  @Test public void alwaysBuilds() {
-    new Platform();
-  }
+    @Test
+    public void alwaysBuilds() {
+        new Platform();
+    }
 
-  /** Guard against the default value changing by accident. */
-  @Test public void defaultPrefix() {
-    assertThat(new Platform().getPrefix()).isEqualTo("OkHttp");
-  }
+    /**
+     * Guard against the default value changing by accident.
+     */
+    @Test
+    public void defaultPrefix() {
+        assertThat(new Platform().getPrefix()).isEqualTo("OkHttp");
+    }
 
-  public static String getPlatform() {
-    return System.getProperty("okhttp.platform", "platform");
-  }
+    public static String getPlatform() {
+        return System.getProperty("okhttp.platform", "platform");
+    }
 
-  public static String getJvmSpecVersion() {
-    return System.getProperty("java.specification.version", "unknown");
-  }
+    public static String getJvmSpecVersion() {
+        return System.getProperty("java.specification.version", "unknown");
+    }
 
-  @Test
-  public void testToStringIsClassname() {
-    assertThat(new Platform().toString()).isEqualTo("Platform");
-  }
+    @Test
+    public void testToStringIsClassname() {
+        assertThat(new Platform().toString()).isEqualTo("Platform");
+    }
 }

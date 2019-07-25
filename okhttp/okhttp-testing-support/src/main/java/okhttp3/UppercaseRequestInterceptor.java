@@ -16,6 +16,7 @@
 package okhttp3;
 
 import java.io.IOException;
+
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.ByteString;
@@ -23,30 +24,37 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 
-/** Rewrites the request body sent to the server to be all uppercase. */
+/**
+ * Rewrites the request body sent to the server to be all uppercase.
+ */
 public final class UppercaseRequestInterceptor implements Interceptor {
-  @Override public Response intercept(Chain chain) throws IOException {
-    return chain.proceed(uppercaseRequest(chain.request()));
-  }
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        return chain.proceed(uppercaseRequest(chain.request()));
+    }
 
-  /** Returns a request that transforms {@code request} to be all uppercase. */
-  private Request uppercaseRequest(Request request) {
-    RequestBody uppercaseBody = new ForwardingRequestBody(request.body()) {
-      @Override public void writeTo(BufferedSink sink) throws IOException {
-        delegate().writeTo(Okio.buffer(uppercaseSink(sink)));
-      }
-    };
-    return request.newBuilder()
-        .method(request.method(), uppercaseBody)
-        .build();
-  }
+    /**
+     * Returns a request that transforms {@code request} to be all uppercase.
+     */
+    private Request uppercaseRequest(Request request) {
+        RequestBody uppercaseBody = new ForwardingRequestBody(request.body()) {
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                delegate().writeTo(Okio.buffer(uppercaseSink(sink)));
+            }
+        };
+        return request.newBuilder()
+                .method(request.method(), uppercaseBody)
+                .build();
+    }
 
-  private Sink uppercaseSink(Sink sink) {
-    return new ForwardingSink(sink) {
-      @Override public void write(Buffer source, long byteCount) throws IOException {
-        ByteString bytes = source.readByteString(byteCount);
-        delegate().write(new Buffer().write(bytes.toAsciiUppercase()), byteCount);
-      }
-    };
-  }
+    private Sink uppercaseSink(Sink sink) {
+        return new ForwardingSink(sink) {
+            @Override
+            public void write(Buffer source, long byteCount) throws IOException {
+                ByteString bytes = source.readByteString(byteCount);
+                delegate().write(new Buffer().write(bytes.toAsciiUppercase()), byteCount);
+            }
+        };
+    }
 }

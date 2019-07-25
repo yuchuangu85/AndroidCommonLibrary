@@ -15,28 +15,31 @@
  */
 package okhttp3.slack;
 
-/** Authorization for an application to make Slack API calls on behalf of a user. */
+/**
+ * Authorization for an application to make Slack API calls on behalf of a user.
+ */
 @SuppressWarnings("checkstyle:membername")
 public final class OAuthSession {
-  public final boolean ok;
-  public final String access_token;
-  public final String scope;
-  public final String user_id;
-  public final String team_name;
-  public final String team_id;
+    public final boolean ok;
+    public final String access_token;
+    public final String scope;
+    public final String user_id;
+    public final String team_name;
+    public final String team_id;
 
-  public OAuthSession(
-      boolean ok, String accessToken, String scope, String userId, String teamName, String teamId) {
-    this.ok = ok;
-    this.access_token = accessToken;
-    this.scope = scope;
-    this.user_id = userId;
-    this.team_name = teamName;
-    this.team_id = teamId;
-  }
+    public OAuthSession(
+            boolean ok, String accessToken, String scope, String userId, String teamName, String teamId) {
+        this.ok = ok;
+        this.access_token = accessToken;
+        this.scope = scope;
+        this.user_id = userId;
+        this.team_name = teamName;
+        this.team_id = teamId;
+    }
 
-  @Override public String toString() {
-    return String.format("(ok=%s, access_token=%s, scope=%s, user_id=%s, team_name=%s, team_id=%s)",
-        ok, access_token, scope, user_id, team_name, team_id);
-  }
+    @Override
+    public String toString() {
+        return String.format("(ok=%s, access_token=%s, scope=%s, user_id=%s, team_name=%s, team_id=%s)",
+                ok, access_token, scope, user_id, team_name, team_id);
+    }
 }

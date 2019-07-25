@@ -24,43 +24,45 @@ import java.util.List;
  */
 public class Story implements Cloneable {
 
-  private transient String fileName;
-  private List<Case> cases;
-  private int draft;
-  private String description;
+    private transient String fileName;
+    private List<Case> cases;
+    private int draft;
+    private String description;
 
-  /**
-   * The filename is only used in the toString representation.
-   */
-  void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  public List<Case> getCases() {
-    return cases;
-  }
-
-  /** We only expect stories that match the draft we've implemented to pass. */
-  public int getDraft() {
-    return draft;
-  }
-
-  @Override
-  public Story clone() throws CloneNotSupportedException {
-    Story story = new Story();
-    story.fileName = this.fileName;
-    story.cases = new ArrayList<>();
-    for (Case caze : cases) {
-      story.cases.add(caze.clone());
+    /**
+     * The filename is only used in the toString representation.
+     */
+    void setFileName(String fileName) {
+        this.fileName = fileName;
     }
-    story.draft = draft;
-    story.description = description;
-    return story;
-  }
 
-  @Override
-  public String toString() {
-    // Used as the test name.
-    return fileName;
-  }
+    public List<Case> getCases() {
+        return cases;
+    }
+
+    /**
+     * We only expect stories that match the draft we've implemented to pass.
+     */
+    public int getDraft() {
+        return draft;
+    }
+
+    @Override
+    public Story clone() throws CloneNotSupportedException {
+        Story story = new Story();
+        story.fileName = this.fileName;
+        story.cases = new ArrayList<>();
+        for (Case caze : cases) {
+            story.cases.add(caze.clone());
+        }
+        story.draft = draft;
+        story.description = description;
+        return story;
+    }
+
+    @Override
+    public String toString() {
+        // Used as the test name.
+        return fileName;
+    }
 }

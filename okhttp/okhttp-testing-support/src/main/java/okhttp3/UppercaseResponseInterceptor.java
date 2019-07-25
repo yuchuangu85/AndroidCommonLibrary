@@ -16,36 +16,42 @@
 package okhttp3;
 
 import java.io.IOException;
+
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.ForwardingSource;
 import okio.Okio;
 
-/** Rewrites the response body returned from the server to be all uppercase. */
+/**
+ * Rewrites the response body returned from the server to be all uppercase.
+ */
 public final class UppercaseResponseInterceptor implements Interceptor {
-  @Override public Response intercept(Chain chain) throws IOException {
-    return uppercaseResponse(chain.proceed(chain.request()));
-  }
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        return uppercaseResponse(chain.proceed(chain.request()));
+    }
 
-  private Response uppercaseResponse(Response response) {
-    ResponseBody uppercaseBody = new ForwardingResponseBody(response.body()) {
-      @Override public BufferedSource source() {
-        return Okio.buffer(uppercaseSource(delegate().source()));
-      }
-    };
-    return response.newBuilder()
-        .body(uppercaseBody)
-        .build();
-  }
+    private Response uppercaseResponse(Response response) {
+        ResponseBody uppercaseBody = new ForwardingResponseBody(response.body()) {
+            @Override
+            public BufferedSource source() {
+                return Okio.buffer(uppercaseSource(delegate().source()));
+            }
+        };
+        return response.newBuilder()
+                .body(uppercaseBody)
+                .build();
+    }
 
-  private ForwardingSource uppercaseSource(BufferedSource source) {
-    return new ForwardingSource(source) {
-      @Override public long read(Buffer sink, long byteCount) throws IOException {
-        Buffer buffer = new Buffer();
-        long read = delegate().read(buffer, byteCount);
-        if (read != -1L) sink.write(buffer.readByteString().toAsciiUppercase());
-        return read;
-      }
-    };
-  }
+    private ForwardingSource uppercaseSource(BufferedSource source) {
+        return new ForwardingSource(source) {
+            @Override
+            public long read(Buffer sink, long byteCount) throws IOException {
+                Buffer buffer = new Buffer();
+                long read = delegate().read(buffer, byteCount);
+                if (read != -1L) sink.write(buffer.readByteString().toAsciiUppercase());
+                return read;
+            }
+        };
+    }
 }

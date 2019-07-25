@@ -16,17 +16,20 @@
 package okhttp3.slack;
 
 import java.util.List;
+
 import okhttp3.HttpUrl;
 
-/** See https://api.slack.com/methods/rtm.start. */
+/**
+ * See https://api.slack.com/methods/rtm.start.
+ */
 public final class RtmStartResponse {
-  HttpUrl url;
-  Object self;
-  Object team;
-  List<Object> users;
-  List<Object> channels;
-  List<Object> groups;
-  List<Object> mpims;
-  List<Object> ims;
-  List<Object> bots;
+    HttpUrl url;
+    Object self;
+    Object team;
+    List<Object> users;
+    List<Object> channels;
+    List<Object> groups;
+    List<Object> mpims;
+    List<Object> ims;
+    List<Object> bots;
 }

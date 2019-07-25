@@ -28,33 +28,36 @@ import java.util.logging.LogRecord;
  * assertions about them.
  */
 public final class TestLogHandler extends Handler {
-  private final BlockingQueue<String> logs = new LinkedBlockingQueue<>();
+    private final BlockingQueue<String> logs = new LinkedBlockingQueue<>();
 
-  @Override public void publish(LogRecord logRecord) {
-    if (getFormatter() == null) {
-      logs.add(logRecord.getLevel() + ": " + logRecord.getMessage());
-    } else {
-      logs.add(getFormatter().format(logRecord));
+    @Override
+    public void publish(LogRecord logRecord) {
+        if (getFormatter() == null) {
+            logs.add(logRecord.getLevel() + ": " + logRecord.getMessage());
+        } else {
+            logs.add(getFormatter().format(logRecord));
+        }
     }
-  }
 
-  @Override public void flush() {
-  }
-
-  @Override public void close() {
-  }
-
-  public List<String> takeAll() {
-    List<String> list = new ArrayList<>();
-    logs.drainTo(list);
-    return list;
-  }
-
-  public String take() throws Exception {
-    String message = logs.poll(10, TimeUnit.SECONDS);
-    if (message == null) {
-      throw new AssertionError("Timed out waiting for log message.");
+    @Override
+    public void flush() {
     }
-    return message;
-  }
+
+    @Override
+    public void close() {
+    }
+
+    public List<String> takeAll() {
+        List<String> list = new ArrayList<>();
+        logs.drainTo(list);
+        return list;
+    }
+
+    public String take() throws Exception {
+        String message = logs.poll(10, TimeUnit.SECONDS);
+        if (message == null) {
+            throw new AssertionError("Timed out waiting for log message.");
+        }
+        return message;
+    }
 }

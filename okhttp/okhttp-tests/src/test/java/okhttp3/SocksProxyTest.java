@@ -15,6 +15,10 @@
  */
 package okhttp3;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.net.Proxy;
 import java.net.ProxySelector;
@@ -22,90 +26,95 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static okhttp3.TestUtil.defaultClient;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class SocksProxyTest {
-  private final SocksProxy socksProxy = new SocksProxy();
-  private final MockWebServer server = new MockWebServer();
+    private final SocksProxy socksProxy = new SocksProxy();
+    private final MockWebServer server = new MockWebServer();
 
-  @Before public void setUp() throws Exception {
-    server.start();
-    socksProxy.play();
-  }
+    @Before
+    public void setUp() throws Exception {
+        server.start();
+        socksProxy.play();
+    }
 
-  @After public void tearDown() throws Exception {
-    server.shutdown();
-    socksProxy.shutdown();
-  }
+    @After
+    public void tearDown() throws Exception {
+        server.shutdown();
+        socksProxy.shutdown();
+    }
 
-  @Test public void proxy() throws Exception {
-    server.enqueue(new MockResponse().setBody("abc"));
-    server.enqueue(new MockResponse().setBody("def"));
+    @Test
+    public void proxy() throws Exception {
+        server.enqueue(new MockResponse().setBody("abc"));
+        server.enqueue(new MockResponse().setBody("def"));
 
-    OkHttpClient client = defaultClient().newBuilder()
-        .proxy(socksProxy.proxy())
-        .build();
+        OkHttpClient client = defaultClient().newBuilder()
+                .proxy(socksProxy.proxy())
+                .build();
 
-    Request request1 = new Request.Builder().url(server.url("/")).build();
-    Response response1 = client.newCall(request1).execute();
-    assertThat(response1.body().string()).isEqualTo("abc");
+        Request request1 = new Request.Builder().url(server.url("/")).build();
+        Response response1 = client.newCall(request1).execute();
+        assertThat(response1.body().string()).isEqualTo("abc");
 
-    Request request2 = new Request.Builder().url(server.url("/")).build();
-    Response response2 = client.newCall(request2).execute();
-    assertThat(response2.body().string()).isEqualTo("def");
+        Request request2 = new Request.Builder().url(server.url("/")).build();
+        Response response2 = client.newCall(request2).execute();
+        assertThat(response2.body().string()).isEqualTo("def");
 
-    // The HTTP calls should share a single connection.
-    assertThat(socksProxy.connectionCount()).isEqualTo(1);
-  }
+        // The HTTP calls should share a single connection.
+        assertThat(socksProxy.connectionCount()).isEqualTo(1);
+    }
 
-  @Test public void proxySelector() throws Exception {
-    server.enqueue(new MockResponse().setBody("abc"));
+    @Test
+    public void proxySelector() throws Exception {
+        server.enqueue(new MockResponse().setBody("abc"));
 
-    ProxySelector proxySelector = new ProxySelector() {
-      @Override public List<Proxy> select(URI uri) {
-        return Collections.singletonList(socksProxy.proxy());
-      }
+        ProxySelector proxySelector = new ProxySelector() {
+            @Override
+            public List<Proxy> select(URI uri) {
+                return Collections.singletonList(socksProxy.proxy());
+            }
 
-      @Override public void connectFailed(URI uri, SocketAddress socketAddress, IOException e) {
-        throw new AssertionError();
-      }
-    };
+            @Override
+            public void connectFailed(URI uri, SocketAddress socketAddress, IOException e) {
+                throw new AssertionError();
+            }
+        };
 
-    OkHttpClient client = defaultClient().newBuilder()
-        .proxySelector(proxySelector)
-        .build();
+        OkHttpClient client = defaultClient().newBuilder()
+                .proxySelector(proxySelector)
+                .build();
 
-    Request request = new Request.Builder().url(server.url("/")).build();
-    Response response = client.newCall(request).execute();
-    assertThat(response.body().string()).isEqualTo("abc");
+        Request request = new Request.Builder().url(server.url("/")).build();
+        Response response = client.newCall(request).execute();
+        assertThat(response.body().string()).isEqualTo("abc");
 
-    assertThat(socksProxy.connectionCount()).isEqualTo(1);
-  }
+        assertThat(socksProxy.connectionCount()).isEqualTo(1);
+    }
 
-  @Test public void checkRemoteDNSResolve() throws Exception {
-    // This testcase will fail if the target is resolved locally instead of through the proxy.
-    server.enqueue(new MockResponse().setBody("abc"));
+    @Test
+    public void checkRemoteDNSResolve() throws Exception {
+        // This testcase will fail if the target is resolved locally instead of through the proxy.
+        server.enqueue(new MockResponse().setBody("abc"));
 
-    OkHttpClient client = defaultClient().newBuilder()
-        .proxy(socksProxy.proxy())
-        .build();
+        OkHttpClient client = defaultClient().newBuilder()
+                .proxy(socksProxy.proxy())
+                .build();
 
-    HttpUrl url = server.url("/")
-        .newBuilder()
-        .host(SocksProxy.HOSTNAME_THAT_ONLY_THE_PROXY_KNOWS)
-        .build();
+        HttpUrl url = server.url("/")
+                .newBuilder()
+                .host(SocksProxy.HOSTNAME_THAT_ONLY_THE_PROXY_KNOWS)
+                .build();
 
-    Request request = new Request.Builder().url(url).build();
-    Response response1 = client.newCall(request).execute();
-    assertThat(response1.body().string()).isEqualTo("abc");
+        Request request = new Request.Builder().url(url).build();
+        Response response1 = client.newCall(request).execute();
+        assertThat(response1.body().string()).isEqualTo("abc");
 
-    assertThat(socksProxy.connectionCount()).isEqualTo(1);
-  }
+        assertThat(socksProxy.connectionCount()).isEqualTo(1);
+    }
 }

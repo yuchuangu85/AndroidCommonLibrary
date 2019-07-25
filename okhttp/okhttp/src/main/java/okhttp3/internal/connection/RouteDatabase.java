@@ -17,6 +17,7 @@ package okhttp3.internal.connection;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import okhttp3.Route;
 
 /**
@@ -26,20 +27,26 @@ import okhttp3.Route;
  * preferred.
  */
 final class RouteDatabase {
-  private final Set<Route> failedRoutes = new LinkedHashSet<>();
+    private final Set<Route> failedRoutes = new LinkedHashSet<>();
 
-  /** Records a failure connecting to {@code failedRoute}. */
-  public synchronized void failed(Route failedRoute) {
-    failedRoutes.add(failedRoute);
-  }
+    /**
+     * Records a failure connecting to {@code failedRoute}.
+     */
+    public synchronized void failed(Route failedRoute) {
+        failedRoutes.add(failedRoute);
+    }
 
-  /** Records success connecting to {@code route}. */
-  public synchronized void connected(Route route) {
-    failedRoutes.remove(route);
-  }
+    /**
+     * Records success connecting to {@code route}.
+     */
+    public synchronized void connected(Route route) {
+        failedRoutes.remove(route);
+    }
 
-  /** Returns true if {@code route} has failed recently and should be avoided. */
-  public synchronized boolean shouldPostpone(Route route) {
-    return failedRoutes.contains(route);
-  }
+    /**
+     * Returns true if {@code route} has failed recently and should be avoided.
+     */
+    public synchronized boolean shouldPostpone(Route route) {
+        return failedRoutes.contains(route);
+    }
 }

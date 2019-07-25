@@ -18,36 +18,44 @@ package okhttp3.internal.duplex;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nullable;
+
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okio.BufferedSink;
 
 import static junit.framework.TestCase.assertTrue;
 
-/** A duplex request body that keeps the provided sinks so they can be written to later. */
+/**
+ * A duplex request body that keeps the provided sinks so they can be written to later.
+ */
 public final class AsyncRequestBody extends RequestBody {
-  private final BlockingQueue<BufferedSink> requestBodySinks = new LinkedBlockingQueue<>();
+    private final BlockingQueue<BufferedSink> requestBodySinks = new LinkedBlockingQueue<>();
 
-  @Override public @Nullable MediaType contentType() {
-    return null;
-  }
+    @Override
+    public @Nullable
+    MediaType contentType() {
+        return null;
+    }
 
-  @Override public void writeTo(BufferedSink sink) {
-    requestBodySinks.add(sink);
-  }
+    @Override
+    public void writeTo(BufferedSink sink) {
+        requestBodySinks.add(sink);
+    }
 
-  @Override public boolean isDuplex() {
-    return true;
-  }
+    @Override
+    public boolean isDuplex() {
+        return true;
+    }
 
-  public BufferedSink takeSink() throws InterruptedException {
-    BufferedSink result = requestBodySinks.poll(5, TimeUnit.SECONDS);
-    if (result == null) throw new AssertionError("no sink to take");
-    return result;
-  }
+    public BufferedSink takeSink() throws InterruptedException {
+        BufferedSink result = requestBodySinks.poll(5, TimeUnit.SECONDS);
+        if (result == null) throw new AssertionError("no sink to take");
+        return result;
+    }
 
-  public void assertNoMoreSinks() {
-    assertTrue(requestBodySinks.isEmpty());
-  }
+    public void assertNoMoreSinks() {
+        assertTrue(requestBodySinks.isEmpty());
+    }
 }

@@ -17,59 +17,69 @@ package okhttp3.slack;
 
 import java.io.Closeable;
 import java.io.IOException;
-import okhttp3.WebSocket;
+
 import okhttp3.Response;
+import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-/** A realtime messaging session. */
+/**
+ * A realtime messaging session.
+ */
 public final class RtmSession extends WebSocketListener implements Closeable {
-  private final SlackApi slackApi;
+    private final SlackApi slackApi;
 
-  /** Guarded by this. */
-  private WebSocket webSocket;
+    /**
+     * Guarded by this.
+     */
+    private WebSocket webSocket;
 
-  public RtmSession(SlackApi slackApi) {
-    this.slackApi = slackApi;
-  }
+    public RtmSession(SlackApi slackApi) {
+        this.slackApi = slackApi;
+    }
 
-  public void open(String accessToken) throws IOException {
-    if (webSocket != null) throw new IllegalStateException();
+    public void open(String accessToken) throws IOException {
+        if (webSocket != null) throw new IllegalStateException();
 
-    RtmStartResponse rtmStartResponse = slackApi.rtmStart(accessToken);
-    webSocket = slackApi.rtm(rtmStartResponse.url, this);
-  }
+        RtmStartResponse rtmStartResponse = slackApi.rtmStart(accessToken);
+        webSocket = slackApi.rtm(rtmStartResponse.url, this);
+    }
 
-  // TODO(jwilson): can I read the response body? Do I have to?
-  //                the body from slack is a 0-byte-buffer
-  @Override public synchronized void onOpen(WebSocket webSocket, Response response) {
-    System.out.println("onOpen: " + response);
-  }
-
-  // TOOD(jwilson): decode incoming messages and dispatch them somewhere.
-  @Override public void onMessage(WebSocket webSocket, String text) {
-    System.out.println("onMessage: " + text);
-  }
-
-  @Override public void onClosing(WebSocket webSocket, int code, String reason) {
-    webSocket.close(1000, null);
-    System.out.println("onClose (" + code + "): " + reason);
-  }
-
-  @Override public void onFailure(WebSocket webSocket, Throwable t, Response response) {
     // TODO(jwilson): can I read the response body? Do I have to?
-    System.out.println("onFailure " + response);
-  }
-
-  @Override public void close() throws IOException {
-    if (webSocket == null) return;
-
-    WebSocket webSocket;
-    synchronized (this) {
-      webSocket = this.webSocket;
+    //                the body from slack is a 0-byte-buffer
+    @Override
+    public synchronized void onOpen(WebSocket webSocket, Response response) {
+        System.out.println("onOpen: " + response);
     }
 
-    if (webSocket != null) {
-      webSocket.close(1000, "bye");
+    // TOOD(jwilson): decode incoming messages and dispatch them somewhere.
+    @Override
+    public void onMessage(WebSocket webSocket, String text) {
+        System.out.println("onMessage: " + text);
     }
-  }
+
+    @Override
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        webSocket.close(1000, null);
+        System.out.println("onClose (" + code + "): " + reason);
+    }
+
+    @Override
+    public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        // TODO(jwilson): can I read the response body? Do I have to?
+        System.out.println("onFailure " + response);
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (webSocket == null) return;
+
+        WebSocket webSocket;
+        synchronized (this) {
+            webSocket = this.webSocket;
+        }
+
+        if (webSocket != null) {
+            webSocket.close(1000, "bye");
+        }
+    }
 }

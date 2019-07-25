@@ -17,6 +17,7 @@ package okhttp3.internal;
 
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocket;
+
 import okhttp3.Address;
 import okhttp3.Call;
 import okhttp3.ConnectionPool;
@@ -34,30 +35,31 @@ import okhttp3.internal.connection.RealConnectionPool;
  */
 public abstract class Internal {
 
-  public static void initializeInstanceForTests() {
-    // Needed in tests to ensure that the instance is actually pointing to something.
-    new OkHttpClient();
-  }
+    public static void initializeInstanceForTests() {
+        // Needed in tests to ensure that the instance is actually pointing to something.
+        new OkHttpClient();
+    }
 
-  public static Internal instance;
+    public static Internal instance;
 
-  public abstract void addLenient(Headers.Builder builder, String line);
+    public abstract void addLenient(Headers.Builder builder, String line);
 
-  public abstract void addLenient(Headers.Builder builder, String name, String value);
+    public abstract void addLenient(Headers.Builder builder, String name, String value);
 
-  public abstract RealConnectionPool realConnectionPool(ConnectionPool connectionPool);
+    public abstract RealConnectionPool realConnectionPool(ConnectionPool connectionPool);
 
-  public abstract boolean equalsNonHost(Address a, Address b);
+    public abstract boolean equalsNonHost(Address a, Address b);
 
-  public abstract int code(Response.Builder responseBuilder);
+    public abstract int code(Response.Builder responseBuilder);
 
-  public abstract void apply(ConnectionSpec tlsConfiguration, SSLSocket sslSocket,
-      boolean isFallback);
+    public abstract void apply(ConnectionSpec tlsConfiguration, SSLSocket sslSocket,
+                               boolean isFallback);
 
-  public abstract Call newWebSocketCall(OkHttpClient client, Request request);
+    public abstract Call newWebSocketCall(OkHttpClient client, Request request);
 
-  public abstract void initExchange(
-      Response.Builder responseBuilder, Exchange exchange);
+    public abstract void initExchange(
+            Response.Builder responseBuilder, Exchange exchange);
 
-  public abstract @Nullable Exchange exchange(Response response);
+    public abstract @Nullable
+    Exchange exchange(Response response);
 }

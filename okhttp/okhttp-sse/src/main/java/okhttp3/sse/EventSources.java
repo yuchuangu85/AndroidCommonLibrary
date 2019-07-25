@@ -20,20 +20,20 @@ import okhttp3.Response;
 import okhttp3.internal.sse.RealEventSource;
 
 public final class EventSources {
-  public static EventSource.Factory createFactory(final OkHttpClient client) {
-    return (request, listener) -> {
-      RealEventSource eventSource = new RealEventSource(request, listener);
-      eventSource.connect(client);
-      return eventSource;
-    };
-  }
+    public static EventSource.Factory createFactory(final OkHttpClient client) {
+        return (request, listener) -> {
+            RealEventSource eventSource = new RealEventSource(request, listener);
+            eventSource.connect(client);
+            return eventSource;
+        };
+    }
 
-  public static void processResponse(Response response, EventSourceListener listener) {
-    RealEventSource eventSource = new RealEventSource(response.request(), listener);
-    eventSource.processResponse(response);
-  }
+    public static void processResponse(Response response, EventSourceListener listener) {
+        RealEventSource eventSource = new RealEventSource(response.request(), listener);
+        eventSource.processResponse(response);
+    }
 
-  private EventSources() {
-    throw new AssertionError();
-  }
+    private EventSources() {
+        throw new AssertionError();
+    }
 }

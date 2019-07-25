@@ -15,13 +15,15 @@
  */
 package okhttp3.internal.http2;
 
-import java.util.Collection;
-import okhttp3.internal.http2.hpackjson.Case;
-import okhttp3.internal.http2.hpackjson.Story;
-import okio.Buffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
+import java.util.Collection;
+
+import okhttp3.internal.http2.hpackjson.Case;
+import okhttp3.internal.http2.hpackjson.Story;
+import okio.Buffer;
 
 /**
  * Tests for round-tripping headers through hpack..
@@ -33,29 +35,29 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class HpackRoundTripTest extends HpackDecodeTestBase {
 
-  private static final String[] RAW_DATA = {"raw-data"};
+    private static final String[] RAW_DATA = {"raw-data"};
 
-  @Parameterized.Parameters(name = "{0}")
-  public static Collection<Story[]> getStories() throws Exception {
-    return createStories(RAW_DATA);
-  }
-
-  private Buffer bytesOut = new Buffer();
-  private Hpack.Writer hpackWriter = new Hpack.Writer(bytesOut);
-
-  public HpackRoundTripTest(Story story) {
-    super(story);
-  }
-
-  @Test
-  public void testRoundTrip() throws Exception {
-    Story story = getStory().clone();
-    // Mutate cases in base class.
-    for (Case caze : story.getCases()) {
-      hpackWriter.writeHeaders(caze.getHeaders());
-      caze.setWire(bytesOut.readByteString());
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Story[]> getStories() throws Exception {
+        return createStories(RAW_DATA);
     }
 
-    testDecoder(story);
-  }
+    private Buffer bytesOut = new Buffer();
+    private Hpack.Writer hpackWriter = new Hpack.Writer(bytesOut);
+
+    public HpackRoundTripTest(Story story) {
+        super(story);
+    }
+
+    @Test
+    public void testRoundTrip() throws Exception {
+        Story story = getStory().clone();
+        // Mutate cases in base class.
+        for (Case caze : story.getCases()) {
+            hpackWriter.writeHeaders(caze.getHeaders());
+            caze.setWire(bytesOut.readByteString());
+        }
+
+        testDecoder(story);
+    }
 }

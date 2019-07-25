@@ -1,7 +1,9 @@
 {
   "url": "ws://127.0.0.1:9099",
   "outdir": "./target/fuzzingserver-report",
-  "cases": ["*"],
+  "cases": [
+    "*"
+  ],
   "exclude-cases": [
     "6.1.1",
     "6.1.2",

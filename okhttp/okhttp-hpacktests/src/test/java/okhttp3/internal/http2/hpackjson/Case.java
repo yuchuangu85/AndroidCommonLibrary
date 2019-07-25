@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import okhttp3.internal.http2.Header;
 import okio.ByteString;
 
@@ -28,40 +29,40 @@ import okio.ByteString;
  */
 public class Case implements Cloneable {
 
-  private int seqno;
-  private String wire;
-  private List<Map<String, String>> headers;
+    private int seqno;
+    private String wire;
+    private List<Map<String, String>> headers;
 
-  public List<Header> getHeaders() {
-    List<Header> result = new ArrayList<>();
-    for (Map<String, String> inputHeader : headers) {
-      Map.Entry<String, String> entry = inputHeader.entrySet().iterator().next();
-      result.add(new Header(entry.getKey(), entry.getValue()));
+    public List<Header> getHeaders() {
+        List<Header> result = new ArrayList<>();
+        for (Map<String, String> inputHeader : headers) {
+            Map.Entry<String, String> entry = inputHeader.entrySet().iterator().next();
+            result.add(new Header(entry.getKey(), entry.getValue()));
+        }
+        return result;
     }
-    return result;
-  }
 
-  public ByteString getWire() {
-    return ByteString.decodeHex(wire);
-  }
-
-  public int getSeqno() {
-    return seqno;
-  }
-
-  public void setWire(ByteString wire) {
-    this.wire = wire.hex();
-  }
-
-  @Override
-  protected Case clone() throws CloneNotSupportedException {
-    Case result = new Case();
-    result.seqno = seqno;
-    result.wire = wire;
-    result.headers = new ArrayList<>();
-    for (Map<String, String> header : headers) {
-      result.headers.add(new LinkedHashMap<String, String>(header));
+    public ByteString getWire() {
+        return ByteString.decodeHex(wire);
     }
-    return result;
-  }
+
+    public int getSeqno() {
+        return seqno;
+    }
+
+    public void setWire(ByteString wire) {
+        this.wire = wire.hex();
+    }
+
+    @Override
+    protected Case clone() throws CloneNotSupportedException {
+        Case result = new Case();
+        result.seqno = seqno;
+        result.wire = wire;
+        result.headers = new ArrayList<>();
+        for (Map<String, String> header : headers) {
+            result.headers.add(new LinkedHashMap<String, String>(header));
+        }
+        return result;
+    }
 }

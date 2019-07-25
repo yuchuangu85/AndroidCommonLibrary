@@ -15,88 +15,97 @@
  */
 package okhttp3;
 
+import org.junit.Test;
+
 import java.io.IOException;
+
 import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
 import okio.Source;
 import okio.Timeout;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public final class ResponseTest {
-  @Test public void peekShorterThanResponse() throws Exception {
-    Response response = newResponse(responseBody("abcdef"));
-    ResponseBody peekedBody = response.peekBody(3);
-    assertThat(peekedBody.string()).isEqualTo("abc");
-    assertThat(response.body().string()).isEqualTo("abcdef");
-  }
-
-  @Test public void peekLongerThanResponse() throws Exception {
-    Response response = newResponse(responseBody("abc"));
-    ResponseBody peekedBody = response.peekBody(6);
-    assertThat(peekedBody.string()).isEqualTo("abc");
-    assertThat(response.body().string()).isEqualTo("abc");
-  }
-
-  @Test public void peekAfterReadingResponse() throws Exception {
-    Response response = newResponse(responseBody("abc"));
-    assertThat(response.body().string()).isEqualTo("abc");
-
-    try {
-      response.peekBody(3);
-      fail();
-    } catch (IllegalStateException expected) {
+    @Test
+    public void peekShorterThanResponse() throws Exception {
+        Response response = newResponse(responseBody("abcdef"));
+        ResponseBody peekedBody = response.peekBody(3);
+        assertThat(peekedBody.string()).isEqualTo("abc");
+        assertThat(response.body().string()).isEqualTo("abcdef");
     }
-  }
 
-  @Test public void eachPeakIsIndependent() throws Exception {
-    Response response = newResponse(responseBody("abcdef"));
-    ResponseBody p1 = response.peekBody(4);
-    ResponseBody p2 = response.peekBody(2);
-    assertThat(response.body().string()).isEqualTo("abcdef");
-    assertThat(p1.string()).isEqualTo("abcd");
-    assertThat(p2.string()).isEqualTo("ab");
-  }
+    @Test
+    public void peekLongerThanResponse() throws Exception {
+        Response response = newResponse(responseBody("abc"));
+        ResponseBody peekedBody = response.peekBody(6);
+        assertThat(peekedBody.string()).isEqualTo("abc");
+        assertThat(response.body().string()).isEqualTo("abc");
+    }
 
-  /**
-   * Returns a new response body that refuses to be read once it has been closed. This is true of
-   * most {@link BufferedSource} instances, but not of {@link Buffer}.
-   */
-  private ResponseBody responseBody(String content) {
-    final Buffer data = new Buffer().writeUtf8(content);
+    @Test
+    public void peekAfterReadingResponse() throws Exception {
+        Response response = newResponse(responseBody("abc"));
+        assertThat(response.body().string()).isEqualTo("abc");
 
-    Source source = new Source() {
-      boolean closed;
+        try {
+            response.peekBody(3);
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+    }
 
-      @Override public void close() throws IOException {
-        closed = true;
-      }
+    @Test
+    public void eachPeakIsIndependent() throws Exception {
+        Response response = newResponse(responseBody("abcdef"));
+        ResponseBody p1 = response.peekBody(4);
+        ResponseBody p2 = response.peekBody(2);
+        assertThat(response.body().string()).isEqualTo("abcdef");
+        assertThat(p1.string()).isEqualTo("abcd");
+        assertThat(p2.string()).isEqualTo("ab");
+    }
 
-      @Override public long read(Buffer sink, long byteCount) throws IOException {
-        if (closed) throw new IllegalStateException();
-        return data.read(sink, byteCount);
-      }
+    /**
+     * Returns a new response body that refuses to be read once it has been closed. This is true of
+     * most {@link BufferedSource} instances, but not of {@link Buffer}.
+     */
+    private ResponseBody responseBody(String content) {
+        final Buffer data = new Buffer().writeUtf8(content);
 
-      @Override public Timeout timeout() {
-        return Timeout.NONE;
-      }
-    };
+        Source source = new Source() {
+            boolean closed;
 
-    return ResponseBody.create(null, -1, Okio.buffer(source));
-  }
+            @Override
+            public void close() throws IOException {
+                closed = true;
+            }
 
-  private Response newResponse(ResponseBody responseBody) {
-    return new Response.Builder()
-        .request(new Request.Builder()
-            .url("https://example.com/")
-            .build())
-        .protocol(Protocol.HTTP_1_1)
-        .code(200)
-        .message("OK")
-        .body(responseBody)
-        .build();
-  }
+            @Override
+            public long read(Buffer sink, long byteCount) throws IOException {
+                if (closed) throw new IllegalStateException();
+                return data.read(sink, byteCount);
+            }
+
+            @Override
+            public Timeout timeout() {
+                return Timeout.NONE;
+            }
+        };
+
+        return ResponseBody.create(null, -1, Okio.buffer(source));
+    }
+
+    private Response newResponse(ResponseBody responseBody) {
+        return new Response.Builder()
+                .request(new Request.Builder()
+                        .url("https://example.com/")
+                        .build())
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("OK")
+                .body(responseBody)
+                .build();
+    }
 }

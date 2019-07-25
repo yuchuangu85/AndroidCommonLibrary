@@ -16,86 +16,95 @@
 
 package okhttp3.mockwebserver;
 
+import org.junit.Test;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Collections;
+
 import okhttp3.Headers;
 import okhttp3.internal.Util;
 import okio.Buffer;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RecordedRequestTest {
-  Headers headers = Util.EMPTY_HEADERS;
+    Headers headers = Util.EMPTY_HEADERS;
 
-  private class FakeSocket extends Socket {
-    private final InetAddress localAddress;
-    private final int remotePort;
-    private final InetAddress remoteAddress;
-    private final int localPort;
+    private class FakeSocket extends Socket {
+        private final InetAddress localAddress;
+        private final int remotePort;
+        private final InetAddress remoteAddress;
+        private final int localPort;
 
-    private FakeSocket(int localPort) {
-      this(Inet4Address.getLoopbackAddress(), localPort);
+        private FakeSocket(int localPort) {
+            this(Inet4Address.getLoopbackAddress(), localPort);
+        }
+
+        private FakeSocket(InetAddress inetAddress, int localPort) {
+            this(inetAddress, localPort, inetAddress, 1234);
+        }
+
+        private FakeSocket(InetAddress localAddress, int localPort, InetAddress remoteAddress, int remotePort) {
+            this.localAddress = localAddress;
+            this.localPort = localPort;
+            this.remoteAddress = remoteAddress;
+            this.remotePort = remotePort;
+        }
+
+        @Override
+        public InetAddress getInetAddress() {
+            return remoteAddress;
+        }
+
+        @Override
+        public InetAddress getLocalAddress() {
+            return localAddress;
+        }
+
+        @Override
+        public int getLocalPort() {
+            return localPort;
+        }
+
+        @Override
+        public int getPort() {
+            return remotePort;
+        }
     }
 
-    private FakeSocket(InetAddress inetAddress, int localPort) {
-      this(inetAddress, localPort, inetAddress, 1234);
+    @Test
+    public void testIPv4() throws UnknownHostException {
+        Socket socket =
+                new FakeSocket(InetAddress.getByAddress("127.0.0.1", new byte[]{127, 0, 0, 1}), 80);
+
+        RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
+                Collections.emptyList(), 0, new Buffer(), 0, socket);
+
+        assertThat(request.getRequestUrl().toString()).isEqualTo("http://127.0.0.1/");
     }
 
-    private FakeSocket(InetAddress localAddress, int localPort, InetAddress remoteAddress, int remotePort) {
-      this.localAddress = localAddress;
-      this.localPort = localPort;
-      this.remoteAddress = remoteAddress;
-      this.remotePort = remotePort;
+    @Test
+    public void testIpv6() throws UnknownHostException {
+        Socket socket = new FakeSocket(InetAddress.getByAddress("::1",
+                new byte[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}), 80);
+
+        RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
+                Collections.emptyList(), 0, new Buffer(), 0, socket);
+
+        assertThat(request.getRequestUrl().toString()).isEqualTo("http://[::1]/");
     }
 
-    @Override public InetAddress getInetAddress() {
-      return remoteAddress;
+    @Test
+    public void testUsesLocal() throws UnknownHostException {
+        Socket socket =
+                new FakeSocket(InetAddress.getByAddress("127.0.0.1", new byte[]{127, 0, 0, 1}), 80);
+
+        RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
+                Collections.emptyList(), 0, new Buffer(), 0, socket);
+
+        assertThat(request.getRequestUrl().toString()).isEqualTo("http://127.0.0.1/");
     }
-
-    @Override public InetAddress getLocalAddress() {
-      return localAddress;
-    }
-
-    @Override public int getLocalPort() {
-      return localPort;
-    }
-
-    @Override public int getPort() {
-      return remotePort;
-    }
-  }
-
-  @Test public void testIPv4() throws UnknownHostException {
-    Socket socket =
-        new FakeSocket(InetAddress.getByAddress("127.0.0.1", new byte[] { 127, 0, 0, 1 }), 80);
-
-    RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
-        Collections.emptyList(), 0, new Buffer(), 0, socket);
-
-    assertThat(request.getRequestUrl().toString()).isEqualTo("http://127.0.0.1/");
-  }
-
-  @Test public void testIpv6() throws UnknownHostException {
-    Socket socket = new FakeSocket(InetAddress.getByAddress("::1",
-        new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }), 80);
-
-    RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
-        Collections.emptyList(), 0, new Buffer(), 0, socket);
-
-    assertThat(request.getRequestUrl().toString()).isEqualTo("http://[::1]/");
-  }
-
-  @Test public void testUsesLocal() throws UnknownHostException {
-    Socket socket =
-        new FakeSocket(InetAddress.getByAddress("127.0.0.1", new byte[] { 127, 0, 0, 1 }), 80);
-
-    RecordedRequest request = new RecordedRequest("GET / HTTP/1.1", headers,
-        Collections.emptyList(), 0, new Buffer(), 0, socket);
-
-    assertThat(request.getRequestUrl().toString()).isEqualTo("http://127.0.0.1/");
-  }
 }

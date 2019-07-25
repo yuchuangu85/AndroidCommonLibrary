@@ -17,33 +17,35 @@ package okhttp3.mockwebserver;
 
 import okhttp3.Headers;
 
-/** An HTTP request initiated by the server. */
+/**
+ * An HTTP request initiated by the server.
+ */
 public final class PushPromise {
-  private final String method;
-  private final String path;
-  private final Headers headers;
-  private final MockResponse response;
+    private final String method;
+    private final String path;
+    private final Headers headers;
+    private final MockResponse response;
 
-  public PushPromise(String method, String path, Headers headers, MockResponse response) {
-    this.method = method;
-    this.path = path;
-    this.headers = headers;
-    this.response = response;
-  }
+    public PushPromise(String method, String path, Headers headers, MockResponse response) {
+        this.method = method;
+        this.path = path;
+        this.headers = headers;
+        this.response = response;
+    }
 
-  public String method() {
-    return method;
-  }
+    public String method() {
+        return method;
+    }
 
-  public String path() {
-    return path;
-  }
+    public String path() {
+        return path;
+    }
 
-  public Headers headers() {
-    return headers;
-  }
+    public Headers headers() {
+        return headers;
+    }
 
-  public MockResponse response() {
-    return response;
-  }
+    public MockResponse response() {
+        return response;
+    }
 }

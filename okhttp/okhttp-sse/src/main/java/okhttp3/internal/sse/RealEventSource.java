@@ -16,7 +16,9 @@
 package okhttp3.internal.sse;
 
 import java.io.IOException;
+
 import javax.annotation.Nullable;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.EventListener;
@@ -32,92 +34,99 @@ import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 
 public final class RealEventSource
-    implements EventSource, ServerSentEventReader.Callback, Callback {
+        implements EventSource, ServerSentEventReader.Callback, Callback {
 
-  private final Request request;
-  private final EventSourceListener listener;
+    private final Request request;
+    private final EventSourceListener listener;
 
-  private @Nullable Call call;
+    private @Nullable
+    Call call;
 
-  public RealEventSource(Request request, EventSourceListener listener) {
-    this.request = request;
-    this.listener = listener;
-  }
-
-  public void connect(OkHttpClient client) {
-    client = client.newBuilder()
-        .eventListener(EventListener.NONE)
-        .build();
-    call = client.newCall(request);
-    call.enqueue(this);
-  }
-
-  @Override public void onResponse(Call call, Response response) {
-    processResponse(response);
-  }
-
-  public void processResponse(Response response) {
-    try {
-      if (!response.isSuccessful()) {
-        listener.onFailure(this, null, response);
-        return;
-      }
-
-      ResponseBody body = response.body();
-
-      //noinspection ConstantConditions main body is never null
-      MediaType contentType = body.contentType();
-      if (!isEventStream(contentType)) {
-        listener.onFailure(this,
-            new IllegalStateException("Invalid content-type: " + contentType), response);
-        return;
-      }
-
-      // This is a long-lived response. Cancel full-call timeouts.
-      Exchange exchange = Internal.instance.exchange(response);
-      if (exchange != null) exchange.timeoutEarlyExit();
-
-      // Replace the body with an empty one so the callbacks can't see real data.
-      response = response.newBuilder().body(Util.EMPTY_RESPONSE).build();
-
-      ServerSentEventReader reader = new ServerSentEventReader(body.source(), this);
-      try {
-        listener.onOpen(this, response);
-        while (reader.processNextEvent()) {
-        }
-      } catch (Exception e) {
-        listener.onFailure(this, e, response);
-        return;
-      }
-
-      listener.onClosed(this);
-    } finally {
-      response.close();
+    public RealEventSource(Request request, EventSourceListener listener) {
+        this.request = request;
+        this.listener = listener;
     }
-  }
 
-  private static boolean isEventStream(@Nullable MediaType contentType) {
-    return contentType != null && contentType.type().equals("text") && contentType.subtype()
-        .equals("event-stream");
-  }
+    public void connect(OkHttpClient client) {
+        client = client.newBuilder()
+                .eventListener(EventListener.NONE)
+                .build();
+        call = client.newCall(request);
+        call.enqueue(this);
+    }
 
-  @Override public void onFailure(Call call, IOException e) {
-    listener.onFailure(this, e, null);
-  }
+    @Override
+    public void onResponse(Call call, Response response) {
+        processResponse(response);
+    }
 
-  @Override public Request request() {
-    return request;
-  }
+    public void processResponse(Response response) {
+        try {
+            if (!response.isSuccessful()) {
+                listener.onFailure(this, null, response);
+                return;
+            }
 
-  @Override public void cancel() {
-    call.cancel();
-  }
+            ResponseBody body = response.body();
 
-  @Override public void onEvent(@Nullable String id, @Nullable String type, String data) {
-    listener.onEvent(this, id, type, data);
-  }
+            //noinspection ConstantConditions main body is never null
+            MediaType contentType = body.contentType();
+            if (!isEventStream(contentType)) {
+                listener.onFailure(this,
+                        new IllegalStateException("Invalid content-type: " + contentType), response);
+                return;
+            }
 
-  @Override public void onRetryChange(long timeMs) {
-    // Ignored. We do not auto-retry.
-  }
+            // This is a long-lived response. Cancel full-call timeouts.
+            Exchange exchange = Internal.instance.exchange(response);
+            if (exchange != null) exchange.timeoutEarlyExit();
+
+            // Replace the body with an empty one so the callbacks can't see real data.
+            response = response.newBuilder().body(Util.EMPTY_RESPONSE).build();
+
+            ServerSentEventReader reader = new ServerSentEventReader(body.source(), this);
+            try {
+                listener.onOpen(this, response);
+                while (reader.processNextEvent()) {
+                }
+            } catch (Exception e) {
+                listener.onFailure(this, e, response);
+                return;
+            }
+
+            listener.onClosed(this);
+        } finally {
+            response.close();
+        }
+    }
+
+    private static boolean isEventStream(@Nullable MediaType contentType) {
+        return contentType != null && contentType.type().equals("text") && contentType.subtype()
+                .equals("event-stream");
+    }
+
+    @Override
+    public void onFailure(Call call, IOException e) {
+        listener.onFailure(this, e, null);
+    }
+
+    @Override
+    public Request request() {
+        return request;
+    }
+
+    @Override
+    public void cancel() {
+        call.cancel();
+    }
+
+    @Override
+    public void onEvent(@Nullable String id, @Nullable String type, String data) {
+        listener.onEvent(this, id, type, data);
+    }
+
+    @Override
+    public void onRetryChange(long timeMs) {
+        // Ignored. We do not auto-retry.
+    }
 }

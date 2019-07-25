@@ -19,6 +19,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
+
 import okhttp3.Dns;
 
 /**
@@ -26,8 +27,9 @@ import okhttp3.Dns;
  * fallbacks to guarantee that a fallback address is available.
  */
 public class DoubleInetAddressDns implements Dns {
-  @Override public List<InetAddress> lookup(String hostname) throws UnknownHostException {
-    List<InetAddress> addresses = Dns.SYSTEM.lookup(hostname);
-    return Arrays.asList(addresses.get(0), addresses.get(0));
-  }
+    @Override
+    public List<InetAddress> lookup(String hostname) throws UnknownHostException {
+        List<InetAddress> addresses = Dns.SYSTEM.lookup(hostname);
+        return Arrays.asList(addresses.get(0), addresses.get(0));
+    }
 }

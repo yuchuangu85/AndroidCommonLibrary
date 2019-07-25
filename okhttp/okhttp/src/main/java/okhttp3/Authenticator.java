@@ -16,6 +16,7 @@
 package okhttp3;
 
 import java.io.IOException;
+
 import javax.annotation.Nullable;
 
 /**
@@ -96,16 +97,19 @@ import javax.annotation.Nullable;
  * or both.
  */
 public interface Authenticator {
-  /** An authenticator that knows no credentials and makes no attempt to authenticate. */
-  Authenticator NONE = (route, response) -> null;
+    /**
+     * An authenticator that knows no credentials and makes no attempt to authenticate.
+     */
+    Authenticator NONE = (route, response) -> null;
 
-  /**
-   * Returns a request that includes a credential to satisfy an authentication challenge in {@code
-   * response}. Returns null if the challenge cannot be satisfied.
-   *
-   * <p>The route is best effort, it currently may not always be provided even when logically
-   * available. It may also not be provided when an authenticator is re-used manually in an
-   * application interceptor, such as when implementing client-specific retries.
-   */
-  @Nullable Request authenticate(@Nullable Route route, Response response) throws IOException;
+    /**
+     * Returns a request that includes a credential to satisfy an authentication challenge in {@code
+     * response}. Returns null if the challenge cannot be satisfied.
+     *
+     * <p>The route is best effort, it currently may not always be provided even when logically
+     * available. It may also not be provided when an authenticator is re-used manually in an
+     * application interceptor, such as when implementing client-specific retries.
+     */
+    @Nullable
+    Request authenticate(@Nullable Route route, Response response) throws IOException;
 }

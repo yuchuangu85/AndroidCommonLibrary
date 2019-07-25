@@ -23,7 +23,7 @@ import okhttp3.mockwebserver.internal.duplex.DuplexResponseBody;
  * stable.
  */
 public abstract class MwsDuplexAccess {
-  public static MwsDuplexAccess instance;
+    public static MwsDuplexAccess instance;
 
-  public abstract void setBody(MockResponse mockResponse, DuplexResponseBody duplexResponseBody);
+    public abstract void setBody(MockResponse mockResponse, DuplexResponseBody duplexResponseBody);
 }

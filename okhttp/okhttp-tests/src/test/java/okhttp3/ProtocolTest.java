@@ -15,34 +15,35 @@
  */
 package okhttp3;
 
-import java.io.IOException;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProtocolTest {
-  @Test
-  public void testGetKnown() throws IOException {
-    assertThat(Protocol.get("http/1.0")).isEqualTo(Protocol.HTTP_1_0);
-    assertThat(Protocol.get("http/1.1")).isEqualTo(Protocol.HTTP_1_1);
-    assertThat(Protocol.get("spdy/3.1")).isEqualTo(Protocol.SPDY_3);
-    assertThat(Protocol.get("h2")).isEqualTo(Protocol.HTTP_2);
-    assertThat(Protocol.get("h2_prior_knowledge")).isEqualTo(Protocol.H2_PRIOR_KNOWLEDGE);
-    assertThat(Protocol.get("quic")).isEqualTo(Protocol.QUIC);
-  }
+    @Test
+    public void testGetKnown() throws IOException {
+        assertThat(Protocol.get("http/1.0")).isEqualTo(Protocol.HTTP_1_0);
+        assertThat(Protocol.get("http/1.1")).isEqualTo(Protocol.HTTP_1_1);
+        assertThat(Protocol.get("spdy/3.1")).isEqualTo(Protocol.SPDY_3);
+        assertThat(Protocol.get("h2")).isEqualTo(Protocol.HTTP_2);
+        assertThat(Protocol.get("h2_prior_knowledge")).isEqualTo(Protocol.H2_PRIOR_KNOWLEDGE);
+        assertThat(Protocol.get("quic")).isEqualTo(Protocol.QUIC);
+    }
 
-  @Test(expected = IOException.class)
-  public void testGetUnknown() throws IOException {
-    Protocol.get("tcp");
-  }
+    @Test(expected = IOException.class)
+    public void testGetUnknown() throws IOException {
+        Protocol.get("tcp");
+    }
 
-  @Test
-  public void testToString() throws IOException {
-    assertThat(Protocol.HTTP_1_0.toString()).isEqualTo("http/1.0");
-    assertThat(Protocol.HTTP_1_1.toString()).isEqualTo("http/1.1");
-    assertThat(Protocol.SPDY_3.toString()).isEqualTo("spdy/3.1");
-    assertThat(Protocol.HTTP_2.toString()).isEqualTo("h2");
-    assertThat(Protocol.H2_PRIOR_KNOWLEDGE.toString()).isEqualTo("h2_prior_knowledge");
-    assertThat(Protocol.QUIC.toString()).isEqualTo("quic");
-  }
+    @Test
+    public void testToString() throws IOException {
+        assertThat(Protocol.HTTP_1_0.toString()).isEqualTo("http/1.0");
+        assertThat(Protocol.HTTP_1_1.toString()).isEqualTo("http/1.1");
+        assertThat(Protocol.SPDY_3.toString()).isEqualTo("spdy/3.1");
+        assertThat(Protocol.HTTP_2.toString()).isEqualTo("h2");
+        assertThat(Protocol.H2_PRIOR_KNOWLEDGE.toString()).isEqualTo("h2_prior_knowledge");
+        assertThat(Protocol.QUIC.toString()).isEqualTo("quic");
+    }
 }

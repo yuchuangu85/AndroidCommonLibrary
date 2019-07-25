@@ -18,6 +18,7 @@ package okhttp3;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+
 import javax.net.ServerSocketFactory;
 
 /**
@@ -26,39 +27,39 @@ import javax.net.ServerSocketFactory;
  */
 public class DelegatingServerSocketFactory extends ServerSocketFactory {
 
-  private final ServerSocketFactory delegate;
+    private final ServerSocketFactory delegate;
 
-  public DelegatingServerSocketFactory(ServerSocketFactory delegate) {
-    this.delegate = delegate;
-  }
+    public DelegatingServerSocketFactory(ServerSocketFactory delegate) {
+        this.delegate = delegate;
+    }
 
-  @Override
-  public ServerSocket createServerSocket() throws IOException {
-    ServerSocket serverSocket = delegate.createServerSocket();
-    return configureServerSocket(serverSocket);
-  }
+    @Override
+    public ServerSocket createServerSocket() throws IOException {
+        ServerSocket serverSocket = delegate.createServerSocket();
+        return configureServerSocket(serverSocket);
+    }
 
-  @Override
-  public ServerSocket createServerSocket(int port) throws IOException {
-    ServerSocket serverSocket = delegate.createServerSocket(port);
-    return configureServerSocket(serverSocket);
-  }
+    @Override
+    public ServerSocket createServerSocket(int port) throws IOException {
+        ServerSocket serverSocket = delegate.createServerSocket(port);
+        return configureServerSocket(serverSocket);
+    }
 
-  @Override
-  public ServerSocket createServerSocket(int port, int backlog) throws IOException {
-    ServerSocket serverSocket = delegate.createServerSocket(port, backlog);
-    return configureServerSocket(serverSocket);
-  }
+    @Override
+    public ServerSocket createServerSocket(int port, int backlog) throws IOException {
+        ServerSocket serverSocket = delegate.createServerSocket(port, backlog);
+        return configureServerSocket(serverSocket);
+    }
 
-  @Override
-  public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress)
-      throws IOException {
-    ServerSocket serverSocket = delegate.createServerSocket(port, backlog, ifAddress);
-    return configureServerSocket(serverSocket);
-  }
+    @Override
+    public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress)
+            throws IOException {
+        ServerSocket serverSocket = delegate.createServerSocket(port, backlog, ifAddress);
+        return configureServerSocket(serverSocket);
+    }
 
-  protected ServerSocket configureServerSocket(ServerSocket serverSocket) throws IOException {
-    // No-op by default.
-    return serverSocket;
-  }
+    protected ServerSocket configureServerSocket(ServerSocket serverSocket) throws IOException {
+        // No-op by default.
+        return serverSocket;
+    }
 }

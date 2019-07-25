@@ -22,22 +22,22 @@ import org.junit.runners.model.Statement;
 import static okhttp3.TestUtil.defaultClient;
 
 public class OkHttpClientTestRule implements TestRule {
-  public OkHttpClient client = defaultClient();
+    public OkHttpClient client = defaultClient();
 
-  @Override
-  public Statement apply(Statement base, Description description) {
-    return statement(base);
-  }
+    @Override
+    public Statement apply(Statement base, Description description) {
+        return statement(base);
+    }
 
-  private Statement statement(final Statement base) {
-    return new Statement() {
-      public void evaluate() throws Throwable {
-        try {
-          base.evaluate();
-        } finally {
-          TestUtil.ensureAllConnectionsReleased(client);
-        }
-      }
-    };
-  }
+    private Statement statement(final Statement base) {
+        return new Statement() {
+            public void evaluate() throws Throwable {
+                try {
+                    base.evaluate();
+                } finally {
+                    TestUtil.ensureAllConnectionsReleased(client);
+                }
+            }
+        };
+    }
 }

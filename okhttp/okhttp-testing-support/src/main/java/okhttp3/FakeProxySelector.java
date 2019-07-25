@@ -25,19 +25,21 @@ import java.util.Collections;
 import java.util.List;
 
 public final class FakeProxySelector extends ProxySelector {
-  public final List<Proxy> proxies = new ArrayList<>();
+    public final List<Proxy> proxies = new ArrayList<>();
 
-  public FakeProxySelector addProxy(Proxy proxy) {
-    proxies.add(proxy);
-    return this;
-  }
+    public FakeProxySelector addProxy(Proxy proxy) {
+        proxies.add(proxy);
+        return this;
+    }
 
-  @Override public List<Proxy> select(URI uri) {
-    // Don't handle 'socket' schemes, which the RI's Socket class may request (for SOCKS).
-    return uri.getScheme().equals("http") || uri.getScheme().equals("https") ? proxies
-        : Collections.singletonList(Proxy.NO_PROXY);
-  }
+    @Override
+    public List<Proxy> select(URI uri) {
+        // Don't handle 'socket' schemes, which the RI's Socket class may request (for SOCKS).
+        return uri.getScheme().equals("http") || uri.getScheme().equals("https") ? proxies
+                : Collections.singletonList(Proxy.NO_PROXY);
+    }
 
-  @Override public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-  }
+    @Override
+    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+    }
 }

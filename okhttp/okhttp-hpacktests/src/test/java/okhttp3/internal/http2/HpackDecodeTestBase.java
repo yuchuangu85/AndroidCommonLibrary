@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+
 import okhttp3.internal.http2.hpackjson.Case;
 import okhttp3.internal.http2.hpackjson.HpackJsonUtil;
 import okhttp3.internal.http2.hpackjson.Story;
@@ -32,62 +33,62 @@ import static org.junit.Assert.fail;
  */
 public class HpackDecodeTestBase {
 
-  /**
-   * Reads all stories in the folders provided, asserts if no story found.
-   */
-  protected static Collection<Story[]> createStories(String[] interopTests)
-      throws Exception {
-    List<Story[]> result = new ArrayList<>();
-    for (String interopTestName : interopTests) {
-      List<Story> stories = HpackJsonUtil.readStories(interopTestName);
-      if (stories.isEmpty()) {
-        fail("No stories for: " + interopTestName);
-      }
-      for (Story story : stories) {
-        result.add(new Story[] {story});
-      }
+    /**
+     * Reads all stories in the folders provided, asserts if no story found.
+     */
+    protected static Collection<Story[]> createStories(String[] interopTests)
+            throws Exception {
+        List<Story[]> result = new ArrayList<>();
+        for (String interopTestName : interopTests) {
+            List<Story> stories = HpackJsonUtil.readStories(interopTestName);
+            if (stories.isEmpty()) {
+                fail("No stories for: " + interopTestName);
+            }
+            for (Story story : stories) {
+                result.add(new Story[]{story});
+            }
+        }
+        return result;
     }
-    return result;
-  }
 
-  private final Buffer bytesIn = new Buffer();
-  private final Hpack.Reader hpackReader = new Hpack.Reader(4096, bytesIn);
+    private final Buffer bytesIn = new Buffer();
+    private final Hpack.Reader hpackReader = new Hpack.Reader(4096, bytesIn);
 
-  private final Story story;
+    private final Story story;
 
-  public HpackDecodeTestBase(Story story) {
-    this.story = story;
-  }
-
-  /**
-   * Expects wire to be set for all cases, and compares the decoder's output to expected headers.
-   */
-  protected void testDecoder() throws Exception {
-    testDecoder(story);
-  }
-
-  protected void testDecoder(Story story) throws Exception {
-    for (Case caze : story.getCases()) {
-      bytesIn.write(caze.getWire());
-      hpackReader.readHeaders();
-      assertSetEquals(String.format("seqno=%d", caze.getSeqno()), caze.getHeaders(),
-          hpackReader.getAndResetHeaderList());
+    public HpackDecodeTestBase(Story story) {
+        this.story = story;
     }
-  }
 
-  /**
-   * Checks if {@code expected} and {@code observed} are equal when viewed as a set and headers are
-   * deduped.
-   *
-   * TODO: See if duped headers should be preserved on decode and verify.
-   */
-  private static void assertSetEquals(
-      String message, List<Header> expected, List<Header> observed) {
-    assertThat(new LinkedHashSet<>(observed)).overridingErrorMessage(message).isEqualTo(
-        new LinkedHashSet<>(expected));
-  }
+    /**
+     * Expects wire to be set for all cases, and compares the decoder's output to expected headers.
+     */
+    protected void testDecoder() throws Exception {
+        testDecoder(story);
+    }
 
-  protected Story getStory() {
-    return story;
-  }
+    protected void testDecoder(Story story) throws Exception {
+        for (Case caze : story.getCases()) {
+            bytesIn.write(caze.getWire());
+            hpackReader.readHeaders();
+            assertSetEquals(String.format("seqno=%d", caze.getSeqno()), caze.getHeaders(),
+                    hpackReader.getAndResetHeaderList());
+        }
+    }
+
+    /**
+     * Checks if {@code expected} and {@code observed} are equal when viewed as a set and headers are
+     * deduped.
+     * <p>
+     * TODO: See if duped headers should be preserved on decode and verify.
+     */
+    private static void assertSetEquals(
+            String message, List<Header> expected, List<Header> observed) {
+        assertThat(new LinkedHashSet<>(observed)).overridingErrorMessage(message).isEqualTo(
+                new LinkedHashSet<>(expected));
+    }
+
+    protected Story getStory() {
+        return story;
+    }
 }

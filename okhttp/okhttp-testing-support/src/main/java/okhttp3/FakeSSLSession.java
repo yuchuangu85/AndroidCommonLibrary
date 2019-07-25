@@ -18,103 +18,104 @@ package okhttp3;
 
 import java.security.Principal;
 import java.security.cert.Certificate;
+
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import javax.security.cert.X509Certificate;
 
 public final class FakeSSLSession implements SSLSession {
-  private final Certificate[] certificates;
+    private final Certificate[] certificates;
 
-  public FakeSSLSession(Certificate... certificates) throws Exception {
-    this.certificates = certificates;
-  }
-
-  public int getApplicationBufferSize() {
-    throw new UnsupportedOperationException();
-  }
-
-  public String getCipherSuite() {
-    throw new UnsupportedOperationException();
-  }
-
-  public long getCreationTime() {
-    throw new UnsupportedOperationException();
-  }
-
-  public byte[] getId() {
-    throw new UnsupportedOperationException();
-  }
-
-  public long getLastAccessedTime() {
-    throw new UnsupportedOperationException();
-  }
-
-  public Certificate[] getLocalCertificates() {
-    throw new UnsupportedOperationException();
-  }
-
-  public Principal getLocalPrincipal() {
-    throw new UnsupportedOperationException();
-  }
-
-  public int getPacketBufferSize() {
-    throw new UnsupportedOperationException();
-  }
-
-  public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
-    if (certificates.length == 0) {
-      throw new SSLPeerUnverifiedException("peer not authenticated");
-    } else {
-      return certificates;
+    public FakeSSLSession(Certificate... certificates) throws Exception {
+        this.certificates = certificates;
     }
-  }
 
-  public X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
-    throw new UnsupportedOperationException();
-  }
+    public int getApplicationBufferSize() {
+        throw new UnsupportedOperationException();
+    }
 
-  public String getPeerHost() {
-    throw new UnsupportedOperationException();
-  }
+    public String getCipherSuite() {
+        throw new UnsupportedOperationException();
+    }
 
-  public int getPeerPort() {
-    throw new UnsupportedOperationException();
-  }
+    public long getCreationTime() {
+        throw new UnsupportedOperationException();
+    }
 
-  public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
-    throw new UnsupportedOperationException();
-  }
+    public byte[] getId() {
+        throw new UnsupportedOperationException();
+    }
 
-  public String getProtocol() {
-    throw new UnsupportedOperationException();
-  }
+    public long getLastAccessedTime() {
+        throw new UnsupportedOperationException();
+    }
 
-  public SSLSessionContext getSessionContext() {
-    throw new UnsupportedOperationException();
-  }
+    public Certificate[] getLocalCertificates() {
+        throw new UnsupportedOperationException();
+    }
 
-  public void putValue(String s, Object obj) {
-    throw new UnsupportedOperationException();
-  }
+    public Principal getLocalPrincipal() {
+        throw new UnsupportedOperationException();
+    }
 
-  public void removeValue(String s) {
-    throw new UnsupportedOperationException();
-  }
+    public int getPacketBufferSize() {
+        throw new UnsupportedOperationException();
+    }
 
-  public Object getValue(String s) {
-    throw new UnsupportedOperationException();
-  }
+    public Certificate[] getPeerCertificates() throws SSLPeerUnverifiedException {
+        if (certificates.length == 0) {
+            throw new SSLPeerUnverifiedException("peer not authenticated");
+        } else {
+            return certificates;
+        }
+    }
 
-  public String[] getValueNames() {
-    throw new UnsupportedOperationException();
-  }
+    public X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException {
+        throw new UnsupportedOperationException();
+    }
 
-  public void invalidate() {
-    throw new UnsupportedOperationException();
-  }
+    public String getPeerHost() {
+        throw new UnsupportedOperationException();
+    }
 
-  public boolean isValid() {
-    throw new UnsupportedOperationException();
-  }
+    public int getPeerPort() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Principal getPeerPrincipal() throws SSLPeerUnverifiedException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getProtocol() {
+        throw new UnsupportedOperationException();
+    }
+
+    public SSLSessionContext getSessionContext() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void putValue(String s, Object obj) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void removeValue(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Object getValue(String s) {
+        throw new UnsupportedOperationException();
+    }
+
+    public String[] getValueNames() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void invalidate() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isValid() {
+        throw new UnsupportedOperationException();
+    }
 }

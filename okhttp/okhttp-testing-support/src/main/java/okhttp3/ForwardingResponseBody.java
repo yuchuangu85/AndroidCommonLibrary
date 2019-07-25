@@ -16,33 +16,39 @@
 package okhttp3;
 
 import javax.annotation.Nullable;
+
 import okio.BufferedSource;
 
 public class ForwardingResponseBody extends ResponseBody {
-  private final ResponseBody delegate;
+    private final ResponseBody delegate;
 
-  public ForwardingResponseBody(ResponseBody delegate) {
-    if (delegate == null) throw new IllegalArgumentException("delegate == null");
-    this.delegate = delegate;
-  }
+    public ForwardingResponseBody(ResponseBody delegate) {
+        if (delegate == null) throw new IllegalArgumentException("delegate == null");
+        this.delegate = delegate;
+    }
 
-  public final ResponseBody delegate() {
-    return delegate;
-  }
+    public final ResponseBody delegate() {
+        return delegate;
+    }
 
-  @Override public @Nullable MediaType contentType() {
-    return delegate.contentType();
-  }
+    @Override
+    public @Nullable
+    MediaType contentType() {
+        return delegate.contentType();
+    }
 
-  @Override public long contentLength() {
-    return delegate.contentLength();
-  }
+    @Override
+    public long contentLength() {
+        return delegate.contentLength();
+    }
 
-  @Override public BufferedSource source() {
-    return delegate.source();
-  }
+    @Override
+    public BufferedSource source() {
+        return delegate.source();
+    }
 
-  @Override public String toString() {
-    return getClass().getSimpleName() + "(" + delegate.toString() + ")";
-  }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + delegate.toString() + ")";
+    }
 }

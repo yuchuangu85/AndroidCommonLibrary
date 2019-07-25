@@ -15,97 +15,99 @@
  */
 package okhttp3;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.Security;
-import java.util.Arrays;
-import okhttp3.internal.platform.ConscryptPlatform;
-import okhttp3.internal.platform.Platform;
 import org.conscrypt.OpenSSLProvider;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.Security;
+import java.util.Arrays;
+
+import okhttp3.internal.platform.ConscryptPlatform;
+import okhttp3.internal.platform.Platform;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConscryptTest {
-  public static final CipherSuite[] MANDATORY_CIPHER_SUITES = new CipherSuite[] {
-      CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-      CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-      CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-      CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-      CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-      CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
-  };
+    public static final CipherSuite[] MANDATORY_CIPHER_SUITES = new CipherSuite[]{
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+    };
 
-  private OkHttpClient client = buildClient();
+    private OkHttpClient client = buildClient();
 
-  @After
-  public void tearDown() {
-    TestUtil.ensureAllConnectionsReleased(client);
-  }
-
-  private OkHttpClient buildClient() {
-    ConnectionSpec spec = new ConnectionSpec.Builder(true)
-        .cipherSuites(MANDATORY_CIPHER_SUITES) // Check we are using strong ciphers
-        .tlsVersions(TlsVersion.TLS_1_2) // and modern TLS
-        .supportsTlsExtensions(true)
-        .build();
-
-    return new OkHttpClient.Builder().connectionSpecs(Arrays.asList(spec)).build();
-  }
-
-  private static void assumeConscrypt() {
-    Assume.assumeTrue("conscrypt".equals(System.getProperty("okhttp.platform")));
-  }
-
-  private static void assumeNetwork() {
-    try {
-      InetAddress.getByName("www.google.com");
-    } catch (UnknownHostException uhe) {
-      Assume.assumeNoException(uhe);
+    @After
+    public void tearDown() {
+        TestUtil.ensureAllConnectionsReleased(client);
     }
-  }
 
-  @Test
-  public void testMozilla() throws IOException {
-    assumeNetwork();
-    assumeConscrypt();
+    private OkHttpClient buildClient() {
+        ConnectionSpec spec = new ConnectionSpec.Builder(true)
+                .cipherSuites(MANDATORY_CIPHER_SUITES) // Check we are using strong ciphers
+                .tlsVersions(TlsVersion.TLS_1_2) // and modern TLS
+                .supportsTlsExtensions(true)
+                .build();
 
-    Request request = new Request.Builder().url("https://mozilla.org/robots.txt").build();
-
-    Response response = client.newCall(request).execute();
-
-    assertThat(response.protocol()).isEqualTo(Protocol.HTTP_2);
-  }
-
-  @Test
-  public void testGoogle() throws IOException {
-    assumeNetwork();
-    assumeConscrypt();
-
-    Request request = new Request.Builder().url("https://google.com/robots.txt").build();
-
-    Response response = client.newCall(request).execute();
-
-    assertThat(response.protocol()).isEqualTo(Protocol.HTTP_2);
-  }
-
-  @Test
-  public void testBuild() {
-    assertThat(ConscryptPlatform.buildIfSupported()).isNotNull();
-  }
-
-  @Test
-  public void testPreferred() {
-    Assume.assumeFalse(Platform.isConscryptPreferred());
-
-    try {
-      Security.insertProviderAt(new OpenSSLProvider(), 1);
-      assertThat(Platform.isConscryptPreferred()).isTrue();
-    } finally {
-      Security.removeProvider("Conscrypt");
+        return new OkHttpClient.Builder().connectionSpecs(Arrays.asList(spec)).build();
     }
-  }
+
+    private static void assumeConscrypt() {
+        Assume.assumeTrue("conscrypt".equals(System.getProperty("okhttp.platform")));
+    }
+
+    private static void assumeNetwork() {
+        try {
+            InetAddress.getByName("www.google.com");
+        } catch (UnknownHostException uhe) {
+            Assume.assumeNoException(uhe);
+        }
+    }
+
+    @Test
+    public void testMozilla() throws IOException {
+        assumeNetwork();
+        assumeConscrypt();
+
+        Request request = new Request.Builder().url("https://mozilla.org/robots.txt").build();
+
+        Response response = client.newCall(request).execute();
+
+        assertThat(response.protocol()).isEqualTo(Protocol.HTTP_2);
+    }
+
+    @Test
+    public void testGoogle() throws IOException {
+        assumeNetwork();
+        assumeConscrypt();
+
+        Request request = new Request.Builder().url("https://google.com/robots.txt").build();
+
+        Response response = client.newCall(request).execute();
+
+        assertThat(response.protocol()).isEqualTo(Protocol.HTTP_2);
+    }
+
+    @Test
+    public void testBuild() {
+        assertThat(ConscryptPlatform.buildIfSupported()).isNotNull();
+    }
+
+    @Test
+    public void testPreferred() {
+        Assume.assumeFalse(Platform.isConscryptPreferred());
+
+        try {
+            Security.insertProviderAt(new OpenSSLProvider(), 1);
+            assertThat(Platform.isConscryptPreferred()).isTrue();
+        } finally {
+            Security.removeProvider("Conscrypt");
+        }
+    }
 }

@@ -25,62 +25,65 @@ import java.util.logging.Logger;
  * #enqueueResponse(MockResponse)}.
  */
 public class QueueDispatcher extends Dispatcher {
-  /**
-   * Enqueued on shutdown to release threads waiting on {@link #dispatch}. Note that this response
-   * isn't transmitted because the connection is closed before this response is returned.
-   */
-  private static final MockResponse DEAD_LETTER = new MockResponse()
-      .setStatus("HTTP/1.1 " + 503 + " shutting down");
+    /**
+     * Enqueued on shutdown to release threads waiting on {@link #dispatch}. Note that this response
+     * isn't transmitted because the connection is closed before this response is returned.
+     */
+    private static final MockResponse DEAD_LETTER = new MockResponse()
+            .setStatus("HTTP/1.1 " + 503 + " shutting down");
 
-  private static final Logger logger = Logger.getLogger(QueueDispatcher.class.getName());
-  protected final BlockingQueue<MockResponse> responseQueue = new LinkedBlockingQueue<>();
-  private MockResponse failFastResponse;
+    private static final Logger logger = Logger.getLogger(QueueDispatcher.class.getName());
+    protected final BlockingQueue<MockResponse> responseQueue = new LinkedBlockingQueue<>();
+    private MockResponse failFastResponse;
 
-  @Override public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-    // To permit interactive/browser testing, ignore requests for favicons.
-    final String requestLine = request.getRequestLine();
-    if (requestLine != null && requestLine.equals("GET /favicon.ico HTTP/1.1")) {
-      logger.info("served " + requestLine);
-      return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_FOUND);
+    @Override
+    public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+        // To permit interactive/browser testing, ignore requests for favicons.
+        final String requestLine = request.getRequestLine();
+        if (requestLine != null && requestLine.equals("GET /favicon.ico HTTP/1.1")) {
+            logger.info("served " + requestLine);
+            return new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_FOUND);
+        }
+
+        if (failFastResponse != null && responseQueue.peek() == null) {
+            // Fail fast if there's no response queued up.
+            return failFastResponse;
+        }
+
+        MockResponse result = responseQueue.take();
+
+        // If take() returned because we're shutting down, then enqueue another dead letter so that any
+        // other threads waiting on take() will also return.
+        if (result == DEAD_LETTER) responseQueue.add(DEAD_LETTER);
+
+        return result;
     }
 
-    if (failFastResponse != null && responseQueue.peek() == null) {
-      // Fail fast if there's no response queued up.
-      return failFastResponse;
+    @Override
+    public MockResponse peek() {
+        MockResponse peek = responseQueue.peek();
+        if (peek != null) return peek;
+        if (failFastResponse != null) return failFastResponse;
+        return super.peek();
     }
 
-    MockResponse result = responseQueue.take();
+    public void enqueueResponse(MockResponse response) {
+        responseQueue.add(response);
+    }
 
-    // If take() returned because we're shutting down, then enqueue another dead letter so that any
-    // other threads waiting on take() will also return.
-    if (result == DEAD_LETTER) responseQueue.add(DEAD_LETTER);
+    @Override
+    public void shutdown() {
+        responseQueue.add(DEAD_LETTER);
+    }
 
-    return result;
-  }
+    public void setFailFast(boolean failFast) {
+        MockResponse failFastResponse = failFast
+                ? new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_FOUND)
+                : null;
+        setFailFast(failFastResponse);
+    }
 
-  @Override public MockResponse peek() {
-    MockResponse peek = responseQueue.peek();
-    if (peek != null) return peek;
-    if (failFastResponse != null) return failFastResponse;
-    return super.peek();
-  }
-
-  public void enqueueResponse(MockResponse response) {
-    responseQueue.add(response);
-  }
-
-  @Override public void shutdown() {
-    responseQueue.add(DEAD_LETTER);
-  }
-
-  public void setFailFast(boolean failFast) {
-    MockResponse failFastResponse = failFast
-        ? new MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_FOUND)
-        : null;
-    setFailFast(failFastResponse);
-  }
-
-  public void setFailFast(MockResponse failFastResponse) {
-    this.failFastResponse = failFastResponse;
-  }
+    public void setFailFast(MockResponse failFastResponse) {
+        this.failFastResponse = failFastResponse;
+    }
 }

@@ -16,38 +16,46 @@
 package okhttp3;
 
 import java.io.IOException;
+
 import javax.annotation.Nullable;
+
 import okio.BufferedSink;
 
 public class ForwardingRequestBody extends RequestBody {
-  private final RequestBody delegate;
+    private final RequestBody delegate;
 
-  public ForwardingRequestBody(RequestBody delegate) {
-    if (delegate == null) throw new IllegalArgumentException("delegate == null");
-    this.delegate = delegate;
-  }
+    public ForwardingRequestBody(RequestBody delegate) {
+        if (delegate == null) throw new IllegalArgumentException("delegate == null");
+        this.delegate = delegate;
+    }
 
-  public final RequestBody delegate() {
-    return delegate;
-  }
+    public final RequestBody delegate() {
+        return delegate;
+    }
 
-  @Override public @Nullable MediaType contentType() {
-    return delegate.contentType();
-  }
+    @Override
+    public @Nullable
+    MediaType contentType() {
+        return delegate.contentType();
+    }
 
-  @Override public long contentLength() throws IOException {
-    return delegate.contentLength();
-  }
+    @Override
+    public long contentLength() throws IOException {
+        return delegate.contentLength();
+    }
 
-  @Override public void writeTo(BufferedSink sink) throws IOException {
-    delegate.writeTo(sink);
-  }
+    @Override
+    public void writeTo(BufferedSink sink) throws IOException {
+        delegate.writeTo(sink);
+    }
 
-  @Override public boolean isDuplex() {
-    return delegate.isDuplex();
-  }
+    @Override
+    public boolean isDuplex() {
+        return delegate.isDuplex();
+    }
 
-  @Override public String toString() {
-    return getClass().getSimpleName() + "(" + delegate.toString() + ")";
-  }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + delegate.toString() + ")";
+    }
 }

@@ -16,11 +16,12 @@
 package okhttp3.mockwebserver.internal.duplex;
 
 import java.io.IOException;
+
 import okhttp3.mockwebserver.RecordedRequest;
 import okio.BufferedSink;
 import okio.BufferedSource;
 
 public interface DuplexResponseBody {
-  void onRequest(RecordedRequest request, BufferedSource requestBody, BufferedSink responseBody)
-      throws IOException;
+    void onRequest(RecordedRequest request, BufferedSource requestBody, BufferedSink responseBody)
+            throws IOException;
 }

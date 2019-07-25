@@ -15,29 +15,31 @@
  */
 package okhttp3.mockwebserver;
 
-/** Handler for mock server requests. */
+/**
+ * Handler for mock server requests.
+ */
 public abstract class Dispatcher {
-  /**
-   * Returns a response to satisfy {@code request}. This method may block (for instance, to wait on
-   * a CountdownLatch).
-   */
-  public abstract MockResponse dispatch(RecordedRequest request) throws InterruptedException;
+    /**
+     * Returns a response to satisfy {@code request}. This method may block (for instance, to wait on
+     * a CountdownLatch).
+     */
+    public abstract MockResponse dispatch(RecordedRequest request) throws InterruptedException;
 
-  /**
-   * Returns an early guess of the next response, used for policy on how an incoming request should
-   * be received. The default implementation returns an empty response. Mischievous implementations
-   * can return other values to test HTTP edge cases, such as unhappy socket policies or throttled
-   * request bodies.
-   */
-  public MockResponse peek() {
-    return new MockResponse().setSocketPolicy(SocketPolicy.KEEP_OPEN);
-  }
+    /**
+     * Returns an early guess of the next response, used for policy on how an incoming request should
+     * be received. The default implementation returns an empty response. Mischievous implementations
+     * can return other values to test HTTP edge cases, such as unhappy socket policies or throttled
+     * request bodies.
+     */
+    public MockResponse peek() {
+        return new MockResponse().setSocketPolicy(SocketPolicy.KEEP_OPEN);
+    }
 
-  /**
-   * Release any resources held by this dispatcher. Any requests that are currently being dispatched
-   * should return immediately. Responses returned after shutdown will not be transmitted: their
-   * socket connections have already been closed.
-   */
-  public void shutdown() {
-  }
+    /**
+     * Release any resources held by this dispatcher. Any requests that are currently being dispatched
+     * should return immediately. Responses returned after shutdown will not be transmitted: their
+     * socket connections have already been closed.
+     */
+    public void shutdown() {
+    }
 }

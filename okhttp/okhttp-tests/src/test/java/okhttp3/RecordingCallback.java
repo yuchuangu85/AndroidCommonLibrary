@@ -25,41 +25,43 @@ import java.util.concurrent.TimeUnit;
  * Records received HTTP responses so they can be later retrieved by tests.
  */
 public class RecordingCallback implements Callback {
-  public static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(10);
+    public static final long TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(10);
 
-  private final List<RecordedResponse> responses = new ArrayList<>();
+    private final List<RecordedResponse> responses = new ArrayList<>();
 
-  @Override public synchronized void onFailure(Call call, IOException e) {
-    responses.add(new RecordedResponse(call.request(), null, null, null, e));
-    notifyAll();
-  }
-
-  @Override public synchronized void onResponse(Call call, Response response) throws IOException {
-    String body = response.body().string();
-    responses.add(new RecordedResponse(call.request(), response, null, body, null));
-    notifyAll();
-  }
-
-  /**
-   * Returns the recorded response triggered by {@code request}. Throws if the response isn't
-   * enqueued before the timeout.
-   */
-  public synchronized RecordedResponse await(HttpUrl url) throws Exception {
-    long timeoutMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + TIMEOUT_MILLIS;
-    while (true) {
-      for (Iterator<RecordedResponse> i = responses.iterator(); i.hasNext(); ) {
-        RecordedResponse recordedResponse = i.next();
-        if (recordedResponse.request.url().equals(url)) {
-          i.remove();
-          return recordedResponse;
-        }
-      }
-
-      long nowMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
-      if (nowMillis >= timeoutMillis) break;
-      wait(timeoutMillis - nowMillis);
+    @Override
+    public synchronized void onFailure(Call call, IOException e) {
+        responses.add(new RecordedResponse(call.request(), null, null, null, e));
+        notifyAll();
     }
 
-    throw new AssertionError("Timed out waiting for response to " + url);
-  }
+    @Override
+    public synchronized void onResponse(Call call, Response response) throws IOException {
+        String body = response.body().string();
+        responses.add(new RecordedResponse(call.request(), response, null, body, null));
+        notifyAll();
+    }
+
+    /**
+     * Returns the recorded response triggered by {@code request}. Throws if the response isn't
+     * enqueued before the timeout.
+     */
+    public synchronized RecordedResponse await(HttpUrl url) throws Exception {
+        long timeoutMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime()) + TIMEOUT_MILLIS;
+        while (true) {
+            for (Iterator<RecordedResponse> i = responses.iterator(); i.hasNext(); ) {
+                RecordedResponse recordedResponse = i.next();
+                if (recordedResponse.request.url().equals(url)) {
+                    i.remove();
+                    return recordedResponse;
+                }
+            }
+
+            long nowMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
+            if (nowMillis >= timeoutMillis) break;
+            wait(timeoutMillis - nowMillis);
+        }
+
+        throw new AssertionError("Timed out waiting for response to " + url);
+    }
 }

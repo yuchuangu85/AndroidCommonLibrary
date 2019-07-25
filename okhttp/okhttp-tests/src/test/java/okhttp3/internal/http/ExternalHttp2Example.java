@@ -24,28 +24,28 @@ import okhttp3.Response;
 import okhttp3.internal.Util;
 
 public final class ExternalHttp2Example {
-  public static void main(String[] args) throws Exception {
-    OkHttpClient client = new OkHttpClient.Builder()
-        .protocols(Util.immutableList(Protocol.HTTP_2, Protocol.HTTP_1_1))
-        .build();
+    public static void main(String[] args) throws Exception {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .protocols(Util.immutableList(Protocol.HTTP_2, Protocol.HTTP_1_1))
+                .build();
 
-    Call call = client.newCall(new Request.Builder()
-        .url("https://www.google.ca/")
-        .build());
+        Call call = client.newCall(new Request.Builder()
+                .url("https://www.google.ca/")
+                .build());
 
-    Response response = call.execute();
-    try {
-      System.out.println(response.code());
-      System.out.println("PROTOCOL " + response.protocol());
+        Response response = call.execute();
+        try {
+            System.out.println(response.code());
+            System.out.println("PROTOCOL " + response.protocol());
 
-      String line;
-      while ((line = response.body().source().readUtf8Line()) != null) {
-        System.out.println(line);
-      }
-    } finally {
-      response.body().close();
+            String line;
+            while ((line = response.body().source().readUtf8Line()) != null) {
+                System.out.println(line);
+            }
+        } finally {
+            response.body().close();
+        }
+
+        client.connectionPool().evictAll();
     }
-
-    client.connectionPool().evictAll();
-  }
 }

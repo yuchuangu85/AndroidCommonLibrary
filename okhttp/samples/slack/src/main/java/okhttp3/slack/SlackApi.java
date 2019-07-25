@@ -19,13 +19,15 @@ import com.squareup.moshi.FromJson;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.ToJson;
+
 import java.io.IOException;
+
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-import okhttp3.WebSocket;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
@@ -38,89 +40,99 @@ import okio.ByteString;
  * http://localhost:53203/oauth/}, passing the same port to this class’ constructor.
  */
 public final class SlackApi {
-  private final HttpUrl baseUrl = HttpUrl.get("https://slack.com/api/");
-  private final OkHttpClient httpClient;
-  private final Moshi moshi;
+    private final HttpUrl baseUrl = HttpUrl.get("https://slack.com/api/");
+    private final OkHttpClient httpClient;
+    private final Moshi moshi;
 
-  public final String clientId;
-  public final String clientSecret;
-  public final int port;
+    public final String clientId;
+    public final String clientSecret;
+    public final int port;
 
-  public SlackApi(String clientId, String clientSecret, int port) {
-    this.httpClient = new OkHttpClient.Builder()
-        .build();
-    this.moshi = new Moshi.Builder()
-        .add(new SlackJsonAdapters())
-        .build();
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.port = port;
-  }
-
-  /** See https://api.slack.com/docs/oauth. */
-  public HttpUrl authorizeUrl(String scopes, HttpUrl redirectUrl, ByteString state, String team) {
-    HttpUrl.Builder builder = baseUrl.newBuilder("/oauth/authorize")
-        .addQueryParameter("client_id", clientId)
-        .addQueryParameter("scope", scopes)
-        .addQueryParameter("redirect_uri", redirectUrl.toString())
-        .addQueryParameter("state", state.base64());
-
-    if (team != null) {
-      builder.addQueryParameter("team", team);
+    public SlackApi(String clientId, String clientSecret, int port) {
+        this.httpClient = new OkHttpClient.Builder()
+                .build();
+        this.moshi = new Moshi.Builder()
+                .add(new SlackJsonAdapters())
+                .build();
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.port = port;
     }
 
-    return builder.build();
-  }
+    /**
+     * See https://api.slack.com/docs/oauth.
+     */
+    public HttpUrl authorizeUrl(String scopes, HttpUrl redirectUrl, ByteString state, String team) {
+        HttpUrl.Builder builder = baseUrl.newBuilder("/oauth/authorize")
+                .addQueryParameter("client_id", clientId)
+                .addQueryParameter("scope", scopes)
+                .addQueryParameter("redirect_uri", redirectUrl.toString())
+                .addQueryParameter("state", state.base64());
 
-  /** See https://api.slack.com/methods/oauth.access. */
-  public OAuthSession exchangeCode(String code, HttpUrl redirectUrl) throws IOException {
-    HttpUrl url = baseUrl.newBuilder("oauth.access")
-        .addQueryParameter("client_id", clientId)
-        .addQueryParameter("client_secret", clientSecret)
-        .addQueryParameter("code", code)
-        .addQueryParameter("redirect_uri", redirectUrl.toString())
-        .build();
-    Request request = new Request.Builder()
-        .url(url)
-        .build();
-    Call call = httpClient.newCall(request);
-    try (Response response = call.execute()) {
-      JsonAdapter<OAuthSession> jsonAdapter = moshi.adapter(OAuthSession.class);
-      return jsonAdapter.fromJson(response.body().source());
-    }
-  }
+        if (team != null) {
+            builder.addQueryParameter("team", team);
+        }
 
-  /** See https://api.slack.com/methods/rtm.start. */
-  public RtmStartResponse rtmStart(String accessToken) throws IOException {
-    HttpUrl url = baseUrl.newBuilder("rtm.start")
-        .addQueryParameter("token", accessToken)
-        .build();
-    Request request = new Request.Builder()
-        .url(url)
-        .build();
-    Call call = httpClient.newCall(request);
-    try (Response response = call.execute()) {
-      JsonAdapter<RtmStartResponse> jsonAdapter = moshi.adapter(RtmStartResponse.class);
-      return jsonAdapter.fromJson(response.body().source());
-    }
-  }
-
-  /** See https://api.slack.com/rtm. */
-  public WebSocket rtm(HttpUrl url, WebSocketListener listener) {
-    return httpClient.newWebSocket(new Request.Builder()
-        .url(url)
-        .build(), listener);
-  }
-
-  static final class SlackJsonAdapters {
-    @ToJson String urlToJson(HttpUrl httpUrl) {
-      return httpUrl.toString();
+        return builder.build();
     }
 
-    @FromJson HttpUrl urlFromJson(String urlString) {
-      if (urlString.startsWith("wss:")) urlString = "https:" + urlString.substring(4);
-      if (urlString.startsWith("ws:")) urlString = "http:" + urlString.substring(3);
-      return HttpUrl.get(urlString);
+    /**
+     * See https://api.slack.com/methods/oauth.access.
+     */
+    public OAuthSession exchangeCode(String code, HttpUrl redirectUrl) throws IOException {
+        HttpUrl url = baseUrl.newBuilder("oauth.access")
+                .addQueryParameter("client_id", clientId)
+                .addQueryParameter("client_secret", clientSecret)
+                .addQueryParameter("code", code)
+                .addQueryParameter("redirect_uri", redirectUrl.toString())
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Call call = httpClient.newCall(request);
+        try (Response response = call.execute()) {
+            JsonAdapter<OAuthSession> jsonAdapter = moshi.adapter(OAuthSession.class);
+            return jsonAdapter.fromJson(response.body().source());
+        }
     }
-  }
+
+    /**
+     * See https://api.slack.com/methods/rtm.start.
+     */
+    public RtmStartResponse rtmStart(String accessToken) throws IOException {
+        HttpUrl url = baseUrl.newBuilder("rtm.start")
+                .addQueryParameter("token", accessToken)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Call call = httpClient.newCall(request);
+        try (Response response = call.execute()) {
+            JsonAdapter<RtmStartResponse> jsonAdapter = moshi.adapter(RtmStartResponse.class);
+            return jsonAdapter.fromJson(response.body().source());
+        }
+    }
+
+    /**
+     * See https://api.slack.com/rtm.
+     */
+    public WebSocket rtm(HttpUrl url, WebSocketListener listener) {
+        return httpClient.newWebSocket(new Request.Builder()
+                .url(url)
+                .build(), listener);
+    }
+
+    static final class SlackJsonAdapters {
+        @ToJson
+        String urlToJson(HttpUrl httpUrl) {
+            return httpUrl.toString();
+        }
+
+        @FromJson
+        HttpUrl urlFromJson(String urlString) {
+            if (urlString.startsWith("wss:")) urlString = "https:" + urlString.substring(4);
+            if (urlString.startsWith("ws:")) urlString = "http:" + urlString.substring(3);
+            return HttpUrl.get(urlString);
+        }
+    }
 }

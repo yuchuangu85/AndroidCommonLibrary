@@ -24,32 +24,36 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import okhttp3.internal.Util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class RecordingProxySelector extends ProxySelector {
-  public final List<Proxy> proxies = new ArrayList<>();
-  public final List<URI> requestedUris = new ArrayList<>();
-  public final List<String> failures = new ArrayList<>();
+    public final List<Proxy> proxies = new ArrayList<>();
+    public final List<URI> requestedUris = new ArrayList<>();
+    public final List<String> failures = new ArrayList<>();
 
-  @Override public List<Proxy> select(URI uri) {
-    requestedUris.add(uri);
-    return proxies;
-  }
+    @Override
+    public List<Proxy> select(URI uri) {
+        requestedUris.add(uri);
+        return proxies;
+    }
 
-  public void assertRequests(URI... expectedUris) {
-    assertThat(requestedUris).isEqualTo(Arrays.asList(expectedUris));
-    requestedUris.clear();
-  }
+    public void assertRequests(URI... expectedUris) {
+        assertThat(requestedUris).isEqualTo(Arrays.asList(expectedUris));
+        requestedUris.clear();
+    }
 
-  @Override public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-    InetSocketAddress socketAddress = (InetSocketAddress) sa;
-    failures.add(Util.format("%s %s:%d %s",
-        uri, socketAddress, socketAddress.getPort(), ioe.getMessage()));
-  }
+    @Override
+    public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+        InetSocketAddress socketAddress = (InetSocketAddress) sa;
+        failures.add(Util.format("%s %s:%d %s",
+                uri, socketAddress, socketAddress.getPort(), ioe.getMessage()));
+    }
 
-  @Override public String toString() {
-    return "RecordingProxySelector";
-  }
+    @Override
+    public String toString() {
+        return "RecordingProxySelector";
+    }
 }

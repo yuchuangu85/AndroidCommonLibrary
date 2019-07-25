@@ -16,30 +16,37 @@
 package okhttp3;
 
 import javax.annotation.Nullable;
+
 import okio.ByteString;
 
 public final class RecordingWebSocketListener extends WebSocketListener {
-  @Override public void onOpen(WebSocket webSocket, Response response) {
-    // TODO
-  }
+    @Override
+    public void onOpen(WebSocket webSocket, Response response) {
+        // TODO
+    }
 
-  @Override public void onMessage(WebSocket webSocket, String text) {
-    // TODO
-  }
+    @Override
+    public void onMessage(WebSocket webSocket, String text) {
+        // TODO
+    }
 
-  @Override public void onMessage(WebSocket webSocket, ByteString bytes) {
-    // TODO
-  }
+    @Override
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
+        // TODO
+    }
 
-  @Override public void onClosing(WebSocket webSocket, int code, String reason) {
-    // TODO
-  }
+    @Override
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        // TODO
+    }
 
-  @Override public void onClosed(WebSocket webSocket, int code, String reason) {
-    // TODO
-  }
+    @Override
+    public void onClosed(WebSocket webSocket, int code, String reason) {
+        // TODO
+    }
 
-  @Override public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
-    // TODO
-  }
+    @Override
+    public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
+        // TODO
+    }
 }

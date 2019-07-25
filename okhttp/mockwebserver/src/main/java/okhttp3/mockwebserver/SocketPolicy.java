@@ -31,95 +31,101 @@ package okhttp3.mockwebserver;
  */
 public enum SocketPolicy {
 
-  /**
-   * Shutdown {@link MockWebServer} after writing response.
-   */
-  SHUTDOWN_SERVER_AFTER_RESPONSE,
+    /**
+     * Shutdown {@link MockWebServer} after writing response.
+     */
+    SHUTDOWN_SERVER_AFTER_RESPONSE,
 
-  /**
-   * Keep the socket open after the response. This is the default HTTP/1.1 behavior.
-   */
-  KEEP_OPEN,
+    /**
+     * Keep the socket open after the response. This is the default HTTP/1.1 behavior.
+     */
+    KEEP_OPEN,
 
-  /**
-   * Close the socket after the response. This is the default HTTP/1.0 behavior. For HTTP/2
-   * connections, this sends a <a href="https://tools.ietf.org/html/rfc7540#section-6.8">GOAWAY
-   * frame</a> immediately after the response and will close the connection when the client's socket
-   * is exhausted.
-   *
-   * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
-   */
-  DISCONNECT_AT_END,
+    /**
+     * Close the socket after the response. This is the default HTTP/1.0 behavior. For HTTP/2
+     * connections, this sends a <a href="https://tools.ietf.org/html/rfc7540#section-6.8">GOAWAY
+     * frame</a> immediately after the response and will close the connection when the client's socket
+     * is exhausted.
+     *
+     * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
+     */
+    DISCONNECT_AT_END,
 
-  /**
-   * Wrap the socket with SSL at the completion of this request/response pair. Used for CONNECT
-   * messages to tunnel SSL over an HTTP proxy.
-   */
-  UPGRADE_TO_SSL_AT_END,
+    /**
+     * Wrap the socket with SSL at the completion of this request/response pair. Used for CONNECT
+     * messages to tunnel SSL over an HTTP proxy.
+     */
+    UPGRADE_TO_SSL_AT_END,
 
-  /**
-   * Request immediate close of connection without even reading the request. Use to simulate buggy
-   * SSL servers closing connections in response to unrecognized TLS extensions.
-   */
-  DISCONNECT_AT_START,
+    /**
+     * Request immediate close of connection without even reading the request. Use to simulate buggy
+     * SSL servers closing connections in response to unrecognized TLS extensions.
+     */
+    DISCONNECT_AT_START,
 
-  /**
-   * Close connection after reading the request but before writing the response. Use this to
-   * simulate late connection pool failures.
-   */
-  DISCONNECT_AFTER_REQUEST,
+    /**
+     * Close connection after reading the request but before writing the response. Use this to
+     * simulate late connection pool failures.
+     */
+    DISCONNECT_AFTER_REQUEST,
 
-  /** Close connection after reading half of the request body (if present). */
-  DISCONNECT_DURING_REQUEST_BODY,
+    /**
+     * Close connection after reading half of the request body (if present).
+     */
+    DISCONNECT_DURING_REQUEST_BODY,
 
-  /** Close connection after writing half of the response body (if present). */
-  DISCONNECT_DURING_RESPONSE_BODY,
+    /**
+     * Close connection after writing half of the response body (if present).
+     */
+    DISCONNECT_DURING_RESPONSE_BODY,
 
-  /** Don't trust the client during the SSL handshake. */
-  FAIL_HANDSHAKE,
+    /**
+     * Don't trust the client during the SSL handshake.
+     */
+    FAIL_HANDSHAKE,
 
-  /**
-   * Shutdown the socket input after sending the response. For testing bad behavior.
-   *
-   * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
-   */
-  SHUTDOWN_INPUT_AT_END,
+    /**
+     * Shutdown the socket input after sending the response. For testing bad behavior.
+     *
+     * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
+     */
+    SHUTDOWN_INPUT_AT_END,
 
-  /**
-   * Shutdown the socket output after sending the response. For testing bad behavior.
-   *
-   * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
-   */
-  SHUTDOWN_OUTPUT_AT_END,
+    /**
+     * Shutdown the socket output after sending the response. For testing bad behavior.
+     *
+     * <p>See {@link SocketPolicy} for reasons why this can cause test flakiness and how to avoid it.
+     */
+    SHUTDOWN_OUTPUT_AT_END,
 
-  /**
-   * After accepting the connection and doing TLS (if configured) don't do HTTP/1.1 or HTTP/2
-   * framing. Ignore the socket completely until the server is shut down.
-   */
-  STALL_SOCKET_AT_START,
+    /**
+     * After accepting the connection and doing TLS (if configured) don't do HTTP/1.1 or HTTP/2
+     * framing. Ignore the socket completely until the server is shut down.
+     */
+    STALL_SOCKET_AT_START,
 
-  /**
-   * Read the request but don't respond to it. Just keep the socket open. For testing read response
-   * header timeout issue.
-   */
-  NO_RESPONSE,
+    /**
+     * Read the request but don't respond to it. Just keep the socket open. For testing read response
+     * header timeout issue.
+     */
+    NO_RESPONSE,
 
-  /**
-   * Fail HTTP/2 requests without processing them by sending an {@linkplain
-   * MockResponse#getHttp2ErrorCode() HTTP/2 error code}.
-   */
-  RESET_STREAM_AT_START,
+    /**
+     * Fail HTTP/2 requests without processing them by sending an {@linkplain
+     * MockResponse#getHttp2ErrorCode() HTTP/2 error code}.
+     */
+    RESET_STREAM_AT_START,
 
-  /**
-   * Transmit a {@code HTTP/1.1 100 Continue} response before reading the HTTP request body.
-   * Typically this response is sent when a client makes a request with the header {@code
-   * Expect: 100-continue}.
-   */
-  EXPECT_CONTINUE,
+    /**
+     * Transmit a {@code HTTP/1.1 100 Continue} response before reading the HTTP request body.
+     * Typically this response is sent when a client makes a request with the header {@code
+     * Expect: 100-continue}.
+     */
+    EXPECT_CONTINUE,
 
-  /**
-   * Transmit a {@code HTTP/1.1 100 Continue} response before reading the HTTP request body even
-   * if the client does not send the header {@code Expect: 100-continue} in its request.
-   */
-  CONTINUE_ALWAYS
+    /**
+     * Transmit a {@code HTTP/1.1 100 Continue} response before reading the HTTP request body even
+     * if the client does not send the header {@code Expect: 100-continue} in its request.
+     */
+    CONTINUE_ALWAYS
 }
