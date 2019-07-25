@@ -17,9 +17,12 @@ package retrofit2.converter.protobuf;
 
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.Parser;
-import java.lang.annotation.Annotation;
-import okhttp3.ResponseBody;
+
 import org.junit.Test;
+
+import java.lang.annotation.Annotation;
+
+import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.protobuf.PhoneProtos.Phone;
@@ -27,16 +30,17 @@ import retrofit2.converter.protobuf.PhoneProtos.Phone;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class FallbackParserFinderTest {
-  @Test public void converterFactoryFallsBackToParserField() {
-    Retrofit retrofit = new Retrofit.Builder().baseUrl("http://localhost/").build();
-    ProtoConverterFactory factory = ProtoConverterFactory.create();
-    Converter<ResponseBody, ?> converter =
-        factory.responseBodyConverter(FakePhone.class, new Annotation[0], retrofit);
-    assertThat(converter).isNotNull();
-  }
+    @Test
+    public void converterFactoryFallsBackToParserField() {
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://localhost/").build();
+        ProtoConverterFactory factory = ProtoConverterFactory.create();
+        Converter<ResponseBody, ?> converter =
+                factory.responseBodyConverter(FakePhone.class, new Annotation[0], retrofit);
+        assertThat(converter).isNotNull();
+    }
 
-  @SuppressWarnings("unused") // Used reflectively.
-  public static abstract class FakePhone implements MessageLite {
-    public static final Parser<Phone> PARSER = Phone.parser();
-  }
+    @SuppressWarnings("unused") // Used reflectively.
+    public static abstract class FakePhone implements MessageLite {
+        public static final Parser<Phone> PARSER = Phone.parser();
+    }
 }

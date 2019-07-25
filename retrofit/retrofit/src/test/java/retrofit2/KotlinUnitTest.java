@@ -15,39 +15,44 @@
  */
 package retrofit2;
 
-import java.io.IOException;
-import kotlin.Unit;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import kotlin.Unit;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.http.GET;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class KotlinUnitTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/")
-    Call<Unit> empty();
-  }
+    interface Service {
+        @GET("/")
+        Call<Unit> empty();
+    }
 
-  @Test public void unitOnClasspath() throws IOException {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .build();
-    Service example = retrofit.create(Service.class);
+    @Test
+    public void unitOnClasspath() throws IOException {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .build();
+        Service example = retrofit.create(Service.class);
 
-    server.enqueue(new MockResponse().setBody("Hi"));
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-    Response<Unit> response = example.empty().execute();
-    assertThat(response.isSuccessful()).isTrue();
-    assertThat(response.body()).isSameAs(Unit.INSTANCE);
-  }
+        Response<Unit> response = example.empty().execute();
+        assertThat(response.isSuccessful()).isTrue();
+        assertThat(response.body()).isSameAs(Unit.INSTANCE);
+    }
 
-  @Ignore("This is implicitly tested by integration tests of the adapters and converters")
-  @Test public void unitMissingFromClasspath() {
-  }
+    @Ignore("This is implicitly tested by integration tests of the adapters and converters")
+    @Test
+    public void unitMissingFromClasspath() {
+    }
 }

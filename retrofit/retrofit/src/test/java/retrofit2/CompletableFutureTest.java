@@ -15,14 +15,16 @@
  */
 package retrofit2;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.helpers.ToStringConverterFactory;
 import retrofit2.http.GET;
 
@@ -31,84 +33,95 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public final class CompletableFutureTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/") CompletableFuture<String> body();
-    @GET("/") CompletableFuture<Response<String>> response();
-  }
+    interface Service {
+        @GET("/")
+        CompletableFuture<String> body();
 
-  private Service service;
-
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new ToStringConverterFactory())
-        .build();
-    service = retrofit.create(Service.class);
-  }
-
-  @Test public void bodySuccess200() throws Exception {
-    server.enqueue(new MockResponse().setBody("Hi"));
-
-    CompletableFuture<String> future = service.body();
-    assertThat(future.get()).isEqualTo("Hi");
-  }
-
-  @Test public void bodySuccess404() throws Exception {
-    server.enqueue(new MockResponse().setResponseCode(404));
-
-    CompletableFuture<String> future = service.body();
-    try {
-      future.get();
-      fail();
-    } catch (ExecutionException e) {
-      assertThat(e.getCause())
-          .isInstanceOf(HttpException.class) // Required for backwards compatibility.
-          .isInstanceOf(HttpException.class)
-          .hasMessage("HTTP 404 Client Error");
+        @GET("/")
+        CompletableFuture<Response<String>> response();
     }
-  }
 
-  @Test public void bodyFailure() throws Exception {
-    server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+    private Service service;
 
-    CompletableFuture<String> future = service.body();
-    try {
-      future.get();
-      fail();
-    } catch (ExecutionException e) {
-      assertThat(e.getCause()).isInstanceOf(IOException.class);
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new ToStringConverterFactory())
+                .build();
+        service = retrofit.create(Service.class);
     }
-  }
 
-  @Test public void responseSuccess200() throws Exception {
-    server.enqueue(new MockResponse().setBody("Hi"));
+    @Test
+    public void bodySuccess200() throws Exception {
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-    CompletableFuture<Response<String>> future = service.response();
-    Response<String> response = future.get();
-    assertThat(response.isSuccessful()).isTrue();
-    assertThat(response.body()).isEqualTo("Hi");
-  }
-
-  @Test public void responseSuccess404() throws Exception {
-    server.enqueue(new MockResponse().setResponseCode(404).setBody("Hi"));
-
-    CompletableFuture<Response<String>> future = service.response();
-    Response<String> response = future.get();
-    assertThat(response.isSuccessful()).isFalse();
-    assertThat(response.errorBody().string()).isEqualTo("Hi");
-  }
-
-  @Test public void responseFailure() throws Exception {
-    server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
-
-    CompletableFuture<Response<String>> future = service.response();
-    try {
-      future.get();
-      fail();
-    } catch (ExecutionException e) {
-      assertThat(e.getCause()).isInstanceOf(IOException.class);
+        CompletableFuture<String> future = service.body();
+        assertThat(future.get()).isEqualTo("Hi");
     }
-  }
+
+    @Test
+    public void bodySuccess404() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404));
+
+        CompletableFuture<String> future = service.body();
+        try {
+            future.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertThat(e.getCause())
+                    .isInstanceOf(HttpException.class) // Required for backwards compatibility.
+                    .isInstanceOf(HttpException.class)
+                    .hasMessage("HTTP 404 Client Error");
+        }
+    }
+
+    @Test
+    public void bodyFailure() throws Exception {
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+
+        CompletableFuture<String> future = service.body();
+        try {
+            future.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertThat(e.getCause()).isInstanceOf(IOException.class);
+        }
+    }
+
+    @Test
+    public void responseSuccess200() throws Exception {
+        server.enqueue(new MockResponse().setBody("Hi"));
+
+        CompletableFuture<Response<String>> future = service.response();
+        Response<String> response = future.get();
+        assertThat(response.isSuccessful()).isTrue();
+        assertThat(response.body()).isEqualTo("Hi");
+    }
+
+    @Test
+    public void responseSuccess404() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("Hi"));
+
+        CompletableFuture<Response<String>> future = service.response();
+        Response<String> response = future.get();
+        assertThat(response.isSuccessful()).isFalse();
+        assertThat(response.errorBody().string()).isEqualTo("Hi");
+    }
+
+    @Test
+    public void responseFailure() throws Exception {
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+
+        CompletableFuture<Response<String>> future = service.response();
+        try {
+            future.get();
+            fail();
+        } catch (ExecutionException e) {
+            assertThat(e.getCause()).isInstanceOf(IOException.class);
+        }
+    }
 }

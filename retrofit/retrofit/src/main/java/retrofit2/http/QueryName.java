@@ -58,8 +58,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(PARAMETER)
 @Retention(RUNTIME)
 public @interface QueryName {
-  /**
-   * Specifies whether the parameter is already URL encoded.
-   */
-  boolean encoded() default false;
+    /**
+     * Specifies whether the parameter is already URL encoded.
+     */
+    boolean encoded() default false;
 }

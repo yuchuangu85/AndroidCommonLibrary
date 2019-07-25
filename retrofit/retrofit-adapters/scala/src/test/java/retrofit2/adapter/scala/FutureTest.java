@@ -15,12 +15,14 @@
  */
 package retrofit2.adapter.scala;
 
-import java.io.IOException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.HttpException;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -35,86 +37,97 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public final class FutureTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/") Future<String> body();
-    @GET("/") Future<Response<String>> response();
-  }
+    interface Service {
+        @GET("/")
+        Future<String> body();
 
-  private Service service;
-
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(ScalaCallAdapterFactory.create())
-        .build();
-    service = retrofit.create(Service.class);
-  }
-
-  @Test public void bodySuccess200() throws Exception {
-    server.enqueue(new MockResponse().setBody("Hi"));
-
-    Future<String> future = service.body();
-    String result = Await.result(future, Duration.create(5, SECONDS));
-    assertThat(result).isEqualTo("Hi");
-  }
-
-  @Test public void bodySuccess404() {
-    server.enqueue(new MockResponse().setResponseCode(404));
-
-    Future<String> future = service.body();
-    try {
-      Await.result(future, Duration.create(5, SECONDS));
-      fail();
-    } catch (Exception e) {
-      assertThat(e)
-          .isInstanceOf(HttpException.class) // Required for backwards compatibility.
-          .isInstanceOf(retrofit2.HttpException.class)
-          .hasMessage("HTTP 404 Client Error");
+        @GET("/")
+        Future<Response<String>> response();
     }
-  }
 
-  @Test public void bodyFailure() {
-    server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+    private Service service;
 
-    Future<String> future = service.body();
-    try {
-      Await.result(future, Duration.create(5, SECONDS));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IOException.class);
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(ScalaCallAdapterFactory.create())
+                .build();
+        service = retrofit.create(Service.class);
     }
-  }
 
-  @Test public void responseSuccess200() throws Exception {
-    server.enqueue(new MockResponse().setBody("Hi"));
+    @Test
+    public void bodySuccess200() throws Exception {
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-    Future<Response<String>> future = service.response();
-    Response<String> response = Await.result(future, Duration.create(5, SECONDS));
-    assertThat(response.isSuccessful()).isTrue();
-    assertThat(response.body()).isEqualTo("Hi");
-  }
-
-  @Test public void responseSuccess404() throws Exception {
-    server.enqueue(new MockResponse().setResponseCode(404).setBody("Hi"));
-
-    Future<Response<String>> future = service.response();
-    Response<String> response = Await.result(future, Duration.create(5, SECONDS));
-    assertThat(response.isSuccessful()).isFalse();
-    assertThat(response.errorBody().string()).isEqualTo("Hi");
-  }
-
-  @Test public void responseFailure() {
-    server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
-
-    Future<Response<String>> future = service.response();
-    try {
-      Await.result(future, Duration.create(5, SECONDS));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IOException.class);
+        Future<String> future = service.body();
+        String result = Await.result(future, Duration.create(5, SECONDS));
+        assertThat(result).isEqualTo("Hi");
     }
-  }
+
+    @Test
+    public void bodySuccess404() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+
+        Future<String> future = service.body();
+        try {
+            Await.result(future, Duration.create(5, SECONDS));
+            fail();
+        } catch (Exception e) {
+            assertThat(e)
+                    .isInstanceOf(HttpException.class) // Required for backwards compatibility.
+                    .isInstanceOf(retrofit2.HttpException.class)
+                    .hasMessage("HTTP 404 Client Error");
+        }
+    }
+
+    @Test
+    public void bodyFailure() {
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+
+        Future<String> future = service.body();
+        try {
+            Await.result(future, Duration.create(5, SECONDS));
+            fail();
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(IOException.class);
+        }
+    }
+
+    @Test
+    public void responseSuccess200() throws Exception {
+        server.enqueue(new MockResponse().setBody("Hi"));
+
+        Future<Response<String>> future = service.response();
+        Response<String> response = Await.result(future, Duration.create(5, SECONDS));
+        assertThat(response.isSuccessful()).isTrue();
+        assertThat(response.body()).isEqualTo("Hi");
+    }
+
+    @Test
+    public void responseSuccess404() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("Hi"));
+
+        Future<Response<String>> future = service.response();
+        Response<String> response = Await.result(future, Duration.create(5, SECONDS));
+        assertThat(response.isSuccessful()).isFalse();
+        assertThat(response.errorBody().string()).isEqualTo("Hi");
+    }
+
+    @Test
+    public void responseFailure() {
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+
+        Future<Response<String>> future = service.response();
+        try {
+            Await.result(future, Duration.create(5, SECONDS));
+            fail();
+        } catch (Exception e) {
+            assertThat(e).isInstanceOf(IOException.class);
+        }
+    }
 }

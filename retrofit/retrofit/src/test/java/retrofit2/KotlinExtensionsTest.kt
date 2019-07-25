@@ -21,15 +21,17 @@ import org.junit.Rule
 import org.junit.Test
 
 class KotlinExtensionsTest {
-  @get:Rule val server = MockWebServer()
+    @get:Rule
+    val server = MockWebServer()
 
-  interface Empty
+    interface Empty
 
-  @Test fun reifiedCreate() {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .build()
+    @Test
+    fun reifiedCreate() {
+        val retrofit = Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .build()
 
-    assertNotNull(retrofit.create<Empty>())
-  }
+        assertNotNull(retrofit.create<Empty>())
+    }
 }

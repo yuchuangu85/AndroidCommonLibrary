@@ -19,7 +19,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import javax.annotation.Nullable;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -33,22 +35,24 @@ import retrofit2.Retrofit;
  */
 @Deprecated
 public final class Java8OptionalConverterFactory extends Converter.Factory {
-  public static Java8OptionalConverterFactory create() {
-    return new Java8OptionalConverterFactory();
-  }
-
-  private Java8OptionalConverterFactory() {
-  }
-
-  @Override public @Nullable Converter<ResponseBody, ?> responseBodyConverter(
-      Type type, Annotation[] annotations, Retrofit retrofit) {
-    if (getRawType(type) != Optional.class) {
-      return null;
+    public static Java8OptionalConverterFactory create() {
+        return new Java8OptionalConverterFactory();
     }
 
-    Type innerType = getParameterUpperBound(0, (ParameterizedType) type);
-    Converter<ResponseBody, Object> delegate =
-        retrofit.responseBodyConverter(innerType, annotations);
-    return new OptionalConverter<>(delegate);
-  }
+    private Java8OptionalConverterFactory() {
+    }
+
+    @Override
+    public @Nullable
+    Converter<ResponseBody, ?> responseBodyConverter(
+            Type type, Annotation[] annotations, Retrofit retrofit) {
+        if (getRawType(type) != Optional.class) {
+            return null;
+        }
+
+        Type innerType = getParameterUpperBound(0, (ParameterizedType) type);
+        Converter<ResponseBody, Object> delegate =
+                retrofit.responseBodyConverter(innerType, annotations);
+        return new OptionalConverter<>(delegate);
+    }
 }

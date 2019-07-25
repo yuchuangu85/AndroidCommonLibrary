@@ -22,27 +22,28 @@ import rx.Subscriber;
 import rx.exceptions.Exceptions;
 
 final class CallExecuteOnSubscribe<T> implements OnSubscribe<Response<T>> {
-  private final Call<T> originalCall;
+    private final Call<T> originalCall;
 
-  CallExecuteOnSubscribe(Call<T> originalCall) {
-    this.originalCall = originalCall;
-  }
-
-  @Override public void call(Subscriber<? super Response<T>> subscriber) {
-    // Since Call is a one-shot type, clone it for each new subscriber.
-    Call<T> call = originalCall.clone();
-    CallArbiter<T> arbiter = new CallArbiter<>(call, subscriber);
-    subscriber.add(arbiter);
-    subscriber.setProducer(arbiter);
-
-    Response<T> response;
-    try {
-      response = call.execute();
-    } catch (Throwable t) {
-      Exceptions.throwIfFatal(t);
-      arbiter.emitError(t);
-      return;
+    CallExecuteOnSubscribe(Call<T> originalCall) {
+        this.originalCall = originalCall;
     }
-    arbiter.emitResponse(response);
-  }
+
+    @Override
+    public void call(Subscriber<? super Response<T>> subscriber) {
+        // Since Call is a one-shot type, clone it for each new subscriber.
+        Call<T> call = originalCall.clone();
+        CallArbiter<T> arbiter = new CallArbiter<>(call, subscriber);
+        subscriber.add(arbiter);
+        subscriber.setProducer(arbiter);
+
+        Response<T> response;
+        try {
+            response = call.execute();
+        } catch (Throwable t) {
+            Exceptions.throwIfFatal(t);
+            arbiter.emitError(t);
+            return;
+        }
+        arbiter.emitResponse(response);
+    }
 }

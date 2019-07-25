@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Type;
 import java.util.Map;
+
 import retrofit2.Retrofit;
 
 import static java.lang.annotation.ElementType.PARAMETER;

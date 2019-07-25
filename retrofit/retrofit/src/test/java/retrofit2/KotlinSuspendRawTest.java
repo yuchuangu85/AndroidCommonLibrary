@@ -15,10 +15,11 @@
  */
 package retrofit2;
 
-import kotlin.coroutines.Continuation;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Rule;
 import org.junit.Test;
+
+import kotlin.coroutines.Continuation;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.http.GET;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,25 +30,27 @@ import static org.junit.Assert.fail;
  * Response type. Win! We still test this codepath for completeness.
  */
 public final class KotlinSuspendRawTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/")
-    Object body(Continuation<? super Response> response);
-  }
-
-  @Test public void raw() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .build();
-    Service service = retrofit.create(Service.class);
-
-    try {
-      service.body(null);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Response must include generic type (e.g., Response<String>)\n"
-          + "    for method Service.body");
+    interface Service {
+        @GET("/")
+        Object body(Continuation<? super Response> response);
     }
-  }
+
+    @Test
+    public void raw() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .build();
+        Service service = retrofit.create(Service.class);
+
+        try {
+            service.body(null);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessage("Response must include generic type (e.g., Response<String>)\n"
+                    + "    for method Service.body");
+        }
+    }
 }

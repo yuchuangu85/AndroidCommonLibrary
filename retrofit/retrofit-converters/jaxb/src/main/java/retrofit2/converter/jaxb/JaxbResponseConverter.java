@@ -16,38 +16,41 @@
 package retrofit2.converter.jaxb;
 
 import java.io.IOException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 
 final class JaxbResponseConverter<T> implements Converter<ResponseBody, T> {
-  final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-  final JAXBContext context;
-  final Class<T> type;
+    final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+    final JAXBContext context;
+    final Class<T> type;
 
-  JaxbResponseConverter(JAXBContext context, Class<T> type) {
-    this.context = context;
-    this.type = type;
+    JaxbResponseConverter(JAXBContext context, Class<T> type) {
+        this.context = context;
+        this.type = type;
 
-    // Prevent XML External Entity attacks (XXE).
-    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-  }
-
-  @Override public T convert(ResponseBody value) throws IOException {
-    try {
-      Unmarshaller unmarshaller = context.createUnmarshaller();
-      XMLStreamReader streamReader = xmlInputFactory.createXMLStreamReader(value.charStream());
-      return unmarshaller.unmarshal(streamReader, type).getValue();
-    } catch (JAXBException | XMLStreamException e) {
-      throw new RuntimeException(e);
-    } finally {
-      value.close();
+        // Prevent XML External Entity attacks (XXE).
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
     }
-  }
+
+    @Override
+    public T convert(ResponseBody value) throws IOException {
+        try {
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            XMLStreamReader streamReader = xmlInputFactory.createXMLStreamReader(value.charStream());
+            return unmarshaller.unmarshal(streamReader, type).getValue();
+        } catch (JAXBException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        } finally {
+            value.close();
+        }
+    }
 }

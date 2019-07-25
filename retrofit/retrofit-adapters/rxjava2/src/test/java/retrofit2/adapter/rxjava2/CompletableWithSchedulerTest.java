@@ -15,44 +15,50 @@
  */
 package retrofit2.adapter.rxjava2;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 import io.reactivex.Completable;
 import io.reactivex.schedulers.TestScheduler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 public final class CompletableWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingCompletableObserver.Rule observerRule =
-      new RecordingCompletableObserver.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingCompletableObserver.Rule observerRule =
+            new RecordingCompletableObserver.Rule();
 
-  interface Service {
-    @GET("/") Completable completable();
-  }
+    interface Service {
+        @GET("/")
+        Completable completable();
+    }
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-  @Test public void completableUsesScheduler() {
-    server.enqueue(new MockResponse());
+    @Test
+    public void completableUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-    RecordingCompletableObserver observer = observerRule.create();
-    service.completable().subscribe(observer);
-    observer.assertNoEvents();
+        RecordingCompletableObserver observer = observerRule.create();
+        service.completable().subscribe(observer);
+        observer.assertNoEvents();
 
-    scheduler.triggerActions();
-    observer.assertComplete();
-  }
+        scheduler.triggerActions();
+        observer.assertComplete();
+    }
 }

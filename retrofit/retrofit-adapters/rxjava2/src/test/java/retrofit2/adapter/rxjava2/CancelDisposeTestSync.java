@@ -15,39 +15,44 @@
  */
 package retrofit2.adapter.rxjava2;
 
-import io.reactivex.Observable;
-import okhttp3.OkHttpClient;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import io.reactivex.Observable;
+import okhttp3.OkHttpClient;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 import static org.junit.Assert.assertEquals;
 
 public final class CancelDisposeTestSync {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/") Observable<String> go();
-  }
+    interface Service {
+        @GET("/")
+        Observable<String> go();
+    }
 
-  private final OkHttpClient client = new OkHttpClient();
-  private Service service;
+    private final OkHttpClient client = new OkHttpClient();
+    private Service service;
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-        .callFactory(client)
-        .build();
-    service = retrofit.create(Service.class);
-  }
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .callFactory(client)
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-  @Test public void disposeBeforeExecuteDoesNotEnqueue() {
-    service.go().test(true);
-    assertEquals(0, server.getRequestCount());
-  }
+    @Test
+    public void disposeBeforeExecuteDoesNotEnqueue() {
+        service.go().test(true);
+        assertEquals(0, server.getRequestCount());
+    }
 }

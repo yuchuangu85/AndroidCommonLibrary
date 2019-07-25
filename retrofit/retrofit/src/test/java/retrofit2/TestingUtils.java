@@ -19,17 +19,17 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 final class TestingUtils {
-  static Method onlyMethod(Class c) {
-    Method[] declaredMethods = c.getDeclaredMethods();
-    if (declaredMethods.length == 1) {
-      return declaredMethods[0];
+    static Method onlyMethod(Class c) {
+        Method[] declaredMethods = c.getDeclaredMethods();
+        if (declaredMethods.length == 1) {
+            return declaredMethods[0];
+        }
+        throw new IllegalArgumentException("More than one method declared.");
     }
-    throw new IllegalArgumentException("More than one method declared.");
-  }
 
-  static String repeat(char c, int times) {
-    char[] cs = new char[times];
-    Arrays.fill(cs, c);
-    return new String(cs);
-  }
+    static String repeat(char c, int times) {
+        char[] cs = new char[times];
+        Arrays.fill(cs, c);
+        return new String(cs);
+    }
 }

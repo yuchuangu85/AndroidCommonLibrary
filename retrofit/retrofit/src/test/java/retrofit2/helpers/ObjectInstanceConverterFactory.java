@@ -17,19 +17,23 @@ package retrofit2.helpers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+
 import javax.annotation.Nullable;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 public final class ObjectInstanceConverterFactory extends Converter.Factory {
-  public static final Object VALUE = new Object();
+    public static final Object VALUE = new Object();
 
-  @Override public @Nullable Converter<ResponseBody, Object> responseBodyConverter(
-      Type type, Annotation[] annotations, Retrofit retrofit) {
-    if (type != Object.class) {
-      return null;
+    @Override
+    public @Nullable
+    Converter<ResponseBody, Object> responseBodyConverter(
+            Type type, Annotation[] annotations, Retrofit retrofit) {
+        if (type != Object.class) {
+            return null;
+        }
+        return value -> VALUE;
     }
-    return value -> VALUE;
-  }
 }

@@ -16,37 +16,40 @@
 package retrofit2.converter.jaxb;
 
 import java.io.IOException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
 import okhttp3.RequestBody;
 import okio.Buffer;
 import retrofit2.Converter;
 
 final class JaxbRequestConverter<T> implements Converter<T, RequestBody> {
-  final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-  final JAXBContext context;
-  final Class<T> type;
+    final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+    final JAXBContext context;
+    final Class<T> type;
 
-  JaxbRequestConverter(JAXBContext context, Class<T> type) {
-    this.context = context;
-    this.type = type;
-  }
-
-  @Override public RequestBody convert(final T value) throws IOException {
-    Buffer buffer = new Buffer();
-    try {
-      Marshaller marshaller = context.createMarshaller();
-
-      XMLStreamWriter xmlWriter = xmlOutputFactory.createXMLStreamWriter(
-          buffer.outputStream(), JaxbConverterFactory.XML.charset().name());
-      marshaller.marshal(value, xmlWriter);
-    } catch (JAXBException | XMLStreamException e) {
-      throw new RuntimeException(e);
+    JaxbRequestConverter(JAXBContext context, Class<T> type) {
+        this.context = context;
+        this.type = type;
     }
-    return RequestBody.create(JaxbConverterFactory.XML, buffer.readByteString());
-  }
+
+    @Override
+    public RequestBody convert(final T value) throws IOException {
+        Buffer buffer = new Buffer();
+        try {
+            Marshaller marshaller = context.createMarshaller();
+
+            XMLStreamWriter xmlWriter = xmlOutputFactory.createXMLStreamWriter(
+                    buffer.outputStream(), JaxbConverterFactory.XML.charset().name());
+            marshaller.marshal(value, xmlWriter);
+        } catch (JAXBException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return RequestBody.create(JaxbConverterFactory.XML, buffer.readByteString());
+    }
 }

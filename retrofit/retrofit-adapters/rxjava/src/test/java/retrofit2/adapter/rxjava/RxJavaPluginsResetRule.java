@@ -18,20 +18,25 @@ package retrofit2.adapter.rxjava;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+
 import rx.plugins.RxJavaPlugins;
 
-/** A JUnit @Rule which resets RxJava's plugins before and after each test. */
+/**
+ * A JUnit @Rule which resets RxJava's plugins before and after each test.
+ */
 final class RxJavaPluginsResetRule implements TestRule {
-  @Override public Statement apply(final Statement base, Description description) {
-    return new Statement() {
-      @Override public void evaluate() throws Throwable {
-        RxJavaPlugins.getInstance().reset();
-        try {
-          base.evaluate();
-        } finally {
-          RxJavaPlugins.getInstance().reset();
-        }
-      }
-    };
-  }
+    @Override
+    public Statement apply(final Statement base, Description description) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                RxJavaPlugins.getInstance().reset();
+                try {
+                    base.evaluate();
+                } finally {
+                    RxJavaPlugins.getInstance().reset();
+                }
+            }
+        };
+    }
 }

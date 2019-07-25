@@ -17,17 +17,19 @@ package retrofit.converter.java8;
 
 import java.io.IOException;
 import java.util.Optional;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 
 final class OptionalConverter<T> implements Converter<ResponseBody, Optional<T>> {
-  private final Converter<ResponseBody, T> delegate;
+    private final Converter<ResponseBody, T> delegate;
 
-  OptionalConverter(Converter<ResponseBody, T> delegate) {
-    this.delegate = delegate;
-  }
+    OptionalConverter(Converter<ResponseBody, T> delegate) {
+        this.delegate = delegate;
+    }
 
-  @Override public Optional<T> convert(ResponseBody value) throws IOException {
-    return Optional.ofNullable(delegate.convert(value));
-  }
+    @Override
+    public Optional<T> convert(ResponseBody value) throws IOException {
+        return Optional.ofNullable(delegate.convert(value));
+    }
 }

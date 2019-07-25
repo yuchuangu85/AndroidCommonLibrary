@@ -17,11 +17,14 @@ package retrofit2.adapter.guava;
 
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
 import javax.annotation.Nullable;
+
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Callback;
@@ -50,104 +53,116 @@ import retrofit2.Retrofit;
  * </ul>
  */
 public final class GuavaCallAdapterFactory extends CallAdapter.Factory {
-  public static GuavaCallAdapterFactory create() {
-    return new GuavaCallAdapterFactory();
-  }
-
-  private GuavaCallAdapterFactory() {
-  }
-
-  @Override public @Nullable CallAdapter<?, ?> get(
-      Type returnType, Annotation[] annotations, Retrofit retrofit) {
-    if (getRawType(returnType) != ListenableFuture.class) {
-      return null;
-    }
-    if (!(returnType instanceof ParameterizedType)) {
-      throw new IllegalStateException("ListenableFuture return type must be parameterized"
-          + " as ListenableFuture<Foo> or ListenableFuture<? extends Foo>");
-    }
-    Type innerType = getParameterUpperBound(0, (ParameterizedType) returnType);
-
-    if (getRawType(innerType) != Response.class) {
-      // Generic type is not Response<T>. Use it for body-only adapter.
-      return new BodyCallAdapter<>(innerType);
+    public static GuavaCallAdapterFactory create() {
+        return new GuavaCallAdapterFactory();
     }
 
-    // Generic type is Response<T>. Extract T and create the Response version of the adapter.
-    if (!(innerType instanceof ParameterizedType)) {
-      throw new IllegalStateException("Response must be parameterized"
-          + " as Response<Foo> or Response<? extends Foo>");
-    }
-    Type responseType = getParameterUpperBound(0, (ParameterizedType) innerType);
-    return new ResponseCallAdapter<>(responseType);
-  }
-
-  private static final class BodyCallAdapter<R> implements CallAdapter<R, ListenableFuture<R>> {
-    private final Type responseType;
-
-    BodyCallAdapter(Type responseType) {
-      this.responseType = responseType;
+    private GuavaCallAdapterFactory() {
     }
 
-    @Override public Type responseType() {
-      return responseType;
-    }
+    @Override
+    public @Nullable
+    CallAdapter<?, ?> get(
+            Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        if (getRawType(returnType) != ListenableFuture.class) {
+            return null;
+        }
+        if (!(returnType instanceof ParameterizedType)) {
+            throw new IllegalStateException("ListenableFuture return type must be parameterized"
+                    + " as ListenableFuture<Foo> or ListenableFuture<? extends Foo>");
+        }
+        Type innerType = getParameterUpperBound(0, (ParameterizedType) returnType);
 
-    @Override public ListenableFuture<R> adapt(final Call<R> call) {
-      return new AbstractFuture<R>() {
-        {
-          call.enqueue(new Callback<R>() {
-            @Override public void onResponse(Call<R> call, Response<R> response) {
-              if (response.isSuccessful()) {
-                set(response.body());
-              } else {
-                setException(new HttpException(response));
-              }
-            }
-
-            @Override public void onFailure(Call<R> call, Throwable t) {
-              setException(t);
-            }
-          });
+        if (getRawType(innerType) != Response.class) {
+            // Generic type is not Response<T>. Use it for body-only adapter.
+            return new BodyCallAdapter<>(innerType);
         }
 
-        @Override protected void interruptTask() {
-          call.cancel();
+        // Generic type is Response<T>. Extract T and create the Response version of the adapter.
+        if (!(innerType instanceof ParameterizedType)) {
+            throw new IllegalStateException("Response must be parameterized"
+                    + " as Response<Foo> or Response<? extends Foo>");
         }
-      };
-    }
-  }
-
-  private static final class ResponseCallAdapter<R>
-      implements CallAdapter<R, ListenableFuture<Response<R>>> {
-    private final Type responseType;
-
-    ResponseCallAdapter(Type responseType) {
-      this.responseType = responseType;
+        Type responseType = getParameterUpperBound(0, (ParameterizedType) innerType);
+        return new ResponseCallAdapter<>(responseType);
     }
 
-    @Override public Type responseType() {
-      return responseType;
-    }
+    private static final class BodyCallAdapter<R> implements CallAdapter<R, ListenableFuture<R>> {
+        private final Type responseType;
 
-    @Override public ListenableFuture<Response<R>> adapt(final Call<R> call) {
-      return new AbstractFuture<Response<R>>() {
-        {
-          call.enqueue(new Callback<R>() {
-            @Override public void onResponse(Call<R> call, Response<R> response) {
-              set(response);
-            }
-
-            @Override public void onFailure(Call<R> call, Throwable t) {
-              setException(t);
-            }
-          });
+        BodyCallAdapter(Type responseType) {
+            this.responseType = responseType;
         }
 
-        @Override protected void interruptTask() {
-          call.cancel();
+        @Override
+        public Type responseType() {
+            return responseType;
         }
-      };
+
+        @Override
+        public ListenableFuture<R> adapt(final Call<R> call) {
+            return new AbstractFuture<R>() {
+                {
+                    call.enqueue(new Callback<R>() {
+                        @Override
+                        public void onResponse(Call<R> call, Response<R> response) {
+                            if (response.isSuccessful()) {
+                                set(response.body());
+                            } else {
+                                setException(new HttpException(response));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<R> call, Throwable t) {
+                            setException(t);
+                        }
+                    });
+                }
+
+                @Override
+                protected void interruptTask() {
+                    call.cancel();
+                }
+            };
+        }
     }
-  }
+
+    private static final class ResponseCallAdapter<R>
+            implements CallAdapter<R, ListenableFuture<Response<R>>> {
+        private final Type responseType;
+
+        ResponseCallAdapter(Type responseType) {
+            this.responseType = responseType;
+        }
+
+        @Override
+        public Type responseType() {
+            return responseType;
+        }
+
+        @Override
+        public ListenableFuture<Response<R>> adapt(final Call<R> call) {
+            return new AbstractFuture<Response<R>>() {
+                {
+                    call.enqueue(new Callback<R>() {
+                        @Override
+                        public void onResponse(Call<R> call, Response<R> response) {
+                            set(response);
+                        }
+
+                        @Override
+                        public void onFailure(Call<R> call, Throwable t) {
+                            setException(t);
+                        }
+                    });
+                }
+
+                @Override
+                protected void interruptTask() {
+                    call.cancel();
+                }
+            };
+        }
+    }
 }

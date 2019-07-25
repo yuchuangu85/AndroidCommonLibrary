@@ -15,116 +15,130 @@
  */
 package retrofit2;
 
+import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
+
 import javax.annotation.Nullable;
-import org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement;
 
 @IgnoreJRERequirement // Only added when CompletableFuture is available (Java 8+ / Android API 24+).
 final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
-  static final CallAdapter.Factory INSTANCE = new CompletableFutureCallAdapterFactory();
+    static final CallAdapter.Factory INSTANCE = new CompletableFutureCallAdapterFactory();
 
-  @Override public @Nullable CallAdapter<?, ?> get(
-      Type returnType, Annotation[] annotations, Retrofit retrofit) {
-    if (getRawType(returnType) != CompletableFuture.class) {
-      return null;
-    }
-    if (!(returnType instanceof ParameterizedType)) {
-      throw new IllegalStateException("CompletableFuture return type must be parameterized"
-          + " as CompletableFuture<Foo> or CompletableFuture<? extends Foo>");
-    }
-    Type innerType = getParameterUpperBound(0, (ParameterizedType) returnType);
-
-    if (getRawType(innerType) != Response.class) {
-      // Generic type is not Response<T>. Use it for body-only adapter.
-      return new BodyCallAdapter<>(innerType);
-    }
-
-    // Generic type is Response<T>. Extract T and create the Response version of the adapter.
-    if (!(innerType instanceof ParameterizedType)) {
-      throw new IllegalStateException("Response must be parameterized"
-          + " as Response<Foo> or Response<? extends Foo>");
-    }
-    Type responseType = getParameterUpperBound(0, (ParameterizedType) innerType);
-    return new ResponseCallAdapter<>(responseType);
-  }
-
-  @IgnoreJRERequirement
-  private static final class BodyCallAdapter<R> implements CallAdapter<R, CompletableFuture<R>> {
-    private final Type responseType;
-
-    BodyCallAdapter(Type responseType) {
-      this.responseType = responseType;
-    }
-
-    @Override public Type responseType() {
-      return responseType;
-    }
-
-    @Override public CompletableFuture<R> adapt(final Call<R> call) {
-      final CompletableFuture<R> future = new CompletableFuture<R>() {
-        @Override public boolean cancel(boolean mayInterruptIfRunning) {
-          if (mayInterruptIfRunning) {
-            call.cancel();
-          }
-          return super.cancel(mayInterruptIfRunning);
+    @Override
+    public @Nullable
+    CallAdapter<?, ?> get(
+            Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        if (getRawType(returnType) != CompletableFuture.class) {
+            return null;
         }
-      };
+        if (!(returnType instanceof ParameterizedType)) {
+            throw new IllegalStateException("CompletableFuture return type must be parameterized"
+                    + " as CompletableFuture<Foo> or CompletableFuture<? extends Foo>");
+        }
+        Type innerType = getParameterUpperBound(0, (ParameterizedType) returnType);
 
-      call.enqueue(new Callback<R>() {
-        @Override public void onResponse(Call<R> call, Response<R> response) {
-          if (response.isSuccessful()) {
-            future.complete(response.body());
-          } else {
-            future.completeExceptionally(new HttpException(response));
-          }
+        if (getRawType(innerType) != Response.class) {
+            // Generic type is not Response<T>. Use it for body-only adapter.
+            return new BodyCallAdapter<>(innerType);
         }
 
-        @Override public void onFailure(Call<R> call, Throwable t) {
-          future.completeExceptionally(t);
+        // Generic type is Response<T>. Extract T and create the Response version of the adapter.
+        if (!(innerType instanceof ParameterizedType)) {
+            throw new IllegalStateException("Response must be parameterized"
+                    + " as Response<Foo> or Response<? extends Foo>");
         }
-      });
-
-      return future;
-    }
-  }
-
-  @IgnoreJRERequirement
-  private static final class ResponseCallAdapter<R>
-      implements CallAdapter<R, CompletableFuture<Response<R>>> {
-    private final Type responseType;
-
-    ResponseCallAdapter(Type responseType) {
-      this.responseType = responseType;
+        Type responseType = getParameterUpperBound(0, (ParameterizedType) innerType);
+        return new ResponseCallAdapter<>(responseType);
     }
 
-    @Override public Type responseType() {
-      return responseType;
+    @IgnoreJRERequirement
+    private static final class BodyCallAdapter<R> implements CallAdapter<R, CompletableFuture<R>> {
+        private final Type responseType;
+
+        BodyCallAdapter(Type responseType) {
+            this.responseType = responseType;
+        }
+
+        @Override
+        public Type responseType() {
+            return responseType;
+        }
+
+        @Override
+        public CompletableFuture<R> adapt(final Call<R> call) {
+            final CompletableFuture<R> future = new CompletableFuture<R>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    if (mayInterruptIfRunning) {
+                        call.cancel();
+                    }
+                    return super.cancel(mayInterruptIfRunning);
+                }
+            };
+
+            call.enqueue(new Callback<R>() {
+                @Override
+                public void onResponse(Call<R> call, Response<R> response) {
+                    if (response.isSuccessful()) {
+                        future.complete(response.body());
+                    } else {
+                        future.completeExceptionally(new HttpException(response));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<R> call, Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            });
+
+            return future;
+        }
     }
 
-    @Override public CompletableFuture<Response<R>> adapt(final Call<R> call) {
-      final CompletableFuture<Response<R>> future = new CompletableFuture<Response<R>>() {
-        @Override public boolean cancel(boolean mayInterruptIfRunning) {
-          if (mayInterruptIfRunning) {
-            call.cancel();
-          }
-          return super.cancel(mayInterruptIfRunning);
-        }
-      };
+    @IgnoreJRERequirement
+    private static final class ResponseCallAdapter<R>
+            implements CallAdapter<R, CompletableFuture<Response<R>>> {
+        private final Type responseType;
 
-      call.enqueue(new Callback<R>() {
-        @Override public void onResponse(Call<R> call, Response<R> response) {
-          future.complete(response);
+        ResponseCallAdapter(Type responseType) {
+            this.responseType = responseType;
         }
 
-        @Override public void onFailure(Call<R> call, Throwable t) {
-          future.completeExceptionally(t);
+        @Override
+        public Type responseType() {
+            return responseType;
         }
-      });
 
-      return future;
+        @Override
+        public CompletableFuture<Response<R>> adapt(final Call<R> call) {
+            final CompletableFuture<Response<R>> future = new CompletableFuture<Response<R>>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    if (mayInterruptIfRunning) {
+                        call.cancel();
+                    }
+                    return super.cancel(mayInterruptIfRunning);
+                }
+            };
+
+            call.enqueue(new Callback<R>() {
+                @Override
+                public void onResponse(Call<R> call, Response<R> response) {
+                    future.complete(response);
+                }
+
+                @Override
+                public void onFailure(Call<R> call, Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            });
+
+            return future;
+        }
     }
-  }
 }

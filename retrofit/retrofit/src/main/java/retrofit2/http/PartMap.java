@@ -18,6 +18,7 @@ package retrofit2.http;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
 import retrofit2.Converter;
 
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -51,6 +52,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(PARAMETER)
 @Retention(RUNTIME)
 public @interface PartMap {
-  /** The {@code Content-Transfer-Encoding} of the parts. */
-  String encoding() default "binary";
+    /**
+     * The {@code Content-Transfer-Encoding} of the parts.
+     */
+    String encoding() default "binary";
 }

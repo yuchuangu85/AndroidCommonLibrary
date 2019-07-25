@@ -21,20 +21,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public final class HttpExceptionTest {
-  @Test public void response() {
-    Response<String> response = Response.success("Hi");
-    HttpException exception = new HttpException(response);
-    assertThat(exception.code()).isEqualTo(200);
-    assertThat(exception.message()).isEqualTo("OK");
-    assertThat(exception.response()).isSameAs(response);
-  }
-
-  @Test public void nullResponseThrows() {
-    try {
-      new HttpException(null);
-      fail();
-    } catch (NullPointerException e) {
-      assertThat(e).hasMessage("response == null");
+    @Test
+    public void response() {
+        Response<String> response = Response.success("Hi");
+        HttpException exception = new HttpException(response);
+        assertThat(exception.code()).isEqualTo(200);
+        assertThat(exception.message()).isEqualTo("OK");
+        assertThat(exception.response()).isSameAs(response);
     }
-  }
+
+    @Test
+    public void nullResponseThrows() {
+        try {
+            new HttpException(null);
+            fail();
+        } catch (NullPointerException e) {
+            assertThat(e).hasMessage("response == null");
+        }
+    }
 }

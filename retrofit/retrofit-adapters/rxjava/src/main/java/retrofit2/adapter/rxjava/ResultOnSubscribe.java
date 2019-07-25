@@ -26,50 +26,54 @@ import rx.exceptions.OnErrorNotImplementedException;
 import rx.plugins.RxJavaPlugins;
 
 final class ResultOnSubscribe<T> implements OnSubscribe<Result<T>> {
-  private final OnSubscribe<Response<T>> upstream;
+    private final OnSubscribe<Response<T>> upstream;
 
-  ResultOnSubscribe(OnSubscribe<Response<T>> upstream) {
-    this.upstream = upstream;
-  }
-
-  @Override public void call(Subscriber<? super Result<T>> subscriber) {
-    upstream.call(new ResultSubscriber<T>(subscriber));
-  }
-
-  private static class ResultSubscriber<R> extends Subscriber<Response<R>> {
-    private final Subscriber<? super Result<R>> subscriber;
-
-    ResultSubscriber(Subscriber<? super Result<R>> subscriber) {
-      super(subscriber);
-      this.subscriber = subscriber;
+    ResultOnSubscribe(OnSubscribe<Response<T>> upstream) {
+        this.upstream = upstream;
     }
 
-    @Override public void onNext(Response<R> response) {
-      subscriber.onNext(Result.response(response));
+    @Override
+    public void call(Subscriber<? super Result<T>> subscriber) {
+        upstream.call(new ResultSubscriber<T>(subscriber));
     }
 
-    @Override public void onError(Throwable throwable) {
-      try {
-        subscriber.onNext(Result.<R>error(throwable));
-      } catch (Throwable t) {
-        try {
-          subscriber.onError(t);
-        } catch (OnCompletedFailedException
-            | OnErrorFailedException
-            | OnErrorNotImplementedException e) {
-          RxJavaPlugins.getInstance().getErrorHandler().handleError(e);
-        } catch (Throwable inner) {
-          Exceptions.throwIfFatal(inner);
-          CompositeException composite = new CompositeException(t, inner);
-          RxJavaPlugins.getInstance().getErrorHandler().handleError(composite);
+    private static class ResultSubscriber<R> extends Subscriber<Response<R>> {
+        private final Subscriber<? super Result<R>> subscriber;
+
+        ResultSubscriber(Subscriber<? super Result<R>> subscriber) {
+            super(subscriber);
+            this.subscriber = subscriber;
         }
-        return;
-      }
-      subscriber.onCompleted();
-    }
 
-    @Override public void onCompleted() {
-      subscriber.onCompleted();
+        @Override
+        public void onNext(Response<R> response) {
+            subscriber.onNext(Result.response(response));
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            try {
+                subscriber.onNext(Result.<R>error(throwable));
+            } catch (Throwable t) {
+                try {
+                    subscriber.onError(t);
+                } catch (OnCompletedFailedException
+                        | OnErrorFailedException
+                        | OnErrorNotImplementedException e) {
+                    RxJavaPlugins.getInstance().getErrorHandler().handleError(e);
+                } catch (Throwable inner) {
+                    Exceptions.throwIfFatal(inner);
+                    CompositeException composite = new CompositeException(t, inner);
+                    RxJavaPlugins.getInstance().getErrorHandler().handleError(composite);
+                }
+                return;
+            }
+            subscriber.onCompleted();
+        }
+
+        @Override
+        public void onCompleted() {
+            subscriber.onCompleted();
+        }
     }
-  }
 }

@@ -15,69 +15,81 @@
  */
 package retrofit2.adapter.rxjava2;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.TestScheduler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 public final class MaybeWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingMaybeObserver.Rule observerRule = new RecordingMaybeObserver.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingMaybeObserver.Rule observerRule = new RecordingMaybeObserver.Rule();
 
-  interface Service {
-    @GET("/") Maybe<String> body();
-    @GET("/") Maybe<Response<String>> response();
-    @GET("/") Maybe<Result<String>> result();
-  }
+    interface Service {
+        @GET("/")
+        Maybe<String> body();
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+        @GET("/")
+        Maybe<Response<String>> response();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+        @GET("/")
+        Maybe<Result<String>> result();
+    }
 
-  @Test public void bodyUsesScheduler() {
-    server.enqueue(new MockResponse());
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-    RecordingMaybeObserver<Object> observer = observerRule.create();
-    service.body().subscribe(observer);
-    observer.assertNoEvents();
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue();
-  }
+    @Test
+    public void bodyUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void responseUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingMaybeObserver<Object> observer = observerRule.create();
+        service.body().subscribe(observer);
+        observer.assertNoEvents();
 
-    RecordingMaybeObserver<Object> observer = observerRule.create();
-    service.response().subscribe(observer);
-    observer.assertNoEvents();
+        scheduler.triggerActions();
+        observer.assertAnyValue();
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue();
-  }
+    @Test
+    public void responseUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void resultUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingMaybeObserver<Object> observer = observerRule.create();
+        service.response().subscribe(observer);
+        observer.assertNoEvents();
 
-    RecordingMaybeObserver<Object> observer = observerRule.create();
-    service.result().subscribe(observer);
-    observer.assertNoEvents();
+        scheduler.triggerActions();
+        observer.assertAnyValue();
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue();
-  }
+    @Test
+    public void resultUsesScheduler() {
+        server.enqueue(new MockResponse());
+
+        RecordingMaybeObserver<Object> observer = observerRule.create();
+        service.result().subscribe(observer);
+        observer.assertNoEvents();
+
+        scheduler.triggerActions();
+        observer.assertAnyValue();
+    }
 }

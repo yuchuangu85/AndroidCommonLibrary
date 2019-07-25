@@ -15,17 +15,20 @@
  */
 package retrofit.converter.java8;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Optional;
+
 import javax.annotation.Nullable;
+
 import okhttp3.ResponseBody;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import retrofit2.Call;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
@@ -34,60 +37,70 @@ import retrofit2.http.GET;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class Java8OptionalConverterFactoryTest {
-  interface Service {
-    @GET("/") Call<Optional<Object>> optional();
-    @GET("/") Call<Object> object();
-  }
+    interface Service {
+        @GET("/")
+        Call<Optional<Object>> optional();
 
-  @Rule public final MockWebServer server = new MockWebServer();
+        @GET("/")
+        Call<Object> object();
+    }
 
-  private Service service;
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(Java8OptionalConverterFactory.create())
-        .addConverterFactory(new AlwaysNullConverterFactory())
-        .build();
-    service = retrofit.create(Service.class);
-  }
+    private Service service;
 
-  @Test public void optional() throws IOException {
-    server.enqueue(new MockResponse());
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(Java8OptionalConverterFactory.create())
+                .addConverterFactory(new AlwaysNullConverterFactory())
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    Optional<Object> optional = service.optional().execute().body();
-    assertThat(optional).isNotNull();
-    assertThat(optional.isPresent()).isFalse();
-  }
+    @Test
+    public void optional() throws IOException {
+        server.enqueue(new MockResponse());
 
-  @Test public void onlyMatchesOptional() throws IOException {
-    server.enqueue(new MockResponse());
+        Optional<Object> optional = service.optional().execute().body();
+        assertThat(optional).isNotNull();
+        assertThat(optional.isPresent()).isFalse();
+    }
 
-    Object body = service.object().execute().body();
-    assertThat(body).isNull();
-  }
+    @Test
+    public void onlyMatchesOptional() throws IOException {
+        server.enqueue(new MockResponse());
 
-  @Test public void delegates() throws IOException {
-    Object object = new Object();
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new Converter.Factory() {
-          @Nullable @Override public Converter<ResponseBody, ?> responseBodyConverter(Type type,
-              Annotation[] annotations, Retrofit retrofit) {
-            if (getRawType(type) != Object.class) {
-              return null;
-            }
-            return value -> object;
-          }
-        })
-        .addConverterFactory(Java8OptionalConverterFactory.create())
-        .build();
+        Object body = service.object().execute().body();
+        assertThat(body).isNull();
+    }
 
-    server.enqueue(new MockResponse());
+    @Test
+    public void delegates() throws IOException {
+        Object object = new Object();
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new Converter.Factory() {
+                    @Nullable
+                    @Override
+                    public Converter<ResponseBody, ?> responseBodyConverter(Type type,
+                                                                            Annotation[] annotations, Retrofit retrofit) {
+                        if (getRawType(type) != Object.class) {
+                            return null;
+                        }
+                        return value -> object;
+                    }
+                })
+                .addConverterFactory(Java8OptionalConverterFactory.create())
+                .build();
 
-    Service service = retrofit.create(Service.class);
-    Optional<Object> optional = service.optional().execute().body();
-    assertThat(optional).isNotNull();
-    assertThat(optional.get()).isSameAs(object);
-  }
+        server.enqueue(new MockResponse());
+
+        Service service = retrofit.create(Service.class);
+        Optional<Object> optional = service.optional().execute().body();
+        assertThat(optional).isNotNull();
+        assertThat(optional.get()).isSameAs(object);
+    }
 }

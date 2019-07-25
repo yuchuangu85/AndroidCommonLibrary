@@ -26,134 +26,146 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JacksonConverterFactoryTest {
-  interface AnInterface {
-    String getName();
-  }
-
-  static class AnImplementation implements AnInterface {
-    private String theName;
-
-    AnImplementation() {
+    interface AnInterface {
+        String getName();
     }
 
-    AnImplementation(String name) {
-      theName = name;
-    }
+    static class AnImplementation implements AnInterface {
+        private String theName;
 
-    @Override public String getName() {
-      return theName;
-    }
-  }
-
-  static class AnInterfaceSerializer extends StdSerializer<AnInterface> {
-    AnInterfaceSerializer() {
-      super(AnInterface.class);
-    }
-
-    @Override public void serialize(AnInterface anInterface, JsonGenerator jsonGenerator,
-        SerializerProvider serializerProvider) throws IOException {
-      jsonGenerator.writeStartObject();
-      jsonGenerator.writeFieldName("name");
-      jsonGenerator.writeString(anInterface.getName());
-      jsonGenerator.writeEndObject();
-    }
-  }
-
-  static class AnInterfaceDeserializer extends StdDeserializer<AnInterface> {
-    AnInterfaceDeserializer() {
-      super(AnInterface.class);
-    }
-
-    @Override public AnInterface deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException {
-      if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-        throw new AssertionError("Expected start object.");
-      }
-
-      String name = null;
-
-      while (jp.nextToken() != JsonToken.END_OBJECT) {
-        switch (jp.getCurrentName()) {
-          case "name":
-            name = jp.getValueAsString();
-            break;
+        AnImplementation() {
         }
-      }
 
-      return new AnImplementation(name);
+        AnImplementation(String name) {
+            theName = name;
+        }
+
+        @Override
+        public String getName() {
+            return theName;
+        }
     }
-  }
 
-  interface Service {
-    @POST("/") Call<AnImplementation> anImplementation(@Body AnImplementation impl);
-    @POST("/") Call<AnInterface> anInterface(@Body AnInterface impl);
-  }
+    static class AnInterfaceSerializer extends StdSerializer<AnInterface> {
+        AnInterfaceSerializer() {
+            super(AnInterface.class);
+        }
 
-  @Rule public final MockWebServer server = new MockWebServer();
+        @Override
+        public void serialize(AnInterface anInterface, JsonGenerator jsonGenerator,
+                              SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeFieldName("name");
+            jsonGenerator.writeString(anInterface.getName());
+            jsonGenerator.writeEndObject();
+        }
+    }
 
-  private Service service;
+    static class AnInterfaceDeserializer extends StdDeserializer<AnInterface> {
+        AnInterfaceDeserializer() {
+            super(AnInterface.class);
+        }
 
-  @Before public void setUp() {
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(AnInterface.class, new AnInterfaceSerializer());
-    module.addDeserializer(AnInterface.class, new AnInterfaceDeserializer());
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(module);
-    mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-    mapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
-    mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-    mapper.setVisibilityChecker(mapper.getSerializationConfig()
-        .getDefaultVisibilityChecker()
-        .withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+        @Override
+        public AnInterface deserialize(JsonParser jp, DeserializationContext ctxt)
+                throws IOException {
+            if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
+                throw new AssertionError("Expected start object.");
+            }
 
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(JacksonConverterFactory.create(mapper))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+            String name = null;
 
-  @Test public void anInterface() throws IOException, InterruptedException {
-    server.enqueue(new MockResponse().setBody("{\"name\":\"value\"}"));
+            while (jp.nextToken() != JsonToken.END_OBJECT) {
+                switch (jp.getCurrentName()) {
+                    case "name":
+                        name = jp.getValueAsString();
+                        break;
+                }
+            }
 
-    Call<AnInterface> call = service.anInterface(new AnImplementation("value"));
-    Response<AnInterface> response = call.execute();
-    AnInterface body = response.body();
-    assertThat(body.getName()).isEqualTo("value");
+            return new AnImplementation(name);
+        }
+    }
 
-    RecordedRequest request = server.takeRequest();
-    assertThat(request.getBody().readUtf8()).isEqualTo("{\"name\":\"value\"}");
-    assertThat(request.getHeader("Content-Type")).isEqualTo("application/json; charset=UTF-8");
-  }
+    interface Service {
+        @POST("/")
+        Call<AnImplementation> anImplementation(@Body AnImplementation impl);
 
-  @Test public void anImplementation() throws IOException, InterruptedException {
-    server.enqueue(new MockResponse().setBody("{\"theName\":\"value\"}"));
+        @POST("/")
+        Call<AnInterface> anInterface(@Body AnInterface impl);
+    }
 
-    Call<AnImplementation> call = service.anImplementation(new AnImplementation("value"));
-    Response<AnImplementation> response = call.execute();
-    AnImplementation body = response.body();
-    assertThat(body.theName).isEqualTo("value");
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-    RecordedRequest request = server.takeRequest();
-    // TODO figure out how to get Jackson to stop using AnInterface's serializer here.
-    assertThat(request.getBody().readUtf8()).isEqualTo("{\"name\":\"value\"}");
-    assertThat(request.getHeader("Content-Type")).isEqualTo("application/json; charset=UTF-8");
-  }
+    private Service service;
+
+    @Before
+    public void setUp() {
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(AnInterface.class, new AnInterfaceSerializer());
+        module.addDeserializer(AnInterface.class, new AnInterfaceDeserializer());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(module);
+        mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        mapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
+        mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+        mapper.setVisibilityChecker(mapper.getSerializationConfig()
+                .getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(JacksonConverterFactory.create(mapper))
+                .build();
+        service = retrofit.create(Service.class);
+    }
+
+    @Test
+    public void anInterface() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse().setBody("{\"name\":\"value\"}"));
+
+        Call<AnInterface> call = service.anInterface(new AnImplementation("value"));
+        Response<AnInterface> response = call.execute();
+        AnInterface body = response.body();
+        assertThat(body.getName()).isEqualTo("value");
+
+        RecordedRequest request = server.takeRequest();
+        assertThat(request.getBody().readUtf8()).isEqualTo("{\"name\":\"value\"}");
+        assertThat(request.getHeader("Content-Type")).isEqualTo("application/json; charset=UTF-8");
+    }
+
+    @Test
+    public void anImplementation() throws IOException, InterruptedException {
+        server.enqueue(new MockResponse().setBody("{\"theName\":\"value\"}"));
+
+        Call<AnImplementation> call = service.anImplementation(new AnImplementation("value"));
+        Response<AnImplementation> response = call.execute();
+        AnImplementation body = response.body();
+        assertThat(body.theName).isEqualTo("value");
+
+        RecordedRequest request = server.takeRequest();
+        // TODO figure out how to get Jackson to stop using AnInterface's serializer here.
+        assertThat(request.getBody().readUtf8()).isEqualTo("{\"name\":\"value\"}");
+        assertThat(request.getHeader("Content-Type")).isEqualTo("application/json; charset=UTF-8");
+    }
 }

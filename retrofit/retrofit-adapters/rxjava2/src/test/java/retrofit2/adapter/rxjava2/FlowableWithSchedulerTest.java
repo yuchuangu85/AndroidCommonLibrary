@@ -15,69 +15,81 @@
  */
 package retrofit2.adapter.rxjava2;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.TestScheduler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 public final class FlowableWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
 
-  interface Service {
-    @GET("/") Flowable<String> body();
-    @GET("/") Flowable<Response<String>> response();
-    @GET("/") Flowable<Result<String>> result();
-  }
+    interface Service {
+        @GET("/")
+        Flowable<String> body();
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+        @GET("/")
+        Flowable<Response<String>> response();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+        @GET("/")
+        Flowable<Result<String>> result();
+    }
 
-  @Test public void bodyUsesScheduler() {
-    server.enqueue(new MockResponse());
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-    RecordingSubscriber<Object> subscriber = subscriberRule.create();
-    service.body().subscribe(subscriber);
-    subscriber.assertNoEvents();
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void bodyUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void responseUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Object> subscriber = subscriberRule.create();
+        service.body().subscribe(subscriber);
+        subscriber.assertNoEvents();
 
-    RecordingSubscriber<Object> subscriber = subscriberRule.create();
-    service.response().subscribe(subscriber);
-    subscriber.assertNoEvents();
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertComplete();
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void responseUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void resultUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Object> subscriber = subscriberRule.create();
+        service.response().subscribe(subscriber);
+        subscriber.assertNoEvents();
 
-    RecordingSubscriber<Object> subscriber = subscriberRule.create();
-    service.result().subscribe(subscriber);
-    subscriber.assertNoEvents();
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertComplete();
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void resultUsesScheduler() {
+        server.enqueue(new MockResponse());
+
+        RecordingSubscriber<Object> subscriber = subscriberRule.create();
+        service.result().subscribe(subscriber);
+        subscriber.assertNoEvents();
+
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertComplete();
+    }
 }

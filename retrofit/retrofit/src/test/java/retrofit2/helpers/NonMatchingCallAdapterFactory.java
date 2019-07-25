@@ -17,16 +17,20 @@ package retrofit2.helpers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+
 import javax.annotation.Nullable;
+
 import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
 
 public final class NonMatchingCallAdapterFactory extends CallAdapter.Factory {
-  public boolean called;
+    public boolean called;
 
-  @Override public @Nullable CallAdapter<?, ?> get(
-      Type returnType, Annotation[] annotations, Retrofit retrofit) {
-    called = true;
-    return null;
-  }
+    @Override
+    public @Nullable
+    CallAdapter<?, ?> get(
+            Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        called = true;
+        return null;
+    }
 }

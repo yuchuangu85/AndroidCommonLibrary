@@ -15,69 +15,81 @@
  */
 package retrofit2.adapter.rxjava2;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 import io.reactivex.Observable;
 import io.reactivex.schedulers.TestScheduler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 public final class ObservableWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingObserver.Rule observerRule = new RecordingObserver.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingObserver.Rule observerRule = new RecordingObserver.Rule();
 
-  interface Service {
-    @GET("/") Observable<String> body();
-    @GET("/") Observable<Response<String>> response();
-    @GET("/") Observable<Result<String>> result();
-  }
+    interface Service {
+        @GET("/")
+        Observable<String> body();
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+        @GET("/")
+        Observable<Response<String>> response();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+        @GET("/")
+        Observable<Result<String>> result();
+    }
 
-  @Test public void bodyUsesScheduler() {
-    server.enqueue(new MockResponse());
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-    RecordingObserver<Object> observer = observerRule.create();
-    service.body().subscribe(observer);
-    observer.assertNoEvents();
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void bodyUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void responseUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingObserver<Object> observer = observerRule.create();
+        service.body().subscribe(observer);
+        observer.assertNoEvents();
 
-    RecordingObserver<Object> observer = observerRule.create();
-    service.response().subscribe(observer);
-    observer.assertNoEvents();
+        scheduler.triggerActions();
+        observer.assertAnyValue().assertComplete();
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void responseUsesScheduler() {
+        server.enqueue(new MockResponse());
 
-  @Test public void resultUsesScheduler() {
-    server.enqueue(new MockResponse());
+        RecordingObserver<Object> observer = observerRule.create();
+        service.response().subscribe(observer);
+        observer.assertNoEvents();
 
-    RecordingObserver<Object> observer = observerRule.create();
-    service.result().subscribe(observer);
-    observer.assertNoEvents();
+        scheduler.triggerActions();
+        observer.assertAnyValue().assertComplete();
+    }
 
-    scheduler.triggerActions();
-    observer.assertAnyValue().assertComplete();
-  }
+    @Test
+    public void resultUsesScheduler() {
+        server.enqueue(new MockResponse());
+
+        RecordingObserver<Object> observer = observerRule.create();
+        service.result().subscribe(observer);
+        observer.assertNoEvents();
+
+        scheduler.triggerActions();
+        observer.assertAnyValue().assertComplete();
+    }
 }

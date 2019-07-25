@@ -17,14 +17,15 @@ package retrofit.converter.java8;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 final class AlwaysNullConverterFactory extends Converter.Factory {
-  @Override
-  public Converter<ResponseBody, Object> responseBodyConverter(Type type, Annotation[] annotations,
-      Retrofit retrofit) {
-    return value -> null;
-  }
+    @Override
+    public Converter<ResponseBody, Object> responseBodyConverter(Type type, Annotation[] annotations,
+                                                                 Retrofit retrofit) {
+        return value -> null;
+    }
 }

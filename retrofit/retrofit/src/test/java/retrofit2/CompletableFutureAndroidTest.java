@@ -15,15 +15,17 @@
  */
 package retrofit2;
 
-import java.util.concurrent.CompletableFuture;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.util.concurrent.CompletableFuture;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.helpers.ToStringConverterFactory;
 import retrofit2.http.GET;
 
@@ -35,39 +37,44 @@ import static org.robolectric.annotation.Config.NONE;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = NEWEST_SDK, manifest = NONE)
 public final class CompletableFutureAndroidTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/") CompletableFuture<String> endpoint();
-  }
-
-  private Service service;
-
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new ToStringConverterFactory())
-        .build();
-    service = retrofit.create(Service.class);
-  }
-
-  @Config(sdk = 24)
-  @Test public void completableFutureApi24() throws Exception {
-    server.enqueue(new MockResponse().setBody("Hi"));
-
-    CompletableFuture<String> future = service.endpoint();
-    assertThat(future.get()).isEqualTo("Hi");
-  }
-
-  @Config(sdk = 21)
-  @Test public void completableFuturePreApi24() {
-    try {
-      service.endpoint();
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage(
-          "Unable to create call adapter for java.util.concurrent.CompletableFuture<java.lang.String>\n"
-              + "    for method Service.endpoint");
+    interface Service {
+        @GET("/")
+        CompletableFuture<String> endpoint();
     }
-  }
+
+    private Service service;
+
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new ToStringConverterFactory())
+                .build();
+        service = retrofit.create(Service.class);
+    }
+
+    @Config(sdk = 24)
+    @Test
+    public void completableFutureApi24() throws Exception {
+        server.enqueue(new MockResponse().setBody("Hi"));
+
+        CompletableFuture<String> future = service.endpoint();
+        assertThat(future.get()).isEqualTo("Hi");
+    }
+
+    @Config(sdk = 21)
+    @Test
+    public void completableFuturePreApi24() {
+        try {
+            service.endpoint();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessage(
+                    "Unable to create call adapter for java.util.concurrent.CompletableFuture<java.lang.String>\n"
+                            + "    for method Service.endpoint");
+        }
+    }
 }

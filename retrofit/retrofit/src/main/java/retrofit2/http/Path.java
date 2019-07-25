@@ -20,6 +20,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Type;
+
 import retrofit2.Retrofit;
 
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -54,10 +55,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 public @interface Path {
-  String value();
+    String value();
 
-  /**
-   * Specifies whether the argument value to the annotated method parameter is already URL encoded.
-   */
-  boolean encoded() default false;
+    /**
+     * Specifies whether the argument value to the annotated method parameter is already URL encoded.
+     */
+    boolean encoded() default false;
 }

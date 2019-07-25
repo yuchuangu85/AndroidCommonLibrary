@@ -15,13 +15,15 @@
  */
 package retrofit2.adapter.rxjava;
 
-import java.util.concurrent.atomic.AtomicReference;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
@@ -35,224 +37,258 @@ import static okhttp3.mockwebserver.SocketPolicy.DISCONNECT_AFTER_REQUEST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public final class ObservableThrowingTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final TestRule resetRule = new RxJavaPluginsResetRule();
-  @Rule public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final TestRule resetRule = new RxJavaPluginsResetRule();
+    @Rule
+    public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
 
-  interface Service {
-    @GET("/") Observable<String> body();
-    @GET("/") Observable<Response<String>> response();
-    @GET("/") Observable<Result<String>> result();
-  }
+    interface Service {
+        @GET("/")
+        Observable<String> body();
 
-  private Service service;
+        @GET("/")
+        Observable<Response<String>> response();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-        .build();
-    service = retrofit.create(Service.class);
-  }
+        @GET("/")
+        Observable<Result<String>> result();
+    }
 
-  @Test public void bodyThrowingInOnNextDeliveredToError() {
-    server.enqueue(new MockResponse());
+    private Service service;
 
-    RecordingSubscriber<String> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
-      @Override public void onNext(String value) {
-        throw e;
-      }
-    });
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    observer.assertError(e);
-  }
+    @Test
+    public void bodyThrowingInOnNextDeliveredToError() {
+        server.enqueue(new MockResponse());
 
-  @Test public void bodyThrowingInOnCompleteDeliveredToPlugin() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<String> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
+            @Override
+            public void onNext(String value) {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertError(e);
+    }
 
-    RecordingSubscriber<String> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
-      @Override public void onCompleted() {
-        throw e;
-      }
-    });
+    @Test
+    public void bodyThrowingInOnCompleteDeliveredToPlugin() {
+        server.enqueue(new MockResponse());
 
-    observer.assertAnyValue();
-    assertThat(pluginRef.get()).isSameAs(e);
-  }
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-  @Test public void bodyThrowingInOnErrorDeliveredToPlugin() {
-    server.enqueue(new MockResponse().setResponseCode(404));
+        RecordingSubscriber<String> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
+            @Override
+            public void onCompleted() {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertAnyValue();
+        assertThat(pluginRef.get()).isSameAs(e);
+    }
 
-    RecordingSubscriber<String> observer = subscriberRule.create();
-    final AtomicReference<Throwable> errorRef = new AtomicReference<>();
-    final RuntimeException e = new RuntimeException();
-    service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
-      @Override public void onError(Throwable throwable) {
-        if (!errorRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable);
-        }
-        throw e;
-      }
-    });
+    @Test
+    public void bodyThrowingInOnErrorDeliveredToPlugin() {
+        server.enqueue(new MockResponse().setResponseCode(404));
 
-    CompositeException composite = (CompositeException) pluginRef.get();
-    assertThat(composite.getExceptions()).containsExactly(errorRef.get(), e);
-  }
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-  @Test public void responseThrowingInOnNextDeliveredToError() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<String> observer = subscriberRule.create();
+        final AtomicReference<Throwable> errorRef = new AtomicReference<>();
+        final RuntimeException e = new RuntimeException();
+        service.body().unsafeSubscribe(new ForwardingSubscriber<String>(observer) {
+            @Override
+            public void onError(Throwable throwable) {
+                if (!errorRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable);
+                }
+                throw e;
+            }
+        });
 
-    RecordingSubscriber<Response<String>> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
-      @Override public void onNext(Response<String> value) {
-        throw e;
-      }
-    });
+        CompositeException composite = (CompositeException) pluginRef.get();
+        assertThat(composite.getExceptions()).containsExactly(errorRef.get(), e);
+    }
 
-    observer.assertError(e);
-  }
+    @Test
+    public void responseThrowingInOnNextDeliveredToError() {
+        server.enqueue(new MockResponse());
 
-  @Test public void responseThrowingInOnCompleteDeliveredToPlugin() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Response<String>> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
+            @Override
+            public void onNext(Response<String> value) {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertError(e);
+    }
 
-    RecordingSubscriber<Response<String>> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
-      @Override public void onCompleted() {
-        throw e;
-      }
-    });
+    @Test
+    public void responseThrowingInOnCompleteDeliveredToPlugin() {
+        server.enqueue(new MockResponse());
 
-    observer.assertAnyValue();
-    assertThat(pluginRef.get()).isSameAs(e);
-  }
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-  @Test public void responseThrowingInOnErrorDeliveredToPlugin() {
-    server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
+        RecordingSubscriber<Response<String>> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
+            @Override
+            public void onCompleted() {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertAnyValue();
+        assertThat(pluginRef.get()).isSameAs(e);
+    }
 
-    RecordingSubscriber<Response<String>> observer = subscriberRule.create();
-    final AtomicReference<Throwable> errorRef = new AtomicReference<>();
-    final RuntimeException e = new RuntimeException();
-    service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
-      @Override public void onError(Throwable throwable) {
-        if (!errorRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable);
-        }
-        throw e;
-      }
-    });
+    @Test
+    public void responseThrowingInOnErrorDeliveredToPlugin() {
+        server.enqueue(new MockResponse().setSocketPolicy(DISCONNECT_AFTER_REQUEST));
 
-    CompositeException composite = (CompositeException) pluginRef.get();
-    assertThat(composite.getExceptions()).containsExactly(errorRef.get(), e);
-  }
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-  @Test public void resultThrowingInOnNextDeliveredToError() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Response<String>> observer = subscriberRule.create();
+        final AtomicReference<Throwable> errorRef = new AtomicReference<>();
+        final RuntimeException e = new RuntimeException();
+        service.response().unsafeSubscribe(new ForwardingSubscriber<Response<String>>(observer) {
+            @Override
+            public void onError(Throwable throwable) {
+                if (!errorRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable);
+                }
+                throw e;
+            }
+        });
 
-    RecordingSubscriber<Result<String>> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
-      @Override public void onNext(Result<String> value) {
-        throw e;
-      }
-    });
+        CompositeException composite = (CompositeException) pluginRef.get();
+        assertThat(composite.getExceptions()).containsExactly(errorRef.get(), e);
+    }
 
-    observer.assertError(e);
-  }
+    @Test
+    public void resultThrowingInOnNextDeliveredToError() {
+        server.enqueue(new MockResponse());
 
-  @Test public void resultThrowingInOnCompletedDeliveredToPlugin() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Result<String>> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
+            @Override
+            public void onNext(Result<String> value) {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertError(e);
+    }
 
-    RecordingSubscriber<Result<String>> observer = subscriberRule.create();
-    final RuntimeException e = new RuntimeException();
-    service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
-      @Override public void onCompleted() {
-        throw e;
-      }
-    });
+    @Test
+    public void resultThrowingInOnCompletedDeliveredToPlugin() {
+        server.enqueue(new MockResponse());
 
-    observer.assertAnyValue();
-    assertThat(pluginRef.get()).isSameAs(e);
-  }
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-  @Test public void resultThrowingInOnErrorDeliveredToPlugin() {
-    server.enqueue(new MockResponse());
+        RecordingSubscriber<Result<String>> observer = subscriberRule.create();
+        final RuntimeException e = new RuntimeException();
+        service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
+            @Override
+            public void onCompleted() {
+                throw e;
+            }
+        });
 
-    final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
-    RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
-      @Override public void handleError(Throwable throwable) {
-        if (!pluginRef.compareAndSet(null, throwable)) {
-          throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
-        }
-      }
-    });
+        observer.assertAnyValue();
+        assertThat(pluginRef.get()).isSameAs(e);
+    }
 
-    RecordingSubscriber<Result<String>> observer = subscriberRule.create();
-    final RuntimeException first = new RuntimeException();
-    final RuntimeException second = new RuntimeException();
-    service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
-      @Override public void onNext(Result<String> value) {
-        // The only way to trigger onError for a result is if onNext throws.
-        throw first;
-      }
+    @Test
+    public void resultThrowingInOnErrorDeliveredToPlugin() {
+        server.enqueue(new MockResponse());
 
-      @Override public void onError(Throwable throwable) {
-        throw second;
-      }
-    });
+        final AtomicReference<Throwable> pluginRef = new AtomicReference<>();
+        RxJavaPlugins.getInstance().registerErrorHandler(new RxJavaErrorHandler() {
+            @Override
+            public void handleError(Throwable throwable) {
+                if (!pluginRef.compareAndSet(null, throwable)) {
+                    throw Exceptions.propagate(throwable); // Don't swallow secondary errors!
+                }
+            }
+        });
 
-    CompositeException composite = (CompositeException) pluginRef.get();
-    assertThat(composite.getExceptions()).containsExactly(first, second);
-  }
+        RecordingSubscriber<Result<String>> observer = subscriberRule.create();
+        final RuntimeException first = new RuntimeException();
+        final RuntimeException second = new RuntimeException();
+        service.result().unsafeSubscribe(new ForwardingSubscriber<Result<String>>(observer) {
+            @Override
+            public void onNext(Result<String> value) {
+                // The only way to trigger onError for a result is if onNext throws.
+                throw first;
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                throw second;
+            }
+        });
+
+        CompositeException composite = (CompositeException) pluginRef.get();
+        assertThat(composite.getExceptions()).containsExactly(first, second);
+    }
 }

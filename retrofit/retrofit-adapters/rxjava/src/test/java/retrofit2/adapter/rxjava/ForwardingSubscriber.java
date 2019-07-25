@@ -18,21 +18,24 @@ package retrofit2.adapter.rxjava;
 import rx.Subscriber;
 
 abstract class ForwardingSubscriber<T> extends Subscriber<T> {
-  private final Subscriber<T> delegate;
+    private final Subscriber<T> delegate;
 
-  ForwardingSubscriber(Subscriber<T> delegate) {
-    this.delegate = delegate;
-  }
+    ForwardingSubscriber(Subscriber<T> delegate) {
+        this.delegate = delegate;
+    }
 
-  @Override public void onNext(T value) {
-    delegate.onNext(value);
-  }
+    @Override
+    public void onNext(T value) {
+        delegate.onNext(value);
+    }
 
-  @Override public void onCompleted() {
-    delegate.onCompleted();
-  }
+    @Override
+    public void onCompleted() {
+        delegate.onCompleted();
+    }
 
-  @Override public void onError(Throwable throwable) {
-    delegate.onError(throwable);
-  }
+    @Override
+    public void onError(Throwable throwable) {
+        delegate.onError(throwable);
+    }
 }

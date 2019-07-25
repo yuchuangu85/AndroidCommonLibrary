@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.reflect.Type;
+
 import javax.annotation.Nullable;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okhttp3.mockwebserver.MockResponse;
@@ -37,79 +39,82 @@ import retrofit2.http.Query;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public final class JsonQueryParameters {
-  @Retention(RUNTIME)
-  @interface Json {
-  }
-
-  static class JsonStringConverterFactory extends Converter.Factory {
-    private final Converter.Factory delegateFactory;
-
-    JsonStringConverterFactory(Converter.Factory delegateFactory) {
-      this.delegateFactory = delegateFactory;
+    @Retention(RUNTIME)
+    @interface Json {
     }
 
-    @Override public @Nullable Converter<?, String> stringConverter(
-        Type type, Annotation[] annotations, Retrofit retrofit) {
-      for (Annotation annotation : annotations) {
-        if (annotation instanceof Json) {
-          // NOTE: If you also have a JSON converter factory installed in addition to this factory,
-          // you can call retrofit.requestBodyConverter(type, annotations) instead of having a
-          // reference to it explicitly as a field.
-          Converter<?, RequestBody> delegate =
-              delegateFactory.requestBodyConverter(type, annotations, new Annotation[0], retrofit);
-          return new DelegateToStringConverter<>(delegate);
+    static class JsonStringConverterFactory extends Converter.Factory {
+        private final Converter.Factory delegateFactory;
+
+        JsonStringConverterFactory(Converter.Factory delegateFactory) {
+            this.delegateFactory = delegateFactory;
         }
-      }
-      return null;
+
+        @Override
+        public @Nullable
+        Converter<?, String> stringConverter(
+                Type type, Annotation[] annotations, Retrofit retrofit) {
+            for (Annotation annotation : annotations) {
+                if (annotation instanceof Json) {
+                    // NOTE: If you also have a JSON converter factory installed in addition to this factory,
+                    // you can call retrofit.requestBodyConverter(type, annotations) instead of having a
+                    // reference to it explicitly as a field.
+                    Converter<?, RequestBody> delegate =
+                            delegateFactory.requestBodyConverter(type, annotations, new Annotation[0], retrofit);
+                    return new DelegateToStringConverter<>(delegate);
+                }
+            }
+            return null;
+        }
+
+        static class DelegateToStringConverter<T> implements Converter<T, String> {
+            private final Converter<T, RequestBody> delegate;
+
+            DelegateToStringConverter(Converter<T, RequestBody> delegate) {
+                this.delegate = delegate;
+            }
+
+            @Override
+            public String convert(T value) throws IOException {
+                Buffer buffer = new Buffer();
+                delegate.convert(value).writeTo(buffer);
+                return buffer.readUtf8();
+            }
+        }
     }
 
-    static class DelegateToStringConverter<T> implements Converter<T, String> {
-      private final Converter<T, RequestBody> delegate;
+    static class Filter {
+        final String userId;
 
-      DelegateToStringConverter(Converter<T, RequestBody> delegate) {
-        this.delegate = delegate;
-      }
-
-      @Override public String convert(T value) throws IOException {
-        Buffer buffer = new Buffer();
-        delegate.convert(value).writeTo(buffer);
-        return buffer.readUtf8();
-      }
+        Filter(String userId) {
+            this.userId = userId;
+        }
     }
-  }
 
-  static class Filter {
-    final String userId;
-
-    Filter(String userId) {
-      this.userId = userId;
+    interface Service {
+        @GET("/filter")
+        Call<ResponseBody> example(@Json @Query("value") Filter value);
     }
-  }
 
-  interface Service {
-    @GET("/filter")
-    Call<ResponseBody> example(@Json @Query("value") Filter value);
-  }
+    public static void main(String... args) throws IOException, InterruptedException {
+        MockWebServer server = new MockWebServer();
+        server.start();
+        server.enqueue(new MockResponse());
 
-  public static void main(String... args) throws IOException, InterruptedException {
-    MockWebServer server = new MockWebServer();
-    server.start();
-    server.enqueue(new MockResponse());
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new JsonStringConverterFactory(GsonConverterFactory.create()))
+                .build();
+        Service service = retrofit.create(Service.class);
 
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new JsonStringConverterFactory(GsonConverterFactory.create()))
-        .build();
-    Service service = retrofit.create(Service.class);
+        Call<ResponseBody> call = service.example(new Filter("123"));
+        Response<ResponseBody> response = call.execute();
+        // TODO handle user response...
 
-    Call<ResponseBody> call = service.example(new Filter("123"));
-    Response<ResponseBody> response = call.execute();
-    // TODO handle user response...
+        // Print the request path that the server saw to show the JSON query param:
+        RecordedRequest recordedRequest = server.takeRequest();
+        System.out.println(recordedRequest.getPath());
 
-    // Print the request path that the server saw to show the JSON query param:
-    RecordedRequest recordedRequest = server.takeRequest();
-    System.out.println(recordedRequest.getPath());
-
-    server.shutdown();
-  }
+        server.shutdown();
+    }
 }

@@ -16,12 +16,14 @@
 package retrofit2;
 
 import android.net.Uri;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 import retrofit2.http.GET;
 import retrofit2.http.Url;
 
@@ -34,33 +36,35 @@ import static retrofit2.RequestFactoryTest.buildRequest;
 @Config(sdk = NEWEST_SDK, manifest = NONE)
 @SuppressWarnings({"UnusedParameters", "unused"}) // Parameters inspected reflectively.
 public final class RequestFactoryAndroidTest {
-  @Test public void getWithAndroidUriUrl() {
-    class Example {
-      @GET
-      Call<ResponseBody> method(@Url Uri url) {
-        return null;
-      }
+    @Test
+    public void getWithAndroidUriUrl() {
+        class Example {
+            @GET
+            Call<ResponseBody> method(@Url Uri url) {
+                return null;
+            }
+        }
+
+        Request request = buildRequest(Example.class, Uri.parse("foo/bar/"));
+        assertThat(request.method()).isEqualTo("GET");
+        assertThat(request.headers().size()).isZero();
+        assertThat(request.url().toString()).isEqualTo("http://example.com/foo/bar/");
+        assertThat(request.body()).isNull();
     }
 
-    Request request = buildRequest(Example.class, Uri.parse("foo/bar/"));
-    assertThat(request.method()).isEqualTo("GET");
-    assertThat(request.headers().size()).isZero();
-    assertThat(request.url().toString()).isEqualTo("http://example.com/foo/bar/");
-    assertThat(request.body()).isNull();
-  }
+    @Test
+    public void getWithAndroidUriUrlAbsolute() {
+        class Example {
+            @GET
+            Call<ResponseBody> method(@Url Uri url) {
+                return null;
+            }
+        }
 
-  @Test public void getWithAndroidUriUrlAbsolute() {
-    class Example {
-      @GET
-      Call<ResponseBody> method(@Url Uri url) {
-        return null;
-      }
+        Request request = buildRequest(Example.class, Uri.parse("https://example2.com/foo/bar/"));
+        assertThat(request.method()).isEqualTo("GET");
+        assertThat(request.headers().size()).isZero();
+        assertThat(request.url().toString()).isEqualTo("https://example2.com/foo/bar/");
+        assertThat(request.body()).isNull();
     }
-
-    Request request = buildRequest(Example.class, Uri.parse("https://example2.com/foo/bar/"));
-    assertThat(request.method()).isEqualTo("GET");
-    assertThat(request.headers().size()).isZero();
-    assertThat(request.url().toString()).isEqualTo("https://example2.com/foo/bar/");
-    assertThat(request.body()).isNull();
-  }
 }

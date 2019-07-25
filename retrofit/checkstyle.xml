@@ -5,7 +5,7 @@
 
 <module name="Checker">
     <module name="NewlineAtEndOfFile">
-        <property name="lineSeparator" value="lf" />
+        <property name="lineSeparator" value="lf"/>
     </module>
     <module name="FileLength"/>
     <module name="FileTabCharacter"/>
@@ -46,7 +46,7 @@
         <module name="IllegalImport"/> <!-- defaults to sun.* packages -->
         <module name="RedundantImport"/>
         <module name="UnusedImports">
-          <property name="processJavadoc" value="true"/>
+            <property name="processJavadoc" value="true"/>
         </module>
 
 
@@ -65,7 +65,7 @@
         <module name="EmptyForIteratorPad"/>
         <module name="MethodParamPad"/>
         <module name="NoWhitespaceAfter">
-          <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+            <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
         </module>
         <module name="NoWhitespaceBefore"/>
         <module name="OperatorWrap"/>
@@ -121,8 +121,8 @@
         <!--module name="TodoComment"/-->
         <module name="UpperEll"/>
         <module name="Indentation">
-          <property name="basicOffset" value="2"/>
-          <property name="caseIndent" value="2"/>
+            <property name="basicOffset" value="2"/>
+            <property name="caseIndent" value="2"/>
         </module>
     </module>
 </module>

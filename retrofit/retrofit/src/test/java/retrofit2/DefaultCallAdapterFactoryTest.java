@@ -16,13 +16,16 @@
 package retrofit2;
 
 import com.google.common.reflect.TypeToken;
+
+import org.junit.Test;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import okhttp3.Request;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -30,105 +33,127 @@ import static org.junit.Assert.fail;
 
 @SuppressWarnings("unchecked")
 public final class DefaultCallAdapterFactoryTest {
-  private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
+    private static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
 
-  private final Retrofit retrofit = new Retrofit.Builder()
-      .baseUrl("http://localhost:1")
-      .build();
-  private final CallAdapter.Factory factory = new DefaultCallAdapterFactory(Runnable::run);
+    private final Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("http://localhost:1")
+            .build();
+    private final CallAdapter.Factory factory = new DefaultCallAdapterFactory(Runnable::run);
 
-  @Test public void rawTypeThrows() {
-    try {
-      factory.get(Call.class, NO_ANNOTATIONS, retrofit);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Call return type must be parameterized as Call<Foo> or Call<? extends Foo>");
-    }
-  }
-
-  @Test public void responseType() {
-    Type classType = new TypeToken<Call<String>>() {}.getType();
-    assertThat(factory.get(classType, NO_ANNOTATIONS, retrofit).responseType())
-        .isEqualTo(String.class);
-    Type wilcardType = new TypeToken<Call<? extends String>>() {}.getType();
-    assertThat(factory.get(wilcardType, NO_ANNOTATIONS, retrofit).responseType())
-        .isEqualTo(String.class);
-    Type genericType = new TypeToken<Call<List<String>>>() {}.getType();
-    assertThat(factory.get(genericType, NO_ANNOTATIONS, retrofit).responseType())
-        .isEqualTo(new TypeToken<List<String>>() {}.getType());
-  }
-
-  @Test public void adaptedCallExecute() throws IOException {
-    Type returnType = new TypeToken<Call<String>>() {}.getType();
-    CallAdapter<String, Call<String>> adapter =
-        (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
-    final Response<String> response = Response.success("Hi");
-    Call<String> call = adapter.adapt(new EmptyCall() {
-      @Override public Response<String> execute() {
-        return response;
-      }
-    });
-    assertThat(call.execute()).isSameAs(response);
-  }
-
-  @Test public void adaptedCallCloneDeepCopy() {
-    Type returnType = new TypeToken<Call<String>>() {}.getType();
-    CallAdapter<String, Call<String>> adapter =
-        (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
-    final AtomicBoolean cloned = new AtomicBoolean();
-    Call<String> delegate = new EmptyCall() {
-      @Override public Call<String> clone() {
-        cloned.set(true);
-        return this;
-      }
-    };
-    Call<String> call = adapter.adapt(delegate);
-    assertThat(call.clone()).isNotSameAs(call);
-    assertTrue(cloned.get());
-  }
-
-  @Test public void adaptedCallCancel() {
-    Type returnType = new TypeToken<Call<String>>() {}.getType();
-    CallAdapter<String, Call<String>> adapter =
-        (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
-    final AtomicBoolean canceled = new AtomicBoolean();
-    Call<String> delegate = new EmptyCall() {
-      @Override public void cancel() {
-        canceled.set(true);
-      }
-    };
-    Call<String> call = adapter.adapt(delegate);
-    call.cancel();
-    assertTrue(canceled.get());
-  }
-
-  static class EmptyCall implements Call<String> {
-    @Override public void enqueue(Callback<String> callback) {
-      throw new UnsupportedOperationException();
+    @Test
+    public void rawTypeThrows() {
+        try {
+            factory.get(Call.class, NO_ANNOTATIONS, retrofit);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessage("Call return type must be parameterized as Call<Foo> or Call<? extends Foo>");
+        }
     }
 
-    @Override public boolean isExecuted() {
-      return false;
+    @Test
+    public void responseType() {
+        Type classType = new TypeToken<Call<String>>() {
+        }.getType();
+        assertThat(factory.get(classType, NO_ANNOTATIONS, retrofit).responseType())
+                .isEqualTo(String.class);
+        Type wilcardType = new TypeToken<Call<? extends String>>() {
+        }.getType();
+        assertThat(factory.get(wilcardType, NO_ANNOTATIONS, retrofit).responseType())
+                .isEqualTo(String.class);
+        Type genericType = new TypeToken<Call<List<String>>>() {
+        }.getType();
+        assertThat(factory.get(genericType, NO_ANNOTATIONS, retrofit).responseType())
+                .isEqualTo(new TypeToken<List<String>>() {
+                }.getType());
     }
 
-    @Override public Response<String> execute() throws IOException {
-      throw new UnsupportedOperationException();
+    @Test
+    public void adaptedCallExecute() throws IOException {
+        Type returnType = new TypeToken<Call<String>>() {
+        }.getType();
+        CallAdapter<String, Call<String>> adapter =
+                (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
+        final Response<String> response = Response.success("Hi");
+        Call<String> call = adapter.adapt(new EmptyCall() {
+            @Override
+            public Response<String> execute() {
+                return response;
+            }
+        });
+        assertThat(call.execute()).isSameAs(response);
     }
 
-    @Override public void cancel() {
-      throw new UnsupportedOperationException();
+    @Test
+    public void adaptedCallCloneDeepCopy() {
+        Type returnType = new TypeToken<Call<String>>() {
+        }.getType();
+        CallAdapter<String, Call<String>> adapter =
+                (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
+        final AtomicBoolean cloned = new AtomicBoolean();
+        Call<String> delegate = new EmptyCall() {
+            @Override
+            public Call<String> clone() {
+                cloned.set(true);
+                return this;
+            }
+        };
+        Call<String> call = adapter.adapt(delegate);
+        assertThat(call.clone()).isNotSameAs(call);
+        assertTrue(cloned.get());
     }
 
-    @Override public boolean isCanceled() {
-      return false;
+    @Test
+    public void adaptedCallCancel() {
+        Type returnType = new TypeToken<Call<String>>() {
+        }.getType();
+        CallAdapter<String, Call<String>> adapter =
+                (CallAdapter<String, Call<String>>) factory.get(returnType, NO_ANNOTATIONS, retrofit);
+        final AtomicBoolean canceled = new AtomicBoolean();
+        Call<String> delegate = new EmptyCall() {
+            @Override
+            public void cancel() {
+                canceled.set(true);
+            }
+        };
+        Call<String> call = adapter.adapt(delegate);
+        call.cancel();
+        assertTrue(canceled.get());
     }
 
-    @Override public Call<String> clone() {
-      throw new UnsupportedOperationException();
-    }
+    static class EmptyCall implements Call<String> {
+        @Override
+        public void enqueue(Callback<String> callback) {
+            throw new UnsupportedOperationException();
+        }
 
-    @Override public Request request() {
-      throw new UnsupportedOperationException();
+        @Override
+        public boolean isExecuted() {
+            return false;
+        }
+
+        @Override
+        public Response<String> execute() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void cancel() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return false;
+        }
+
+        @Override
+        public Call<String> clone() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Request request() {
+            throw new UnsupportedOperationException();
+        }
     }
-  }
 }

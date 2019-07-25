@@ -15,11 +15,12 @@
  */
 package retrofit2.adapter.rxjava;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
@@ -27,57 +28,68 @@ import rx.Observable;
 import rx.schedulers.TestScheduler;
 
 public final class ObservableWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
 
-  interface Service {
-    @GET("/") Observable<String> body();
-    @GET("/") Observable<Response<String>> response();
-    @GET("/") Observable<Result<String>> result();
-  }
+    interface Service {
+        @GET("/")
+        Observable<String> body();
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+        @GET("/")
+        Observable<Response<String>> response();
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+        @GET("/")
+        Observable<Result<String>> result();
+    }
 
-  @Test public void bodyUsesScheduler() {
-    server.enqueue(new MockResponse().setBody("Hi"));
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-    RecordingSubscriber<String> subscriber = subscriberRule.create();
-    service.body().unsafeSubscribe(subscriber);
-    subscriber.assertNoEvents();
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertCompleted();
-  }
+    @Test
+    public void bodyUsesScheduler() {
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-  @Test public void responseUsesScheduler() {
-    server.enqueue(new MockResponse().setBody("Hi"));
+        RecordingSubscriber<String> subscriber = subscriberRule.create();
+        service.body().unsafeSubscribe(subscriber);
+        subscriber.assertNoEvents();
 
-    RecordingSubscriber<Response<String>> subscriber = subscriberRule.create();
-    service.response().unsafeSubscribe(subscriber);
-    subscriber.assertNoEvents();
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertCompleted();
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertCompleted();
-  }
+    @Test
+    public void responseUsesScheduler() {
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-  @Test public void resultUsesScheduler() {
-    server.enqueue(new MockResponse().setBody("Hi"));
+        RecordingSubscriber<Response<String>> subscriber = subscriberRule.create();
+        service.response().unsafeSubscribe(subscriber);
+        subscriber.assertNoEvents();
 
-    RecordingSubscriber<Result<String>> subscriber = subscriberRule.create();
-    service.result().unsafeSubscribe(subscriber);
-    subscriber.assertNoEvents();
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertCompleted();
+    }
 
-    scheduler.triggerActions();
-    subscriber.assertAnyValue().assertCompleted();
-  }
+    @Test
+    public void resultUsesScheduler() {
+        server.enqueue(new MockResponse().setBody("Hi"));
+
+        RecordingSubscriber<Result<String>> subscriber = subscriberRule.create();
+        service.result().unsafeSubscribe(subscriber);
+        subscriber.assertNoEvents();
+
+        scheduler.triggerActions();
+        subscriber.assertAnyValue().assertCompleted();
+    }
 }

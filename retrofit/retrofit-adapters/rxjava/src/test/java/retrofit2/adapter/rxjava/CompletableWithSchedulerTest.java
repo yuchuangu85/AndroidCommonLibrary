@@ -15,43 +15,49 @@
  */
 package retrofit2.adapter.rxjava;
 
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import rx.Completable;
 import rx.schedulers.TestScheduler;
 
 public final class CompletableWithSchedulerTest {
-  @Rule public final MockWebServer server = new MockWebServer();
-  @Rule public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final RecordingSubscriber.Rule subscriberRule = new RecordingSubscriber.Rule();
 
-  interface Service {
-    @GET("/") Completable completable();
-  }
+    interface Service {
+        @GET("/")
+        Completable completable();
+    }
 
-  private final TestScheduler scheduler = new TestScheduler();
-  private Service service;
+    private final TestScheduler scheduler = new TestScheduler();
+    private Service service;
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(scheduler))
-        .build();
-    service = retrofit.create(Service.class);
-  }
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(scheduler))
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-  @Test public void completableUsesScheduler() {
-    server.enqueue(new MockResponse().setBody("Hi"));
+    @Test
+    public void completableUsesScheduler() {
+        server.enqueue(new MockResponse().setBody("Hi"));
 
-    RecordingSubscriber<String> subscriber = subscriberRule.create();
-    service.completable().unsafeSubscribe(subscriber);
-    subscriber.assertNoEvents();
+        RecordingSubscriber<String> subscriber = subscriberRule.create();
+        service.completable().unsafeSubscribe(subscriber);
+        subscriber.assertNoEvents();
 
-    scheduler.triggerActions();
-    subscriber.assertCompleted();
-  }
+        scheduler.triggerActions();
+        subscriber.assertCompleted();
+    }
 }

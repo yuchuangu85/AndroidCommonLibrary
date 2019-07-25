@@ -16,34 +16,37 @@
 package retrofit2.converter.jaxb;
 
 import java.util.Arrays;
+
 import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 final class PhoneNumber {
-  @XmlElement(required = true)
-  public final String number;
+    @XmlElement(required = true)
+    public final String number;
 
-  @XmlAttribute
-  public final Type type;
+    @XmlAttribute
+    public final Type type;
 
-  @SuppressWarnings("unused") // Used by JAXB.
-  private PhoneNumber() {
-    this("", Type.OTHER);
-  }
+    @SuppressWarnings("unused") // Used by JAXB.
+    private PhoneNumber() {
+        this("", Type.OTHER);
+    }
 
-  PhoneNumber(String number, @Nullable Type type) {
-    this.number = number;
-    this.type = type;
-  }
+    PhoneNumber(String number, @Nullable Type type) {
+        this.number = number;
+        this.type = type;
+    }
 
-  @Override public boolean equals(Object o) {
-    return o instanceof PhoneNumber
-        && ((PhoneNumber) o).number.equals(number)
-        && ((PhoneNumber) o).type.equals(type);
-  }
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof PhoneNumber
+                && ((PhoneNumber) o).number.equals(number)
+                && ((PhoneNumber) o).type.equals(type);
+    }
 
-  @Override public int hashCode() {
-    return Arrays.asList(number, type).hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return Arrays.asList(number, type).hashCode();
+    }
 }

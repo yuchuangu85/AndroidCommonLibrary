@@ -18,6 +18,7 @@ package retrofit2.http;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 

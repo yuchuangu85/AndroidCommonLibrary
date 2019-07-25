@@ -16,6 +16,7 @@
 package retrofit2.adapter.scala;
 
 import java.lang.reflect.Type;
+
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Callback;
@@ -25,33 +26,37 @@ import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
 final class BodyCallAdapter<T> implements CallAdapter<T, Future<T>> {
-  private final Type responseType;
+    private final Type responseType;
 
-  BodyCallAdapter(Type responseType) {
-    this.responseType = responseType;
-  }
+    BodyCallAdapter(Type responseType) {
+        this.responseType = responseType;
+    }
 
-  @Override public Type responseType() {
-    return responseType;
-  }
+    @Override
+    public Type responseType() {
+        return responseType;
+    }
 
-  @Override public Future<T> adapt(Call<T> call) {
-    Promise<T> promise = Promise.apply();
+    @Override
+    public Future<T> adapt(Call<T> call) {
+        Promise<T> promise = Promise.apply();
 
-    call.enqueue(new Callback<T>() {
-      @Override public void onResponse(Call<T> call, Response<T> response) {
-        if (response.isSuccessful()) {
-          promise.success(response.body());
-        } else {
-          promise.failure(new HttpException(response));
-        }
-      }
+        call.enqueue(new Callback<T>() {
+            @Override
+            public void onResponse(Call<T> call, Response<T> response) {
+                if (response.isSuccessful()) {
+                    promise.success(response.body());
+                } else {
+                    promise.failure(new HttpException(response));
+                }
+            }
 
-      @Override public void onFailure(Call<T> call, Throwable t) {
-        promise.failure(t);
-      }
-    });
+            @Override
+            public void onFailure(Call<T> call, Throwable t) {
+                promise.failure(t);
+            }
+        });
 
-    return promise.future();
-  }
+        return promise.future();
+    }
 }

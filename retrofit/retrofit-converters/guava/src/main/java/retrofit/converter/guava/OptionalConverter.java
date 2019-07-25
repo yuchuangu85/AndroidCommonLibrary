@@ -16,18 +16,21 @@
 package retrofit.converter.guava;
 
 import com.google.common.base.Optional;
+
 import java.io.IOException;
+
 import okhttp3.ResponseBody;
 import retrofit2.Converter;
 
 final class OptionalConverter<T> implements Converter<ResponseBody, Optional<T>> {
-  private final Converter<ResponseBody, T> delegate;
+    private final Converter<ResponseBody, T> delegate;
 
-  OptionalConverter(Converter<ResponseBody, T> delegate) {
-    this.delegate = delegate;
-  }
+    OptionalConverter(Converter<ResponseBody, T> delegate) {
+        this.delegate = delegate;
+    }
 
-  @Override public Optional<T> convert(ResponseBody value) throws IOException {
-    return Optional.fromNullable(delegate.convert(value));
-  }
+    @Override
+    public Optional<T> convert(ResponseBody value) throws IOException {
+        return Optional.fromNullable(delegate.convert(value));
+    }
 }

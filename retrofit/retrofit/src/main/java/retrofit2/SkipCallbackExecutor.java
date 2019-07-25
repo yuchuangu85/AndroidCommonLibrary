@@ -35,7 +35,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * &#64;GET("user/{id}/token")
  * Call&lt;String&gt; getToken(@Path("id") long id);
  * </code></pre>
- *
+ * <p>
  * This annotation can also be used when a {@link CallAdapter.Factory} <em>explicitly</em> delegates
  * to the built-in factory for {@link Call} via
  * {@link Retrofit#nextCallAdapter(CallAdapter.Factory, Type, Annotation[])} in order for the

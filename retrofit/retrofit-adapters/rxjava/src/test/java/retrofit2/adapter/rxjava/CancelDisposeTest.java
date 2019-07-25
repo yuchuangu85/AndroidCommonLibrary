@@ -15,13 +15,15 @@
  */
 package retrofit2.adapter.rxjava;
 
-import java.util.List;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.mockwebserver.MockWebServer;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import rx.Observable;
@@ -32,39 +34,44 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public final class CancelDisposeTest {
-  @Rule public final MockWebServer server = new MockWebServer();
+    @Rule
+    public final MockWebServer server = new MockWebServer();
 
-  interface Service {
-    @GET("/") Observable<String> go();
-  }
+    interface Service {
+        @GET("/")
+        Observable<String> go();
+    }
 
-  private final OkHttpClient client = new OkHttpClient();
-  private Service service;
+    private final OkHttpClient client = new OkHttpClient();
+    private Service service;
 
-  @Before public void setUp() {
-    Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl(server.url("/"))
-        .addConverterFactory(new StringConverterFactory())
-        .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync())
-        .callFactory(client)
-        .build();
-    service = retrofit.create(Service.class);
-  }
+    @Before
+    public void setUp() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(server.url("/"))
+                .addConverterFactory(new StringConverterFactory())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.createAsync())
+                .callFactory(client)
+                .build();
+        service = retrofit.create(Service.class);
+    }
 
-  @Test public void disposeCancelsCall() {
-    Subscription subscription = service.go().subscribe();
-    List<Call> calls = client.dispatcher().runningCalls();
-    assertEquals(1, calls.size());
-    subscription.unsubscribe();
-    assertTrue(calls.get(0).isCanceled());
-  }
+    @Test
+    public void disposeCancelsCall() {
+        Subscription subscription = service.go().subscribe();
+        List<Call> calls = client.dispatcher().runningCalls();
+        assertEquals(1, calls.size());
+        subscription.unsubscribe();
+        assertTrue(calls.get(0).isCanceled());
+    }
 
-  @Test public void cancelDoesNotDispose() {
-    Subscription subscription = service.go().subscribe();
-    List<Call> calls = client.dispatcher().runningCalls();
-    assertEquals(1, calls.size());
-    calls.get(0).cancel();
-    assertFalse(subscription.isUnsubscribed());
-  }
+    @Test
+    public void cancelDoesNotDispose() {
+        Subscription subscription = service.go().subscribe();
+        List<Call> calls = client.dispatcher().runningCalls();
+        assertEquals(1, calls.size());
+        calls.get(0).cancel();
+        assertFalse(subscription.isUnsubscribed());
+    }
 }
 

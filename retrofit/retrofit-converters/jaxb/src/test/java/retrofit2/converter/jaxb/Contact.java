@@ -18,34 +18,37 @@ package retrofit2.converter.jaxb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "contact")
 final class Contact {
-  @XmlElement(required = true)
-  public final String name;
+    @XmlElement(required = true)
+    public final String name;
 
-  @XmlElement(name = "phone_number")
-  public final List<PhoneNumber> phone_numbers;
+    @XmlElement(name = "phone_number")
+    public final List<PhoneNumber> phone_numbers;
 
-  @SuppressWarnings("unused") // Used by JAXB.
-  private Contact() {
-    this("", new ArrayList<PhoneNumber>());
-  }
+    @SuppressWarnings("unused") // Used by JAXB.
+    private Contact() {
+        this("", new ArrayList<PhoneNumber>());
+    }
 
-  public Contact(String name, List<PhoneNumber> phoneNumbers) {
-    this.name = name;
-    this.phone_numbers = phoneNumbers;
-  }
+    public Contact(String name, List<PhoneNumber> phoneNumbers) {
+        this.name = name;
+        this.phone_numbers = phoneNumbers;
+    }
 
-  @Override public boolean equals(Object o) {
-    return o instanceof Contact
-        && ((Contact) o).name.equals(name)
-        && ((Contact) o).phone_numbers.equals(phone_numbers);
-  }
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof Contact
+                && ((Contact) o).name.equals(name)
+                && ((Contact) o).phone_numbers.equals(phone_numbers);
+    }
 
-  @Override public int hashCode() {
-    return Arrays.asList(name, phone_numbers).hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return Arrays.asList(name, phone_numbers).hashCode();
+    }
 }
