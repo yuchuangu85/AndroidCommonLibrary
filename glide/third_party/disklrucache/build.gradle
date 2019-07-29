@@ -1,0 +1,40 @@
+apply plugin: 'com.android.library'
+
+repositories {
+    jcenter()
+}
+
+checkstyle {
+    toolVersion = "6.6"
+}
+
+checkstyle {
+    configFile = new File(projectDir, 'checkstyle.xml')
+}
+
+dependencies {
+    def junitVersion = hasProperty('JUNIT_VERSION') ? JUNIT_VERSION : '4.11';
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "com.google.truth:truth:${TRUTH_VERSION}"
+}
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+        versionName VERSION_NAME as String
+        consumerProguardFiles 'proguard-rules.txt'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+def uploaderScript = "${rootProject.projectDir}/scripts/upload.gradle"
+if (file(uploaderScript).exists()) {
+    apply from: uploaderScript
+}
