@@ -98,6 +98,7 @@ final class RequestFactory {
         isKotlinSuspendFunction = builder.isKotlinSuspendFunction;
     }
 
+    // 创建Request
     okhttp3.Request create(Object[] args) throws IOException {
         @SuppressWarnings("unchecked") // It is an error to invoke a method with the wrong arg types.
                 ParameterHandler<Object>[] handlers = (ParameterHandler<Object>[]) parameterHandlers;
@@ -139,7 +140,7 @@ final class RequestFactory {
         private static final Pattern PARAM_NAME_REGEX = Pattern.compile(PARAM);
 
         final Retrofit retrofit;
-        final Method method;
+        final Method method;// 请求数据接口方法
         final Annotation[] methodAnnotations;// 方法上的所有注解数组
         final Annotation[][] parameterAnnotationsArray;// 接口方法中的参数注解数组(每个参数可能对应多个注解)
         final Type[] parameterTypes;// 参数类型
@@ -360,8 +361,8 @@ final class RequestFactory {
                 }
             }
 
-            if (result == null) {
-                if (allowContinuation) {
+            if (result == null) {// 参数没有注解
+                if (allowContinuation) {// 最后一个参数
                     try {
                         if (Utils.getRawType(parameterType) == Continuation.class) {
                             isKotlinSuspendFunction = true;

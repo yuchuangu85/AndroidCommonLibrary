@@ -47,6 +47,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
         }
         final Type responseType = Utils.getParameterUpperBound(0, (ParameterizedType) returnType);
 
+        // 注解中是否包含SkipCallbackExecutor注解，callbackExecutor默认为空的（如果没有手动传入则为空）
         final Executor executor = Utils.isAnnotationPresent(annotations, SkipCallbackExecutor.class)
                 ? null
                 : callbackExecutor;

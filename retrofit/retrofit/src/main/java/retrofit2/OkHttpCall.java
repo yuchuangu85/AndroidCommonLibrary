@@ -34,7 +34,7 @@ import static retrofit2.Utils.throwIfFatal;
 final class OkHttpCall<T> implements Call<T> {
     private final RequestFactory requestFactory;
     private final Object[] args;
-    private final okhttp3.Call.Factory callFactory;
+    private final okhttp3.Call.Factory callFactory;// OkHttpClient
     private final Converter<ResponseBody, T> responseConverter;
 
     private volatile boolean canceled;
@@ -122,6 +122,7 @@ final class OkHttpCall<T> implements Call<T> {
             call.cancel();
         }
 
+        // okhttp请求
         call.enqueue(new okhttp3.Callback() {
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response rawResponse) {
@@ -201,6 +202,7 @@ final class OkHttpCall<T> implements Call<T> {
     }
 
     private okhttp3.Call createRawCall() throws IOException {
+        // callFactory为OkHttpClient
         okhttp3.Call call = callFactory.newCall(requestFactory.create(args));
         if (call == null) {
             throw new NullPointerException("Call.Factory returned null.");
@@ -208,6 +210,7 @@ final class OkHttpCall<T> implements Call<T> {
         return call;
     }
 
+    // 解析结果
     Response<T> parseResponse(okhttp3.Response rawResponse) throws IOException {
         ResponseBody rawBody = rawResponse.body();
 
@@ -234,6 +237,7 @@ final class OkHttpCall<T> implements Call<T> {
 
         ExceptionCatchingResponseBody catchingBody = new ExceptionCatchingResponseBody(rawBody);
         try {
+            // 使用转换器转换结果
             T body = responseConverter.convert(catchingBody);
             return Response.success(body, rawResponse);
         } catch (RuntimeException e) {

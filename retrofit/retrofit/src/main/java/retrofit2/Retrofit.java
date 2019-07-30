@@ -69,13 +69,20 @@ import static java.util.Collections.unmodifiableList;
  * <p>
  * For example,
  * <pre><code>
+ *
+ * 第一步：
  * Retrofit retrofit = new Retrofit.Builder()
  *     .baseUrl("https://api.example.com/")
  *     .addConverterFactory(GsonConverterFactory.create())
  *     .build();
  *
+ * 第二步：
  * MyApi api = retrofit.create(MyApi.class);
+ *
+ * 第三步：
  * Response&lt;User&gt; user = api.getUser().execute();
+ * 原始代码：
+ * "Response<User> user = api.getUser().execute();"
  * </code></pre>
  *
  * @author Bob Lee (bob@squareup.com)
@@ -88,8 +95,12 @@ public final class Retrofit {
     final okhttp3.Call.Factory callFactory;
     final HttpUrl baseUrl;
     final List<Converter.Factory> converterFactories;
-    // Android24及以上版本包含两个默认：CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
-    // Android24以下包含一个DefaultCallAdapterFactory
+    /**
+     * 添加默认CallAdapter.Factory
+     * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+     * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
+     * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+     */
     final List<CallAdapter.Factory> callAdapterFactories;
     final @Nullable
     Executor callbackExecutor;
@@ -191,6 +202,11 @@ public final class Retrofit {
                             return platform.invokeDefaultMethod(method, service, proxy, args);
                         }
                         // 这里调用invoke返回HttpServiceMethod.OkHttpCall
+                        /**
+                         * loadServiceMethod返回的是CallAdapted（HttpServiceMethod）
+                         * 这里调用invoke方法实际上调用的是CallAdapted的invoke方法也就是父类
+                         * （HttpServiceMethod）的方法
+                         */
                         return loadServiceMethod(method).invoke(args != null ? args : emptyArgs);
                     }
                 });
@@ -227,7 +243,7 @@ public final class Retrofit {
         }
     }
 
-    // 返回HttpServiceMethod
+    // 返回的是CallAdapted（HttpServiceMethod）
     ServiceMethod<?> loadServiceMethod(Method method) {
         // 缓存逻辑，同一个 API 的同一个方法，只会创建一次。这里由于我们每次获取 API 实例都是传入的 class 对象，
         // 而 class 对象是进程内单例的，所以获取到它的同一个方法 Method 实例也是单例的，所以这里的缓存是有效的。
@@ -686,8 +702,9 @@ public final class Retrofit {
             List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
             /**
              * 添加默认CallAdapter.Factory
-             * 1.Android24（Java8）及以后添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
-             * 2.Android24之前（Java8之前）只添加DefaultCallAdapterFactory
+             * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+             * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
+             * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
              */
             callAdapterFactories.addAll(platform.defaultCallAdapterFactories(callbackExecutor));
 

@@ -42,13 +42,15 @@ class Platform {
         try {
             Class.forName("android.os.Build");
             if (Build.VERSION.SDK_INT != 0) {
-                return new Android();
+                return new Android();// Android平台
             }
         } catch (ClassNotFoundException ignored) {
         }
         return new Platform(true);
     }
 
+    // Android平台并且sdk版本>=24时true，sdk<24为false
+    // Java平台为true
     private final boolean hasJava8Types;
 
     Platform(boolean hasJava8Types) {
@@ -60,6 +62,7 @@ class Platform {
         return null;
     }
 
+    // 默认传入的callbackExecutor为空
     List<? extends CallAdapter.Factory> defaultCallAdapterFactories(
             @Nullable Executor callbackExecutor) {
         DefaultCallAdapterFactory executorFactory = new DefaultCallAdapterFactory(callbackExecutor);

@@ -68,8 +68,15 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             adapterType = method.getGenericReturnType();
         }
 
+        /**
+         * 添加默认CallAdapter.Factory
+         * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
+         * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         */
         CallAdapter<ResponseT, ReturnT> callAdapter =
                 createCallAdapter(retrofit, method, adapterType, annotations);
+        // 返回结果类型
         Type responseType = callAdapter.responseType();
         if (responseType == okhttp3.Response.class) {
             throw methodError(method, "'"
@@ -141,10 +148,18 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
         return adapt(call, args);
     }
 
+    // 这里call是OkHttpCall
     protected abstract @Nullable
     ReturnT adapt(Call<ResponseT> call, Object[] args);
 
     static final class CallAdapted<ResponseT, ReturnT> extends HttpServiceMethod<ResponseT, ReturnT> {
+
+        /**
+         * 添加默认CallAdapter.Factory
+         * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
+         * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         */
         private final CallAdapter<ResponseT, ReturnT> callAdapter;
 
         CallAdapted(RequestFactory requestFactory, okhttp3.Call.Factory callFactory,
@@ -156,6 +171,8 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
 
         @Override
         protected ReturnT adapt(Call<ResponseT> call, Object[] args) {
+            // 如果是DefaultCallAdapterFactory返回ExecutorCallbackCall
+            // 如果是CompletableFutureCallAdapterFactory返回CompletableFuture
             return callAdapter.adapt(call);
         }
     }

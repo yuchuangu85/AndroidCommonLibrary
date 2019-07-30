@@ -53,7 +53,7 @@ abstract class ServiceMethod<T> {
             throw methodError(method, "Service methods cannot return void.");
         }
 
-        // 返回的是HttpServiceMethod
+        // 返回的是CallAdapted（HttpServiceMethod）
         return HttpServiceMethod.parseAnnotations(retrofit, method, requestFactory);
     }
 
