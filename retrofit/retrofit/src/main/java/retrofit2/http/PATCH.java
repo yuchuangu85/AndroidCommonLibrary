@@ -26,6 +26,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Make a PATCH request.
+ *
+ * 用于发送一个PATCH请求
+ * PATCH注解一般必须添加相对路径或绝对路径或者全路径,如果不想在PATCH注解后添加请求路径,则可以在方法的第一个参数中用@Url注解添加请求路径
  */
 @Documented
 @Target(METHOD)

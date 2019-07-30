@@ -65,6 +65,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </code></pre>
  * Calling with {@code foo.friends("foo+bar"))} yields {@code /friends?group=foo+bar}.
  *
+ * 作用于方法的参数
+ * 用于添加查询参数,即请求参数
+ * 参数值通过String.valueOf()转换为String并进行URL编码
+ * 使用该注解定义的参数,参数值可以为空,为空时,忽略该值,当传入一个List或array时,为每个非空item拼接请求键值对,
+ * 所有的键是统一的,如: name=张三&name=李四&name=王五.
+ *
  * @see QueryMap
  * @see QueryName
  */

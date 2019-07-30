@@ -50,6 +50,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </code></pre>
  * <p>
  * Part parameters may not be {@code null}.
+ *
+ * 作用于方法的参数,用于定义Multipart请求的每个part
+ * 使用该注解定义的参数,参数值可以为空,为空时,则忽略
+ * 使用该注解定义的参数类型有以下3种方式可选:
+ * 1, 如果类型是okhttp3.MultipartBody.Part，内容将被直接使用。 省略part中的名称,即 @Part MultipartBody.Part part
+ * 2, 如果类型是RequestBody，那么该值将直接与其内容类型一起使用。 在注释中提供part名称（例如，@Part（“foo”）RequestBody foo）。
+ * 3, 其他对象类型将通过使用转换器转换为适当的格式。 在注释中提供part名称（例如，@Part（“foo”）Image photo）。
  */
 @Documented
 @Target(PARAMETER)

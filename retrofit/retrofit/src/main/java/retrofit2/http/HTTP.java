@@ -39,6 +39,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *   Call&lt;ResponseBody&gt; deleteObject(@Body RequestBody object);
  * }
  * </code></pre>
+ *
+ * 作用于方法,用于发送一个自定义的HTTP请求
  */
 @Documented
 @Target(METHOD)

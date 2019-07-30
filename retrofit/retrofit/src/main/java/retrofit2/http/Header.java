@@ -34,6 +34,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <strong>Note:</strong> Headers do not overwrite each other. All headers with the same name will
  * be included in the request.
  *
+ * 作用于方法的参数,用于添加请求头
+ * 使用该注解定义的请求头可以为空,当为空时,会自动忽略,当传入一个List或array时,为拼接每个非空的item的值到请求头中.
+ * 具有相同名称的请求头不会相互覆盖,而是会照样添加到请求头中
+ *
  * @see Headers
  * @see HeaderMap
  */

@@ -51,6 +51,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>
  * A {@code null} value for the map, as a key, or as a value is not allowed.
  *
+ * 作用于方法的参数
+ * 以map的形式添加查询参数,即请求参数
+ * 参数的键和值都通过String.valueOf()转换为String格式
+ * map的键和值默认进行URL编码
+ * map中每一项的键和值都不能为空,否则抛出IllegalArgumentException异常
+ *
  * @see Query
  * @see QueryName
  */

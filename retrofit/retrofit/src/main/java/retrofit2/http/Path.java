@@ -50,6 +50,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * {@code foo.notEncoded("John+Doe")} yields {@code /user/John+Doe}.
  * <p>
  * Path parameters may not be {@code null}.
+ *
+ * 作用于方法的参数
+ * 在URL路径段中替换指定的参数值。使用String.valueOf()和URL编码将值转换为字符串。
+ * 使用该注解定义的参数的值不可为空
+ * 参数值默认使用URL编码
  */
 @Documented
 @Retention(RUNTIME)

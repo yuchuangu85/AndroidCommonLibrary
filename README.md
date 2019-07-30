@@ -30,8 +30,6 @@
 | leakcanary                          | https://github.com/square/leakcanary                                | master   | AS   |
 |                                     |                                                                     |          |      |
 
-
-
 ## ２．项目对应文档
 
 * [自定义注解](/AndroidAnnotation/README.md)

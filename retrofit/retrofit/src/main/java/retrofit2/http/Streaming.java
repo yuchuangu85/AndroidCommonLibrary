@@ -27,6 +27,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * Treat the response body on methods returning {@link ResponseBody ResponseBody} as is,
  * i.e. without converting the body to {@code byte[]}.
+ *
+ * 作用于方法
+ * 处理返回Response的方法的响应体，即没有将body（）转换为byte []。
  */
 @Documented
 @Target(METHOD)

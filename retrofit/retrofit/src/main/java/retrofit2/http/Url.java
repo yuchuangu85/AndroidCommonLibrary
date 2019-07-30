@@ -34,6 +34,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>
  * See {@linkplain retrofit2.Retrofit.Builder#baseUrl(HttpUrl) base URL} for details of how
  * the value will be resolved against a base URL to create the full endpoint URL.
+ *
+ * 作用于方法参数
+ * 用于添加请求的接口地址
  */
 @Documented
 @Target(PARAMETER)

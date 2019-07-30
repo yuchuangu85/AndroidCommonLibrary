@@ -46,6 +46,23 @@ import retrofit2.http.Url;
 import static java.util.Collections.unmodifiableList;
 
 /**
+ * 1,注解真正的实现在ParameterHandler类中,,每个注解的真正实现都是ParameterHandler类中的一个final类型的内部类,
+ * 每个内部类都对各个注解的使用要求做了限制,比如参数是否可空,键和值是否可空等.
+ * <p>
+ * 2,FormUrlEncoded注解和Multipart注解不能同时使用,否则会抛出methodError(“Only one encoding annotation
+ * is allowed.”);可在ServiceMethod类中parseMethodAnnotation()方法中找到不能同时使用的具体原因.
+ * <p>
+ * 3,Path注解与Url注解不能同时使用,否则会抛出parameterError(p, “@Path parameters may not be used with @Url.”),
+ * 可在ServiceMethod类中parseParameterAnnotation()方法中找到不能同时使用的具体代码.其实原因也很好理解:
+ * Path注解用于替换url路径中的参数,这就要求在使用path注解时,必须已经存在请求路径,不然没法替换路径中指定的参数啊,
+ * 而Url注解是在参数中指定的请求路径的,这个时候指定请求路径已经晚了,path注解找不到请求路径,更别提更换请求路径中的参数了.
+ * <p>
+ * 4,对于FiledMap,HeaderMap,PartMap,QueryMap这四种作用于方法的注解,其参数类型必须为Map的实例,且key的类型必须
+ * 为String类型,否则抛出异常(以PartMap注解为例):parameterError(p, “@PartMap keys must be of type String: ” + keyType);
+ * <p>
+ * 5,使用Body注解的参数不能使用form 或multi-part编码,即如果为方法使用了FormUrlEncoded或Multipart注解,则方法的
+ * 参数中不能使用Body注解,否则抛出异常parameterError(p, “@Body parameters cannot be used with form or multi-part encoding.”);
+ * <p>
  * Retrofit adapts a Java interface to HTTP calls by using annotations on the declared methods to
  * define how requests are made. Create instances using {@linkplain Builder
  * the builder} and pass your interface to {@link #create} to generate an implementation.
@@ -67,9 +84,12 @@ import static java.util.Collections.unmodifiableList;
 public final class Retrofit {
     private final Map<Method, ServiceMethod<?>> serviceMethodCache = new ConcurrentHashMap<>();
 
+    // 负责创建 HTTP 请求，HTTP 请求被抽象为了 okhttp3.Call 类，它表示一个已经准备好，可以随时执行的 HTTP 请求；
     final okhttp3.Call.Factory callFactory;
     final HttpUrl baseUrl;
     final List<Converter.Factory> converterFactories;
+    // Android24及以上版本包含两个默认：CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+    // Android24以下包含一个DefaultCallAdapterFactory
     final List<CallAdapter.Factory> callAdapterFactories;
     final @Nullable
     Executor callbackExecutor;
@@ -131,33 +151,53 @@ public final class Retrofit {
      *   Call&lt;List&lt;Item&gt;&gt; categoryList(@Path("cat") String a, @Query("page") int b);
      * }
      * </pre>
+     * 代理模式：https://a.codekk.com/detail/Android/Caij/%E5%85%AC%E5%85%B1%E6%8A%80%E6%9C%AF%E7%82%B9%E4%B9%8B%20Java%20%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86
      */
     @SuppressWarnings("unchecked") // Single-interface proxy creation guarded by parameter safety.
     public <T> T create(final Class<T> service) {
         validateServiceInterface(service);
+        /**
+         * 代理模式（参考上面链接）
+         * 通过Proxy.newProxyInstance(…)函数新建了一个代理对象，实际代理类就是在这时候动态生成的。
+         * 第一个参数：表示类加载器
+         * 第二个参数：表示委托类的接口，生成代理类时需要实现这些接口
+         * 第三个参数：实现类对象，负责连接代理类和委托类的中间类
+         */
         return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[]{service},
                 new InvocationHandler() {
                     private final Platform platform = Platform.get();
                     private final Object[] emptyArgs = new Object[0];
 
+                    /**
+                     * 调用代理对象的每个函数实际最终都是调用了InvocationHandler的invoke函数。
+                     *
+                     * @param proxy  表示通过 Proxy.newProxyInstance() 生成的代理类对象。
+                     * @param method 表示代理对象被调用的函数。
+                     * @param args   表示代理对象被调用的函数的参数。
+                     * @return
+                     * @throws Throwable
+                     */
                     @Override
                     public @Nullable
                     Object invoke(Object proxy, Method method,
                                   @Nullable Object[] args) throws Throwable {
                         // If the method is a method from Object then defer to normal invocation.
+                        // 得到目标方法method所在类对应的Class对象
                         if (method.getDeclaringClass() == Object.class) {
+                            // invoke（调用）就是调用Method类代表的方法
                             return method.invoke(this, args);
                         }
                         if (platform.isDefaultMethod(method)) {
                             return platform.invokeDefaultMethod(method, service, proxy, args);
                         }
+                        // 这里调用invoke返回HttpServiceMethod.OkHttpCall
                         return loadServiceMethod(method).invoke(args != null ? args : emptyArgs);
                     }
                 });
     }
 
     private void validateServiceInterface(Class<?> service) {
-        if (!service.isInterface()) {
+        if (!service.isInterface()) {// 验证是否是接口类
             throw new IllegalArgumentException("API declarations must be interfaces.");
         }
 
@@ -187,7 +227,10 @@ public final class Retrofit {
         }
     }
 
+    // 返回HttpServiceMethod
     ServiceMethod<?> loadServiceMethod(Method method) {
+        // 缓存逻辑，同一个 API 的同一个方法，只会创建一次。这里由于我们每次获取 API 实例都是传入的 class 对象，
+        // 而 class 对象是进程内单例的，所以获取到它的同一个方法 Method 实例也是单例的，所以这里的缓存是有效的。
         ServiceMethod<?> result = serviceMethodCache.get(method);
         if (result != null) return result;
 
@@ -247,6 +290,7 @@ public final class Retrofit {
 
         int start = callAdapterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = callAdapterFactories.size(); i < count; i++) {
+            // 返回ResponseCallAdapter或者CallAdapter()
             CallAdapter<?, ?> adapter = callAdapterFactories.get(i).get(returnType, annotations, this);
             if (adapter != null) {
                 return adapter;
@@ -383,6 +427,8 @@ public final class Retrofit {
     /**
      * Returns a {@link Converter} for {@code type} to {@link String} from the available
      * {@linkplain #converterFactories() factories}.
+     *
+     * 返回一个将变量转换为String的转换器
      */
     public <T> Converter<T, String> stringConverter(Type type, Annotation[] annotations) {
         Objects.requireNonNull(type, "type == null");
@@ -638,6 +684,11 @@ public final class Retrofit {
 
             // Make a defensive copy of the adapters and add the default Call adapter.
             List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
+            /**
+             * 添加默认CallAdapter.Factory
+             * 1.Android24（Java8）及以后添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+             * 2.Android24之前（Java8之前）只添加DefaultCallAdapterFactory
+             */
             callAdapterFactories.addAll(platform.defaultCallAdapterFactories(callbackExecutor));
 
             // Make a defensive copy of the converters.

@@ -43,6 +43,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
         boolean continuationWantsResponse = false;
         boolean continuationBodyNullable = false;
 
+        // 获取该方法的注解数组
         Annotation[] annotations = method.getAnnotations();
         Type adapterType;
         if (isKotlinSuspendFunction) {
@@ -63,6 +64,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             adapterType = new Utils.ParameterizedTypeImpl(null, Call.class, responseType);
             annotations = SkipCallbackExecutorImpl.ensurePresent(annotations);
         } else {
+            // 接口方法返回类型
             adapterType = method.getGenericReturnType();
         }
 
@@ -82,6 +84,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             throw methodError(method, "HEAD method must use Void as response type.");
         }
 
+        // 请求结果转换器(通常为GsonConverterFactory)
         Converter<ResponseBody, ResponseT> responseConverter =
                 createResponseConverter(retrofit, method, responseType);
 

@@ -46,6 +46,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * foo.list(ImmutableMap.of("Accept", "text/plain", "Accept-Charset", "utf-8"));
  * </pre>
  *
+ * 作用于方法的参数,用于添加请求头
+ * 以map的方式添加多个请求头,map中的key为请求头的名称,value为请求头的值,且value使用String.valueOf()
+ * 统一转换为String类型,map中每一项的键和值都不能为空,否则抛出IllegalArgumentException异常
+ *
  * @see Header
  * @see Headers
  */

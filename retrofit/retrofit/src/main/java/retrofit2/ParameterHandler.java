@@ -26,6 +26,13 @@ import javax.annotation.Nullable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+/**
+ * 每个参数都会有一个 ParameterHandler，由 RequestFactory#parseParameter 方法负责创建，
+ * 其主要内容就是解析每个参数使用的注解类型（诸如 Path，Query，Field 等），对每种类型进行单独的处理。
+ *
+ * 包含了对应不同注解的ParameterHandler子类
+ * @param <T>
+ */
 abstract class ParameterHandler<T> {
     abstract void apply(RequestBuilder builder, @Nullable T value) throws IOException;
 

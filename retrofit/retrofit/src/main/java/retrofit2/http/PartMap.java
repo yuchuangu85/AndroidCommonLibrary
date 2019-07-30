@@ -45,6 +45,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>
  * A {@code null} value for the map, as a key, or as a value is not allowed.
  *
+ * 作用于方法的参数,以map的方式定义Multipart请求的每个part
+ * map中每一项的键和值都不能为空,否则抛出IllegalArgumentException异常
+ * 使用该注解定义的参数类型有以下2种方式可选:
+ * 1, 如果类型是RequestBody，那么该值将直接与其内容类型一起使用。
+ * 2, 其他对象类型将通过使用转换器转换为适当的格式。
+ *
  * @see Multipart
  * @see Part
  */

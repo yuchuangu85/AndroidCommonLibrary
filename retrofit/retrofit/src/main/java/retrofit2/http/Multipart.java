@@ -25,6 +25,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 /**
  * Denotes that the request body is multi-part. Parts should be declared as parameters and
  * annotated with {@link Part @Part}.
+ *
+ * 作用于方法
+ * 使用该注解,表示请求体是多部分的。 每一部分作为一个参数,且用Part注解声明
  */
 @Documented
 @Target(METHOD)

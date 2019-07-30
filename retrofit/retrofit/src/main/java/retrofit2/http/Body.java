@@ -33,6 +33,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * request body.
  * <p>
  * Body parameters may not be {@code null}.
+ *
+ * 作用于方法的参数
+ * 使用该注解定义的参数不可为null
+ * 当你发送一个post或put请求,但是又不想作为请求参数或表单的方式发送请求时,使用该注解定义的参数可以
+ * 直接传入一个实体类,retrofit会通过convert把该实体序列化并将序列化后的结果直接作为请求体发送出去.
  */
 @Documented
 @Target(PARAMETER)

@@ -140,9 +140,9 @@ final class RequestFactory {
 
         final Retrofit retrofit;
         final Method method;
-        final Annotation[] methodAnnotations;
-        final Annotation[][] parameterAnnotationsArray;
-        final Type[] parameterTypes;
+        final Annotation[] methodAnnotations;// 方法上的所有注解数组
+        final Annotation[][] parameterAnnotationsArray;// 接口方法中的参数注解数组(每个参数可能对应多个注解)
+        final Type[] parameterTypes;// 参数类型
 
         boolean gotField;
         boolean gotPart;
@@ -172,13 +172,18 @@ final class RequestFactory {
         Builder(Retrofit retrofit, Method method) {
             this.retrofit = retrofit;
             this.method = method;
+            // 返回方法的注解数组
             this.methodAnnotations = method.getAnnotations();
+            //其返回的是参数的参数化的类型,里面的带有实际的参数类型
             this.parameterTypes = method.getGenericParameterTypes();
+            // 参数注解数组，参数里面如果不是参数化类型的话，那么 getGenericParameterTypes
+            // 就返回与 getParameterTypes 一样
             this.parameterAnnotationsArray = method.getParameterAnnotations();
         }
 
         RequestFactory build() {
             for (Annotation annotation : methodAnnotations) {
+                // 单独解析每一个方法注解内容
                 parseMethodAnnotation(annotation);
             }
 
@@ -199,7 +204,9 @@ final class RequestFactory {
 
             int parameterCount = parameterAnnotationsArray.length;
             parameterHandlers = new ParameterHandler<?>[parameterCount];
+            // 解析所有参数注解
             for (int p = 0, lastParameter = parameterCount - 1; p < parameterCount; p++) {
+                // 每一个参数初始化一个ParameterHandler
                 parameterHandlers[p] =
                         parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p], p == lastParameter);
             }
@@ -220,6 +227,7 @@ final class RequestFactory {
             return new RequestFactory(this);
         }
 
+        // 解析每一个方法注解(各个注解的含义查看各个注解文件)
         private void parseMethodAnnotation(Annotation annotation) {
             if (annotation instanceof DELETE) {
                 parseHttpMethodAndPath("DELETE", ((DELETE) annotation).value(), false);
@@ -244,7 +252,7 @@ final class RequestFactory {
                     throw methodError(method, "@Headers annotation is empty.");
                 }
                 headers = parseHeaders(headersToParse);
-            } else if (annotation instanceof Multipart) {
+            } else if (annotation instanceof Multipart) {// 多个参数注解
                 if (isFormEncoded) {
                     throw methodError(method, "Only one encoding annotation is allowed.");
                 }
@@ -257,6 +265,13 @@ final class RequestFactory {
             }
         }
 
+        /**
+         * 解析http请求
+         *
+         * @param httpMethod http请求方法名：get.post等
+         * @param value      注解中的值
+         * @param hasBody    是否有body
+         */
         private void parseHttpMethodAndPath(String httpMethod, String value, boolean hasBody) {
             if (this.httpMethod != null) {
                 throw methodError(method, "Only one HTTP method is allowed. Found: %s and %s.",
@@ -269,9 +284,14 @@ final class RequestFactory {
                 return;
             }
 
+            /**
+             * 例如：
+             * @POST("/negscr/home/cardConfig?")
+             * Call<CardConfigInfo> getCardConfigList(@Field("model") String model, @Field("version") String version);
+             */
             // Get the relative URL path and existing query string, if present.
-            int question = value.indexOf('?');
-            if (question != -1 && question < value.length() - 1) {
+            int question = value.indexOf('?');// 解析是否有问号（?），问号前面是相对路径
+            if (question != -1 && question < value.length() - 1) {// 有
                 // Ensure the query string does not have any named parameters.
                 String queryParams = value.substring(question + 1);
                 Matcher queryParamMatcher = PARAM_URL_REGEX.matcher(queryParams);
@@ -308,6 +328,16 @@ final class RequestFactory {
             return builder.build();
         }
 
+        /**
+         * 解析参数注解封装到ParameterHandler中
+         *
+         * @param p                 参数的index
+         * @param parameterType     参数类型
+         * @param annotations       参数对应的注解数组（每个参数可能对应多个注解）
+         * @param allowContinuation 是否是最后一个参数
+         *
+         * @return
+         */
         private @Nullable
         ParameterHandler<?> parseParameter(
                 int p, Type parameterType, @Nullable Annotation[] annotations, boolean allowContinuation) {
@@ -321,7 +351,7 @@ final class RequestFactory {
                         continue;
                     }
 
-                    if (result != null) {
+                    if (result != null) {// Retrofit参数注解只允许有一个
                         throw parameterError(method, p,
                                 "Multiple Retrofit annotations found, only one allowed.");
                     }
@@ -346,24 +376,34 @@ final class RequestFactory {
             return result;
         }
 
+        /**
+         * 解析每一个参数注解
+         *
+         * @param p           参数位置
+         * @param type        参数类型
+         * @param annotations 参数注解
+         * @param annotation  参数中的单个注解
+         *
+         * @return
+         */
         @Nullable
         private ParameterHandler<?> parseParameterAnnotation(
                 int p, Type type, Annotation[] annotations, Annotation annotation) {
             if (annotation instanceof Url) {
                 validateResolvableType(p, type);
-                if (gotUrl) {
+                if (gotUrl) {// 不能有重复的Url注解
                     throw parameterError(method, p, "Multiple @Url method annotations found.");
                 }
-                if (gotPath) {
+                if (gotPath) {// 不能有重复的Path注解
                     throw parameterError(method, p, "@Path parameters may not be used with @Url.");
                 }
-                if (gotQuery) {
+                if (gotQuery) {// 不能有重复的Query注解
                     throw parameterError(method, p, "A @Url parameter must not come after a @Query.");
                 }
-                if (gotQueryName) {
+                if (gotQueryName) {// 不能有重复的QueryName注解
                     throw parameterError(method, p, "A @Url parameter must not come after a @QueryName.");
                 }
-                if (gotQueryMap) {
+                if (gotQueryMap) {// 不能有重复的QueryMap注解
                     throw parameterError(method, p, "A @Url parameter must not come after a @QueryMap.");
                 }
                 if (relativeUrl != null) {
@@ -372,6 +412,7 @@ final class RequestFactory {
 
                 gotUrl = true;
 
+                // 相对路径
                 if (type == HttpUrl.class
                         || type == String.class
                         || type == URI.class
@@ -382,7 +423,7 @@ final class RequestFactory {
                             "@Url must be okhttp3.HttpUrl, String, java.net.URI, or android.net.Uri type.");
                 }
 
-            } else if (annotation instanceof Path) {
+            } else if (annotation instanceof Path) {// Path注解
                 validateResolvableType(p, type);
                 if (gotQuery) {
                     throw parameterError(method, p, "A @Path parameter must not come after a @Query.");

@@ -26,6 +26,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Make a GET request.
+ *
+ * 用于发送一个get请求
+ * GET注解一般必须添加相对路径或绝对路径或者全路径,如果不想在GET注解后添加请求路径,
+ * 则可以在方法的第一个参数中用@Url注解添加请求路径
  */
 @Documented
 @Target(METHOD)
