@@ -1,0 +1,21 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.auto.service:auto-service:1.0-rc6'
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation project(path: ':CodeMxAnnotion')
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"
+
+
+publish {
+    userOrg = 'codemx'
+    groupId = 'cn.codemx'
+    artifactId = 'autoCodeMxCompiler'
+    publishVersion = '1.0.0'
+    desc = ''
+    website = 'https://github.com/linkaipeng/AutoSharedPreference'
+}
