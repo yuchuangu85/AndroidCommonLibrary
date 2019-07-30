@@ -9,13 +9,3 @@ dependencies {
 
 sourceCompatibility = "7"
 targetCompatibility = "7"
-
-
-publish {
-    userOrg = 'codemx'
-    groupId = 'cn.codemx'
-    artifactId = 'autoCodeMxCompiler'
-    publishVersion = '1.0.0'
-    desc = ''
-    website = 'https://github.com/linkaipeng/AutoSharedPreference'
-}
