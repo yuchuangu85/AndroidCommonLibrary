@@ -124,9 +124,11 @@ import static okhttp3.internal.Util.checkDuration;
  * remain idle.
  */
 public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory {
+    // 默认网络协议
     static final List<Protocol> DEFAULT_PROTOCOLS = Util.immutableList(
             Protocol.HTTP_2, Protocol.HTTP_1_1);
 
+    // 默认的链接配置
     static final List<ConnectionSpec> DEFAULT_CONNECTION_SPECS = Util.immutableList(
             ConnectionSpec.MODERN_TLS, ConnectionSpec.CLEARTEXT);
 
@@ -208,9 +210,9 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
     final boolean followRedirects;
     final boolean retryOnConnectionFailure;
     final int callTimeout;
-    final int connectTimeout;
-    final int readTimeout;
-    final int writeTimeout;
+    final int connectTimeout;// 链接超时
+    final int readTimeout;// 读超时
+    final int writeTimeout;// 写超时
     final int pingInterval;
 
     public OkHttpClient() {
@@ -402,6 +404,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * Returns an immutable list of interceptors that observe the full span of each call: from before
      * the connection is established (if any) until after the response source is selected (either the
      * origin server, cache, or both).
+     *
+     * 获取其他拦截器
      */
     public List<Interceptor> interceptors() {
         return interceptors;
@@ -411,6 +415,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
      * Returns an immutable list of interceptors that observe a single network request and response.
      * These interceptors must call {@link Interceptor.Chain#proceed} exactly once: it is an error for
      * a network interceptor to short-circuit or repeat a network request.
+     *
+     * 获取网络拦截器
      */
     public List<Interceptor> networkInterceptors() {
         return networkInterceptors;
@@ -422,6 +428,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
 
     /**
      * Prepares the {@code request} to be executed at some point in the future.
+     *
+     * 创建一个HTTP请求的Call
      */
     @Override
     public Call newCall(Request request) {
@@ -430,6 +438,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
 
     /**
      * Uses {@code request} to connect a new web socket.
+     *
+     * 创建一个请求的web socket
      */
     @Override
     public WebSocket newWebSocket(Request request, WebSocketListener listener) {
@@ -445,8 +455,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
     public static final class Builder {
         Dispatcher dispatcher;
         @Nullable
-        Proxy proxy;
-        List<Protocol> protocols;
+        Proxy proxy;// 代理
+        List<Protocol> protocols;// 支持协议
         List<ConnectionSpec> connectionSpecs;
         final List<Interceptor> interceptors = new ArrayList<>();
         final List<Interceptor> networkInterceptors = new ArrayList<>();
@@ -481,7 +491,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
             dispatcher = new Dispatcher();
             protocols = DEFAULT_PROTOCOLS;
             connectionSpecs = DEFAULT_CONNECTION_SPECS;
-            eventListenerFactory = EventListener.factory(EventListener.NONE);
+            eventListenerFactory = EventListener.factory(EventListener.NONE);// 通过工厂模式创建请求事件监听
             proxySelector = ProxySelector.getDefault();
             if (proxySelector == null) {
                 proxySelector = new NullProxySelector();
@@ -573,6 +583,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>The connect timeout is applied when connecting a TCP socket to the target host.
          * The default value is 10 seconds.
+         *
+         * 设置连接超时
          */
         public Builder connectTimeout(long timeout, TimeUnit unit) {
             connectTimeout = checkDuration("timeout", timeout, unit);
@@ -586,6 +598,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>The connect timeout is applied when connecting a TCP socket to the target host.
          * The default value is 10 seconds.
+         *
+         * 设置链接超时
          */
         @IgnoreJRERequirement
         public Builder connectTimeout(Duration duration) {
@@ -599,6 +613,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>The read timeout is applied to both the TCP socket and for individual read IO operations
          * including on {@link Source} of the {@link Response}. The default value is 10 seconds.
+         *
+         * 读取超时
          *
          * @see Socket#setSoTimeout(int)
          * @see Source#timeout()
@@ -614,6 +630,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>The read timeout is applied to both the TCP socket and for individual read IO operations
          * including on {@link Source} of the {@link Response}. The default value is 10 seconds.
+         *
+         * 读取超时
          *
          * @see Socket#setSoTimeout(int)
          * @see Source#timeout()
@@ -631,6 +649,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * <p>The write timeout is applied for individual write IO operations.
          * The default value is 10 seconds.
          *
+         * 写超时
+         *
          * @see Sink#timeout()
          */
         public Builder writeTimeout(long timeout, TimeUnit unit) {
@@ -644,6 +664,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>The write timeout is applied for individual write IO operations.
          * The default value is 10 seconds.
+         *
+         * 写超时
          *
          * @see Sink#timeout()
          */
@@ -694,6 +716,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * Sets the HTTP proxy that will be used by connections created by this client. This takes
          * precedence over {@link #proxySelector}, which is only honored when this proxy is null (which
          * it is by default). To disable proxy use completely, call {@code proxy(Proxy.NO_PROXY)}.
+         *
+         * 设置代理
          */
         public Builder proxy(@Nullable Proxy proxy) {
             this.proxy = proxy;
@@ -707,6 +731,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>If unset, the {@link ProxySelector#getDefault() system-wide default} proxy selector will
          * be used.
+         *
+         * 设置代理选择器
          */
         public Builder proxySelector(ProxySelector proxySelector) {
             if (proxySelector == null) throw new NullPointerException("proxySelector == null");
@@ -719,6 +745,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * outgoing HTTP requests.
          *
          * <p>If unset, {@linkplain CookieJar#NO_COOKIES no cookies} will be accepted nor provided.
+         *
+         * 设置cookies
          */
         public Builder cookieJar(CookieJar cookieJar) {
             if (cookieJar == null) throw new NullPointerException("cookieJar == null");
@@ -728,6 +756,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
 
         /**
          * Sets the response cache to be used to read and write cached responses.
+         *
+         * 设置相应结果缓存器
          */
         public Builder cache(@Nullable Cache cache) {
             this.cache = cache;
@@ -739,6 +769,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * Sets the DNS service used to lookup IP addresses for hostnames.
          *
          * <p>If unset, the {@link Dns#SYSTEM system-wide default} DNS will be used.
+         *
+         * 设置DNS服务
          */
         public Builder dns(Dns dns) {
             if (dns == null) throw new NullPointerException("dns == null");
@@ -753,6 +785,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          *
          * <p>If unset, the {@link SocketFactory#getDefault() system-wide default} socket factory will
          * be used.
+         *
+         * 设置Socket工厂，用来创建Socket
          */
         public Builder socketFactory(SocketFactory socketFactory) {
             if (socketFactory == null) throw new NullPointerException("socketFactory == null");
@@ -771,6 +805,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * a field that OkHttp needs to build a clean certificate chain. This method instead must
          * use reflection to extract the trust manager. Applications should prefer to call {@link
          * #sslSocketFactory(SSLSocketFactory, X509TrustManager)}, which avoids such reflection.
+         *
+         * 设置SSLSocket工厂，用来创建Socket
          */
         public Builder sslSocketFactory(SSLSocketFactory sslSocketFactory) {
             if (sslSocketFactory == null)
@@ -874,6 +910,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * Sets the connection pool used to recycle HTTP and HTTPS connections.
          *
          * <p>If unset, a new connection pool will be used.
+         *
+         * 设置链接池，复用连接
          */
         public Builder connectionPool(ConnectionPool connectionPool) {
             if (connectionPool == null) throw new NullPointerException("connectionPool == null");
@@ -917,6 +955,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * <p>
          * Set this to false to avoid retrying requests when doing so is destructive. In this case the
          * calling application should do its own recovery of connectivity failures.
+         *
+         * 设置连接失败是否重新连接
          */
         public Builder retryOnConnectionFailure(boolean retryOnConnectionFailure) {
             this.retryOnConnectionFailure = retryOnConnectionFailure;
@@ -925,6 +965,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
 
         /**
          * Sets the dispatcher used to set policy and execute asynchronous requests. Must not be null.
+         *
+         * 设置调度器
          */
         public Builder dispatcher(Dispatcher dispatcher) {
             if (dispatcher == null) throw new IllegalArgumentException("dispatcher == null");
@@ -957,6 +999,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * <p>{@link Protocol#HTTP_1_0} is not supported in this set. Requests are initiated with {@code
          * HTTP/1.1}. If the server responds with {@code HTTP/1.0}, that will be exposed by {@link
          * Response#protocol()}.
+         *
+         * 设置协议
          *
          * @param protocols the protocols to use, in order of preference. If the list contains {@link
          *                  Protocol#H2_PRIOR_KNOWLEDGE} then that must be the only protocol and HTTPS URLs will not
@@ -992,6 +1036,7 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
             return this;
         }
 
+        // 设置连接配置
         public Builder connectionSpecs(List<ConnectionSpec> connectionSpecs) {
             this.connectionSpecs = Util.immutableList(connectionSpecs);
             return this;
@@ -1001,11 +1046,14 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * Returns a modifiable list of interceptors that observe the full span of each call: from
          * before the connection is established (if any) until after the response source is selected
          * (either the origin server, cache, or both).
+         *
+         * 获取所有拦截器
          */
         public List<Interceptor> interceptors() {
             return interceptors;
         }
 
+        // 添加拦截器
         public Builder addInterceptor(Interceptor interceptor) {
             if (interceptor == null) throw new IllegalArgumentException("interceptor == null");
             interceptors.add(interceptor);
@@ -1016,11 +1064,14 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
          * Returns a modifiable list of interceptors that observe a single network request and response.
          * These interceptors must call {@link Interceptor.Chain#proceed} exactly once: it is an error
          * for a network interceptor to short-circuit or repeat a network request.
+         *
+         * 获取网络拦截器
          */
         public List<Interceptor> networkInterceptors() {
             return networkInterceptors;
         }
 
+        // 添加网络拦截器
         public Builder addNetworkInterceptor(Interceptor interceptor) {
             if (interceptor == null) throw new IllegalArgumentException("interceptor == null");
             networkInterceptors.add(interceptor);
@@ -1030,6 +1081,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
         /**
          * Configure a single client scoped listener that will receive all analytic events
          * for this client.
+         *
+         * 添加事件监听
          *
          * @see EventListener for semantics and restrictions on listener implementations.
          */
@@ -1042,6 +1095,8 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
         /**
          * Configure a factory to provide per-call scoped listeners that will receive analytic events
          * for this client.
+         *
+         * 添加事件监听工厂
          *
          * @see EventListener for semantics and restrictions on listener implementations.
          */

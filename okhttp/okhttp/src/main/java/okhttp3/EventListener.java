@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- * Listener for metrics events. Extend this class to monitor the quantity, size, and duration of
+ * Listener for metrics(指标) events. Extend this class to monitor the quantity, size, and duration of
  * your application's HTTP calls.
  *
  * <p>All start/connect/acquire events will eventually receive a matching end/release event,
@@ -49,6 +49,8 @@ import javax.annotation.Nullable;
  * <p>All event methods must execute fast, without external locking, cannot throw exceptions,
  * attempt to mutate the event parameters, or be re-entrant back into the client.
  * Any IO - writing to files or network should be done asynchronously.
+ *
+ * 网络请求事件
  */
 public abstract class EventListener {
     public static final EventListener NONE = new EventListener() {
@@ -292,6 +294,7 @@ public abstract class EventListener {
     public void callFailed(Call call, IOException ioe) {
     }
 
+    // 网络请求事件监听工厂
     public interface Factory {
         /**
          * Creates an instance of the {@link EventListener} for a particular {@link Call}. The returned

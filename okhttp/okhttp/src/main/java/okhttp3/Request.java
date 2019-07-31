@@ -27,15 +27,17 @@ import okhttp3.internal.Util;
 import okhttp3.internal.http.HttpMethod;
 
 /**
- * An HTTP request. Instances of this class are immutable if their {@link #body} is null or itself
+ * An HTTP request. Instances of this class are immutable(不可变的) if their {@link #body} is null or itself
  * immutable.
+ *
+ * 一个HTTP请求的封装
  */
 public final class Request {
-    final HttpUrl url;
-    final String method;
-    final Headers headers;
+    final HttpUrl url;// 请求链接封装
+    final String method;// 请求方法（GET，POST等）
+    final Headers headers;// 请求头
     final @Nullable
-    RequestBody body;
+    RequestBody body;// 请求体封装
     final Map<Class<?>, Object> tags;
 
     private volatile @Nullable

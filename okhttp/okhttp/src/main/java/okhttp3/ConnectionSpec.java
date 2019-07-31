@@ -104,6 +104,8 @@ public final class ConnectionSpec {
     /**
      * A modern TLS configuration that works on most client platforms and can connect to most servers.
      * This is OkHttp's default configuration.
+     *
+     * OkHttp的默认链接配置
      */
     public static final ConnectionSpec MODERN_TLS = new Builder(true)
             .cipherSuites(APPROVED_CIPHER_SUITES)
@@ -123,7 +125,7 @@ public final class ConnectionSpec {
             .build();
 
     /**
-     * Unencrypted, unauthenticated connections for {@code http:} URLs.
+     * Unencrypted(未加密的), unauthenticated(未身份验证的) connections for {@code http:} URLs.
      */
     public static final ConnectionSpec CLEARTEXT = new Builder(false).build();
 

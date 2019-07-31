@@ -37,6 +37,8 @@ import okhttp3.internal.Util;
  * <p>Each dispatcher uses an {@link ExecutorService} to run calls internally. If you supply your
  * own executor, it should be able to run {@linkplain #getMaxRequests the configured maximum} number
  * of calls concurrently.
+ *
+ * 调度器
  */
 public final class Dispatcher {
     private int maxRequests = 64;
