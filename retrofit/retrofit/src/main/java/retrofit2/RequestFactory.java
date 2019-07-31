@@ -98,7 +98,15 @@ final class RequestFactory {
         isKotlinSuspendFunction = builder.isKotlinSuspendFunction;
     }
 
-    // 创建Request
+    /**
+     * 创建Request
+     *
+     * @param args 网络请求接口参数
+     *
+     * @return Request
+     *
+     * @throws IOException
+     */
     okhttp3.Request create(Object[] args) throws IOException {
         @SuppressWarnings("unchecked") // It is an error to invoke a method with the wrong arg types.
                 ParameterHandler<Object>[] handlers = (ParameterHandler<Object>[]) parameterHandlers;
@@ -117,12 +125,14 @@ final class RequestFactory {
             argumentCount--;
         }
 
+        // 参数列表
         List<Object> argumentList = new ArrayList<>(argumentCount);
         for (int p = 0; p < argumentCount; p++) {
             argumentList.add(args[p]);
             handlers[p].apply(requestBuilder, args[p]);
         }
 
+        // 构建Request，并传入参数数组
         return requestBuilder.get()
                 .tag(Invocation.class, new Invocation(method, argumentList))
                 .build();
@@ -175,7 +185,7 @@ final class RequestFactory {
             this.method = method;
             // 返回方法的注解数组
             this.methodAnnotations = method.getAnnotations();
-            //其返回的是参数的参数化的类型,里面的带有实际的参数类型
+            // 其返回的是参数的参数化的类型,里面的带有实际的参数类型
             this.parameterTypes = method.getGenericParameterTypes();
             // 参数注解数组，参数里面如果不是参数化类型的话，那么 getGenericParameterTypes
             // 就返回与 getParameterTypes 一样

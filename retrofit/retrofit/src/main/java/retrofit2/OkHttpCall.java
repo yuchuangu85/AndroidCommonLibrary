@@ -105,6 +105,7 @@ final class OkHttpCall<T> implements Call<T> {
             failure = creationFailure;
             if (call == null && failure == null) {
                 try {
+                    // RealCall
                     call = rawCall = createRawCall();
                 } catch (Throwable t) {
                     throwIfFatal(t);
@@ -202,7 +203,7 @@ final class OkHttpCall<T> implements Call<T> {
     }
 
     private okhttp3.Call createRawCall() throws IOException {
-        // callFactory为OkHttpClient
+        // callFactory为OkHttpClient，args为请求接口参数
         okhttp3.Call call = callFactory.newCall(requestFactory.create(args));
         if (call == null) {
             throw new NullPointerException("Call.Factory returned null.");

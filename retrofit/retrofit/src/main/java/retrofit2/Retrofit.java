@@ -235,10 +235,9 @@ public final class Retrofit {
                             // invoke（调用）就是调用Method类代表的方法
                             return method.invoke(this, args);
                         }
-                        if (platform.isDefaultMethod(method)) {
+                        if (platform.isDefaultMethod(method)) {// 接口中声明为default的方法，非接口方法
                             return platform.invokeDefaultMethod(method, service, proxy, args);
                         }
-                        // 这里调用invoke返回HttpServiceMethod.OkHttpCall
                         /**
                          * loadServiceMethod返回的是CallAdapted（HttpServiceMethod）
                          * 这里调用invoke方法实际上调用的是CallAdapted的invoke方法也就是父类
@@ -343,7 +342,8 @@ public final class Retrofit {
 
         int start = callAdapterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = callAdapterFactories.size(); i < count; i++) {
-            // 返回ResponseCallAdapter或者CallAdapter()
+            // DefaultCallAdapterFactory：返回CallAdapter
+            // CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
             CallAdapter<?, ?> adapter = callAdapterFactories.get(i).get(returnType, annotations, this);
             if (adapter != null) {
                 return adapter;

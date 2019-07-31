@@ -64,7 +64,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             adapterType = new Utils.ParameterizedTypeImpl(null, Call.class, responseType);
             annotations = SkipCallbackExecutorImpl.ensurePresent(annotations);
         } else {
-            // 接口方法返回类型
+            // 接口方法返回值类型
             adapterType = method.getGenericReturnType();
         }
 

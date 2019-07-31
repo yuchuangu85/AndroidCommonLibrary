@@ -325,6 +325,7 @@ final class Utils {
     }
 
     static Type getParameterUpperBound(int index, ParameterizedType type) {
+        // 获取<>里面的参数类型，为一个数组{CardConfigInfo}
         Type[] types = type.getActualTypeArguments();
         if (index < 0 || index >= types.length) {
             throw new IllegalArgumentException(
@@ -345,12 +346,16 @@ final class Utils {
         return paramType;
     }
 
+    /**
+     * ParameterizedType：参数化类型，具有<>符号的变量是参数化类型，例如我们请求服务中的Call<CardConfigInfo>
+     */
     static boolean hasUnresolvableType(@Nullable Type type) {
         if (type instanceof Class<?>) {
             return false;
         }
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
+            // 获取<>里面的参数类型，为一个数组{CardConfigInfo}
             for (Type typeArgument : parameterizedType.getActualTypeArguments()) {
                 if (hasUnresolvableType(typeArgument)) {
                     return true;
@@ -358,6 +363,10 @@ final class Utils {
             }
             return false;
         }
+        /**
+         * GenericArrayType是Type的子接口，用于表示“泛型数组”，描述的是形如：A<T>[]或T[]的类型。
+         * 其实也就是描述ParameterizedType类型以及TypeVariable类型的数组，即形如：classA<T>[][]、T[]等。
+         */
         if (type instanceof GenericArrayType) {
             return hasUnresolvableType(((GenericArrayType) type).getGenericComponentType());
         }

@@ -79,6 +79,7 @@ public final class ScalaCallAdapterFactory extends CallAdapter.Factory {
                     "Response must be parameterized as Response<Foo> or Response<? extends Foo>");
         }
 
+        // 获取第一个参数类型（<>中的类型）
         Type responseType = getParameterUpperBound(0, (ParameterizedType) innerType);
         return new ResponseCallAdapter<>(responseType);
     }
