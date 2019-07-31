@@ -34,6 +34,14 @@ import javax.annotation.Nullable;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
+/**
+ * 泛型相关类型文章参考：
+ * ParameterizedType：https://blog.csdn.net/a327369238/article/details/52622331
+ * TypeVariable：https://blog.csdn.net/a327369238/article/details/52673338
+ * GenericDeclaration：https://blog.csdn.net/a327369238/article/details/52710827
+ * GenericArrayType：https://blog.csdn.net/a327369238/article/details/52703519
+ * WildcardType：https://blog.csdn.net/a327369238/article/details/52711529
+ */
 final class Utils {
     static final Type[] EMPTY_TYPE_ARRAY = new Type[0];
 

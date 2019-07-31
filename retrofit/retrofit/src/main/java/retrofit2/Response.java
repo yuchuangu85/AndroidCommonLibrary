@@ -26,6 +26,8 @@ import okhttp3.ResponseBody;
 
 /**
  * An HTTP response.
+ *
+ * 一次Http请求的相应事件
  */
 public final class Response<T> {
     /**

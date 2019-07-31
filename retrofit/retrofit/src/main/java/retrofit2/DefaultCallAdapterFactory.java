@@ -26,6 +26,9 @@ import javax.annotation.Nullable;
 
 import okhttp3.Request;
 
+/**
+ * 默认请求适配器工厂
+ */
 final class DefaultCallAdapterFactory extends CallAdapter.Factory {
     private final @Nullable
     Executor callbackExecutor;

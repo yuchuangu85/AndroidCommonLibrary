@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
  * created by {@linkplain Factory a factory} which is
  * {@linkplain Retrofit.Builder#addCallAdapterFactory(Factory) installed} into the {@link Retrofit}
  * instance.
+ * <p>
+ * 适配器接口
  */
 public interface CallAdapter<R, T> {
     /**
@@ -60,6 +62,8 @@ public interface CallAdapter<R, T> {
     /**
      * Creates {@link CallAdapter} instances based on the return type of {@linkplain
      * Retrofit#create(Class) the service interface} methods.
+     * <p>
+     * 适配器工厂接口，通过工厂模式创建适配器
      */
     abstract class Factory {
         /**

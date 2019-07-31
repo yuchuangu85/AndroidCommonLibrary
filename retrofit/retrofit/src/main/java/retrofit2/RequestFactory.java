@@ -64,6 +64,9 @@ import retrofit2.http.Url;
 import static retrofit2.Utils.methodError;
 import static retrofit2.Utils.parameterError;
 
+/**
+ * 请求工厂，通过该工厂模式创建请求对象Request（okhttp3.Request）
+ */
 final class RequestFactory {
     static RequestFactory parseAnnotations(Retrofit retrofit, Method method) {
         return new Builder(retrofit, method).build();

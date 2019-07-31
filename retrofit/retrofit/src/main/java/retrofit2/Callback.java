@@ -26,6 +26,8 @@ package retrofit2;
  * <li>JVM: Callbacks are executed on the background thread which performed the request.</li>
  * </ul>
  *
+ * 请求结果回调
+ *
  * @param <T> Successful response body type.
  */
 public interface Callback<T> {

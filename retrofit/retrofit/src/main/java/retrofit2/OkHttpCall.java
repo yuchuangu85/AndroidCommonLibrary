@@ -31,6 +31,10 @@ import okio.Okio;
 
 import static retrofit2.Utils.throwIfFatal;
 
+/**
+ * Okhttp请求封装，最终的请求都在这个类中进行
+ * @param <T> 返回结果类型
+ */
 final class OkHttpCall<T> implements Call<T> {
     private final RequestFactory requestFactory;
     private final Object[] args;
@@ -204,6 +208,7 @@ final class OkHttpCall<T> implements Call<T> {
 
     private okhttp3.Call createRawCall() throws IOException {
         // callFactory为OkHttpClient，args为请求接口参数
+        // 通过工厂requestFactory创建请求对象Request（okhttp3.Request）
         okhttp3.Call call = callFactory.newCall(requestFactory.create(args));
         if (call == null) {
             throw new NullPointerException("Call.Factory returned null.");

@@ -30,6 +30,8 @@ import static retrofit2.Utils.methodError;
 
 /**
  * Adapts an invocation of an interface method into an HTTP call.
+ *
+ * 适配一个接口方法的一次调用为一个http call（ServiceMethod）
  */
 abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<ReturnT> {
     /**

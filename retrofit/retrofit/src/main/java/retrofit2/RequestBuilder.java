@@ -30,6 +30,9 @@ import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 
+/**
+ * 请求构建者，主要是存储了请求需要的信息
+ */
 final class RequestBuilder {
     private static final char[] HEX_DIGITS =
             {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};

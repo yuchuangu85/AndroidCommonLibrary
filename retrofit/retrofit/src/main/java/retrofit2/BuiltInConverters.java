@@ -26,6 +26,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Streaming;
 
+/**
+ * 自带构建转换器工厂，内置了集中默认转换器
+ */
 final class BuiltInConverters extends Converter.Factory {
     /**
      * Not volatile because we don't mind multiple threads discovering this.
