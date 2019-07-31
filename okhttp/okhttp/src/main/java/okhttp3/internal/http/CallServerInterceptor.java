@@ -44,6 +44,7 @@ public final class CallServerInterceptor implements Interceptor {
 
         long sentRequestMillis = System.currentTimeMillis();
 
+        // 写入请求Headers
         exchange.writeRequestHeaders(request);
 
         boolean responseHeadersStarted = false;

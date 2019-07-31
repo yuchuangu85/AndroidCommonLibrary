@@ -57,6 +57,7 @@ public final class CacheInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        // 先取缓存
         Response cacheCandidate = cache != null
                 ? cache.get(chain.request())
                 : null;

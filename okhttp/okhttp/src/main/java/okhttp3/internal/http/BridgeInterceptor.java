@@ -45,6 +45,7 @@ public final class BridgeInterceptor implements Interceptor {
         this.cookieJar = cookieJar;
     }
 
+    // 处理请求参数
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request userRequest = chain.request();

@@ -183,13 +183,13 @@ public final class RealConnection extends Http2Connection.Listener implements Co
 
         while (true) {
             try {
-                if (route.requiresTunnel()) {
+                if (route.requiresTunnel()) {// HTTP请求
                     connectTunnel(connectTimeout, readTimeout, writeTimeout, call, eventListener);
                     if (rawSocket == null) {
                         // We were unable to connect the tunnel but properly closed down our resources.
                         break;
                     }
-                } else {
+                } else {// Socket请求
                     connectSocket(connectTimeout, readTimeout, call, eventListener);
                 }
                 establishProtocol(connectionSpecSelector, pingIntervalMillis, call, eventListener);
@@ -553,9 +553,9 @@ public final class RealConnection extends Http2Connection.Listener implements Co
     }
 
     ExchangeCodec newCodec(OkHttpClient client, Interceptor.Chain chain) throws SocketException {
-        if (http2Connection != null) {
+        if (http2Connection != null) {// Http
             return new Http2ExchangeCodec(client, this, chain, http2Connection);
-        } else {
+        } else {// Socket
             socket.setSoTimeout(chain.readTimeoutMillis());
             source.timeout().timeout(chain.readTimeoutMillis(), MILLISECONDS);
             sink.timeout().timeout(chain.writeTimeoutMillis(), MILLISECONDS);

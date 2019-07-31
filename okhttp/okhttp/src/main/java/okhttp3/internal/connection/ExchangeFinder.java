@@ -54,6 +54,7 @@ import static okhttp3.internal.Util.closeQuietly;
 final class ExchangeFinder {
     private final Transmitter transmitter;
     private final Address address;
+    // OkHttpClient执行Builder的时候创建的
     private final RealConnectionPool connectionPool;
     private final Call call;
     private final EventListener eventListener;
@@ -101,15 +102,18 @@ final class ExchangeFinder {
     /**
      * Finds a connection and returns it if it is healthy. If it is unhealthy the process is repeated
      * until a healthy connection is found.
+     * 查找一个健康的连接返回。
      */
     private RealConnection findHealthyConnection(int connectTimeout, int readTimeout,
                                                  int writeTimeout, int pingIntervalMillis, boolean connectionRetryEnabled,
                                                  boolean doExtensiveHealthChecks) throws IOException {
         while (true) {
+            // 查找候选连接
             RealConnection candidate = findConnection(connectTimeout, readTimeout, writeTimeout,
                     pingIntervalMillis, connectionRetryEnabled);
 
             // If this is a brand new connection, we can skip the extensive health checks.
+            // 新的连接可以跳过健康检查
             synchronized (connectionPool) {
                 if (candidate.successCount == 0) {
                     return candidate;
@@ -210,6 +214,7 @@ final class ExchangeFinder {
 
                 // Create a connection and assign it to this allocation immediately. This makes it possible
                 // for an asynchronous cancel() to interrupt the handshake we're about to do.
+                // 创建连接
                 result = new RealConnection(connectionPool, selectedRoute);
                 connectingConnection = result;
             }
@@ -221,7 +226,7 @@ final class ExchangeFinder {
             return result;
         }
 
-        // Do TCP + TLS handshakes. This is a blocking operation.
+        // Do TCP + TLS handshakes. This is a blocking operation.连接
         result.connect(connectTimeout, readTimeout, writeTimeout, pingIntervalMillis,
                 connectionRetryEnabled, call, eventListener);
         connectionPool.routeDatabase.connected(result.route());

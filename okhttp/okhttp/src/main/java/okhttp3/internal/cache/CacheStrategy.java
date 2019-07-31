@@ -207,7 +207,7 @@ public final class CacheStrategy {
                 return new CacheStrategy(request, null);
             }
 
-            // Drop the cached response if it's missing a required handshake.
+            // Drop the cached response if it's missing a required handshake(握手).
             if (request.isHttps() && cacheResponse.handshake() == null) {
                 return new CacheStrategy(request, null);
             }

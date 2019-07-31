@@ -50,7 +50,7 @@ final class RealCall implements Call {
      * The application's original request unadulterated by redirects or auth headers.
      */
     final Request originalRequest;
-    final boolean forWebSocket;
+    final boolean forWebSocket;// 是不是Socket连接
 
     // Guarded by this.
     private boolean executed;
@@ -73,6 +73,7 @@ final class RealCall implements Call {
         return originalRequest;
     }
 
+    // 同步请求
     @Override
     public Response execute() throws IOException {
         synchronized (this) {
@@ -82,13 +83,16 @@ final class RealCall implements Call {
         transmitter.timeoutEnter();
         transmitter.callStart();
         try {
+            // 添加队列
             client.dispatcher().executed(this);
+            // 请求数据
             return getResponseWithInterceptorChain();
         } finally {
             client.dispatcher().finished(this);
         }
     }
 
+    // 异步请求
     @Override
     public void enqueue(Callback responseCallback) {
         synchronized (this) {
@@ -213,14 +217,14 @@ final class RealCall implements Call {
     }
 
     Response getResponseWithInterceptorChain() throws IOException {
-        // Build a full stack of interceptors.
+        // Build a full stack of interceptors.添加拦截器
         List<Interceptor> interceptors = new ArrayList<>();
         interceptors.addAll(client.interceptors());
         interceptors.add(new RetryAndFollowUpInterceptor(client));
         interceptors.add(new BridgeInterceptor(client.cookieJar()));
         interceptors.add(new CacheInterceptor(client.internalCache()));
         interceptors.add(new ConnectInterceptor(client));
-        if (!forWebSocket) {
+        if (!forWebSocket) {// HTTP请求
             interceptors.addAll(client.networkInterceptors());
         }
         interceptors.add(new CallServerInterceptor(forWebSocket));

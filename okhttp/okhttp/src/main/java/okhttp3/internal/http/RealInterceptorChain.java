@@ -49,7 +49,7 @@ public final class RealInterceptorChain implements Interceptor.Chain {
     private final int connectTimeout;
     private final int readTimeout;
     private final int writeTimeout;
-    private int calls;
+    private int calls;// 请求次数
 
     public RealInterceptorChain(List<Interceptor> interceptors, Transmitter transmitter,
                                 @Nullable Exchange exchange, int index, Request request, Call call,
@@ -152,6 +152,11 @@ public final class RealInterceptorChain implements Interceptor.Chain {
         // Call the next interceptor in the chain.
         RealInterceptorChain next = new RealInterceptorChain(interceptors, transmitter, exchange,
                 index + 1, request, call, connectTimeout, readTimeout, writeTimeout);
+        /**
+         * 拦截器顺序：
+         * 自定义Interceptor->RetryAndFollowUpInterceptor->BridgeInterceptor->CacheInterceptor->
+         * ConnectInterceptor->OkHttpClient.networkInterceptors->CallServerInterceptor
+         */
         Interceptor interceptor = interceptors.get(index);
         Response response = interceptor.intercept(next);
 

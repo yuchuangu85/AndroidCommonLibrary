@@ -39,7 +39,7 @@ import okio.Sink;
 import okio.Source;
 
 /**
- * Transmits a single HTTP request and a response pair. This layers connection management and events
+ * Transmits(传输) a single HTTP request and a response pair. This layers connection management and events
  * on {@link ExchangeCodec}, which handles the actual I/O.
  */
 public final class Exchange {
