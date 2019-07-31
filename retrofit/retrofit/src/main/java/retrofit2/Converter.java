@@ -55,6 +55,8 @@ public interface Converter<F, T> {
          * {@code type} cannot be handled by this factory. This is used to create converters for
          * response types such as {@code SimpleResponse} from a {@code Call<SimpleResponse>}
          * declaration.
+         * <p>
+         * 返回结果转换
          */
         public @Nullable
         Converter<ResponseBody, ?> responseBodyConverter(Type type,
@@ -67,6 +69,8 @@ public interface Converter<F, T> {
          * {@code type} cannot be handled by this factory. This is used to create converters for types
          * specified by {@link Body @Body}, {@link Part @Part}, and {@link PartMap @PartMap}
          * values.
+         * <p>
+         * 请求体转换
          */
         public @Nullable
         Converter<?, RequestBody> requestBodyConverter(Type type,

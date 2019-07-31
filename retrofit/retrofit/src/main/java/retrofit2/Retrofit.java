@@ -91,15 +91,45 @@ import static java.util.Collections.unmodifiableList;
 public final class Retrofit {
     private final Map<Method, ServiceMethod<?>> serviceMethodCache = new ConcurrentHashMap<>();
 
-    // 负责创建 HTTP 请求，HTTP 请求被抽象为了 okhttp3.Call 类，它表示一个已经准备好，可以随时执行的 HTTP 请求；
+    // 负责创建 HTTP 请求，HTTP 请求被抽象为了 okhttp3.Call 类，它表示一个已经准备好，
+    // 可以随时执行的 HTTP 请求；默认为OkHttpClient
     final okhttp3.Call.Factory callFactory;
-    final HttpUrl baseUrl;
+    final HttpUrl baseUrl;// 基础链接
+    /**
+     * 数据转换器：在retrofit-converters库中
+     * GsonConverterFactory：用来创建GsonRequestBodyConverter和GsonResponseBodyConverter
+     * GuavaOptionalConverterFactory：用来创建OptionalConverter
+     * JacksonConverterFactory：用来创建JacksonRequestBodyConverter和JacksonResponseBodyConverter
+     * Java8OptionalConverterFactory：用来创建OptionalConverter（弃用）
+     * JaxbConverterFactory：用来创建JaxbRequestConverter和JaxbResponseConverter
+     * MoshiConverterFactory：用来创建MoshiRequestBodyConverter和MoshiResponseBodyConverter
+     * ProtoConverterFactory：用来创建ProtoRequestBodyConverter和ProtoResponseBodyConverter
+     * ScalarsConverterFactory：用来创建ScalarRequestBodyConverter和ScalarResponseBodyConverters
+     * SimpleXmlConverterFactory：用来创建SimpleXmlRequestBodyConverter和SimpleXmlResponseBodyConverter（弃用）
+     * WireConverterFactory：用来创建WireRequestBodyConverter和WireResponseBodyConverter
+     * 内置：
+     * BuiltInConverters
+     * 平台默认：
+     * Android平台：sdk>=24 添加OptionalConverterFactory，返回OptionalConverter
+     * Android平台：sdk<24 不添加
+     * java平台：OptionalConverterFactory返回OptionalConverter
+     */
     final List<Converter.Factory> converterFactories;
     /**
      * 添加默认CallAdapter.Factory
      * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
      * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
      * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+     * <p>
+     * DefaultCallAdapterFactory：返回CallAdapter
+     * CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
+     * <p>
+     * 手动配置：
+     * GuavaCallAdapterFactory：get返回ResponseCallAdapter
+     * Java8CallAdapterFactory：get返回ResponseCallAdapter
+     * RxJavaCallAdapterFactory：get返回RxJavaCallAdapter
+     * RxJava2CallAdapterFactory：get返回RxJava2CallAdapter
+     * ScalaCallAdapterFactory：get返回ResponseCallAdapter
      */
     final List<CallAdapter.Factory> callAdapterFactories;
     final @Nullable
@@ -182,9 +212,16 @@ public final class Retrofit {
                     /**
                      * 调用代理对象的每个函数实际最终都是调用了InvocationHandler的invoke函数。
                      *
-                     * @param proxy  表示通过 Proxy.newProxyInstance() 生成的代理类对象。
-                     * @param method 表示代理对象被调用的函数。
-                     * @param args   表示代理对象被调用的函数的参数。
+                     * 实例
+                     × <pre>
+                     * public interface CategoryService {
+                     *   @POST("category/{cat}/")
+                     *   Call<List<Item>> categoryList(@Path("cat") String a, @Query("page") int b);
+                     * }
+                     * </pre>
+                     * @param proxy  表示通过 Proxy.newProxyInstance() 生成的代理类对象。--CategoryService
+                     * @param method 表示代理对象被调用的函数。--categoryList方法(有注解)
+                     * @param args   表示代理对象被调用的函数的参数。--a,b(有注解)
                      * @return
                      * @throws Throwable
                      */
@@ -443,7 +480,7 @@ public final class Retrofit {
     /**
      * Returns a {@link Converter} for {@code type} to {@link String} from the available
      * {@linkplain #converterFactories() factories}.
-     *
+     * <p>
      * 返回一个将变量转换为String的转换器
      */
     public <T> Converter<T, String> stringConverter(Type type, Annotation[] annotations) {
@@ -491,6 +528,7 @@ public final class Retrofit {
         HttpUrl baseUrl;
         private final List<Converter.Factory> converterFactories = new ArrayList<>();
         private final List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>();
+        // 线程池：Android平台为MainThreadExecutor，Java平台为null
         private @Nullable
         Executor callbackExecutor;
         private boolean validateEagerly;
@@ -688,17 +726,20 @@ public final class Retrofit {
                 throw new IllegalStateException("Base URL required.");
             }
 
+            // 如果没有手动创建，则new一个OkHttpClient(我们通常为默认的)
             okhttp3.Call.Factory callFactory = this.callFactory;
             if (callFactory == null) {
                 callFactory = new OkHttpClient();
             }
 
             Executor callbackExecutor = this.callbackExecutor;
-            if (callbackExecutor == null) {
+            if (callbackExecutor == null) {// 没有手动设置线程池
+                // 获取默认线程池：Android平台为MainThreadExecutor，Java平台为null
                 callbackExecutor = platform.defaultCallbackExecutor();
             }
 
             // Make a defensive copy of the adapters and add the default Call adapter.
+            // 添加手动设置的请求适配器工厂（CallAdapter.Factory）
             List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
             /**
              * 添加默认CallAdapter.Factory
@@ -714,9 +755,9 @@ public final class Retrofit {
 
             // Add the built-in converter factory first. This prevents overriding its behavior but also
             // ensures correct behavior when using converters that consume all types.
-            converterFactories.add(new BuiltInConverters());
-            converterFactories.addAll(this.converterFactories);
-            converterFactories.addAll(platform.defaultConverterFactories());
+            converterFactories.add(new BuiltInConverters());// 内置Converter.Factory
+            converterFactories.addAll(this.converterFactories);// 手动添加的Converter.Factory
+            converterFactories.addAll(platform.defaultConverterFactories());// 平台默认Converter.Factory
 
             return new Retrofit(callFactory, baseUrl, unmodifiableList(converterFactories),
                     unmodifiableList(callAdapterFactories), callbackExecutor, validateEagerly);

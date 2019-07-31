@@ -31,6 +31,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+// 平台：Android平台（区分sdk>=24或者sdk<24）/Java平台
 class Platform {
     private static final Platform PLATFORM = findPlatform();
 
@@ -49,10 +50,11 @@ class Platform {
         return new Platform(true);
     }
 
-    // Android平台并且sdk版本>=24时true，sdk<24为false
+    // Android平台并且sdk>=24为true，sdk<24为false
     // Java平台为true
     private final boolean hasJava8Types;
 
+    // 默认Java平台
     Platform(boolean hasJava8Types) {
         this.hasJava8Types = hasJava8Types;
     }
@@ -81,6 +83,8 @@ class Platform {
                 : emptyList();
     }
 
+    // Android平台并且sdk>=24为1，sdk<24为0
+    // Java平台为1
     int defaultConverterFactoriesSize() {
         return hasJava8Types ? 1 : 0;
     }
@@ -102,6 +106,7 @@ class Platform {
                 .invokeWithArguments(args);
     }
 
+    // Android平台
     static final class Android extends Platform {
         Android() {
             super(Build.VERSION.SDK_INT >= 24);
