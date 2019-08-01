@@ -40,6 +40,8 @@ import androidx.annotation.Nullable;
 /**
  * Downsamples, decodes, and rotates images according to their exif orientation using {@link
  * BitmapFactory}.
+ *
+ * 根据使用BitmapFactory提供的信息取样，解码，旋转图片
  */
 public final class Downsampler {
     static final String TAG = "Downsampler";

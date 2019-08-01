@@ -49,7 +49,19 @@ public final class CallServerInterceptor implements Interceptor {
 
         boolean responseHeadersStarted = false;
         Response.Builder responseBuilder = null;
+        // 非GET请求或者是HEAD请求，并且请求体不为空
         if (HttpMethod.permitsRequestBody(request.method()) && request.body() != null) {
+            /**
+             * 1.客户端策略
+             * 如果客户端有 post 数据要上传，可以考虑使用 100-continue 协议。在请求头中加入 {“Expect”:”100-continue”}
+             * 如果没有 post 数据，不能使用 100-continue 协议，因为这会让服务端造成误解。
+             * 并不是所有的 Server 都会正确实现 100-continue 协议，如果 Client 发送 Expect:100-continue 消息后，
+             * 在 timeout 时间内无响应，Client 需要立马上传 post 数据。有些 Server 会错误实现 100-continue 协议，
+             * 在不需要此协议时返回 100，此时客户端应该忽略。
+             * 2.服务端策略
+             * 正确情况下，收到请求后，返回 100 或错误码。
+             * 如果在发送 100-continue 前收到了 post 数据（客户端提前发送 post 数据），则不发送 100 响应码(略去)。
+             */
             // If there's a "Expect: 100-continue" header on the request, wait for a "HTTP/1.1 100
             // Continue" response before transmitting the request body. If we don't get that, return
             // what we did get (such as a 4xx response) without ever transmitting the request body.
@@ -68,6 +80,7 @@ public final class CallServerInterceptor implements Interceptor {
                             exchange.createRequestBody(request, true));
                     request.body().writeTo(bufferedRequestBody);
                 } else {
+                    // 写入请求体
                     // Write the request body if the "Expect: 100-continue" expectation was met.
                     BufferedSink bufferedRequestBody = Okio.buffer(
                             exchange.createRequestBody(request, false));
@@ -83,7 +96,7 @@ public final class CallServerInterceptor implements Interceptor {
                     exchange.noNewExchangesOnConnection();
                 }
             }
-        } else {
+        } else {// GET请求
             exchange.noRequestBody();
         }
 
@@ -96,6 +109,7 @@ public final class CallServerInterceptor implements Interceptor {
         }
 
         if (responseBuilder == null) {
+            // 读取请求头
             responseBuilder = exchange.readResponseHeaders(false);
         }
 
@@ -128,6 +142,7 @@ public final class CallServerInterceptor implements Interceptor {
                     .body(Util.EMPTY_RESPONSE)
                     .build();
         } else {
+            // 获取相应体
             response = response.newBuilder()
                     .body(exchange.openResponseBody(response))
                     .build();

@@ -22,6 +22,7 @@ import static com.bumptech.glide.load.ImageHeaderParser.ImageType.UNKNOWN;
 
 /**
  * A class for parsing the exif orientation and other data from an image header.
+ * 通过图片header解析图片格式等信息
  */
 public final class DefaultImageHeaderParser implements ImageHeaderParser {
     // Due to https://code.google.com/p/android/issues/detail?id=97751.

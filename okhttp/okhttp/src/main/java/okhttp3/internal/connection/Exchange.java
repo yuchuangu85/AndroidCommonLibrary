@@ -133,6 +133,7 @@ public final class Exchange {
         eventListener.responseHeadersEnd(call, response);
     }
 
+    // 获取相应体
     public ResponseBody openResponseBody(Response response) throws IOException {
         try {
             eventListener.responseBodyStart(call);

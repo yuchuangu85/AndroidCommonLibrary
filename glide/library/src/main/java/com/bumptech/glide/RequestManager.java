@@ -373,8 +373,8 @@ public class RequestManager implements LifecycleListener, ModelTypes<RequestBuil
      *
      * <p>If the underlying data is not a GIF, this will fail. As a result, this should only be used
      * if the model represents an animated GIF and the caller wants to interact with the GifDrawable
-     * directly. Normally using just {@link #asDrawable()} is sufficient because it will determine
-     * whether or not the given data represents an animated GIF and return the appropriate {@link
+     * directly. Normally using just {@link #asDrawable()} is sufficient(足够) because it will determine
+     * whether or not the given data represents an animated GIF and return the appropriate(适当的) {@link
      * Drawable}, animated or not, automatically.
      *
      * @return A new request builder for loading a {@link com.bumptech.glide.load.resource.gif.GifDrawable}.

@@ -377,6 +377,7 @@ public class Glide implements ComponentCallbacks2 {
         final Resources resources = context.getResources();
 
         registry = new Registry();
+        // 注册图片解析器
         registry.register(new DefaultImageHeaderParser());
         // Right now we're only using this parser for HEIF images, which are only supported on OMR1+.
         // If we need this for other file types, we should consider removing this restriction.
@@ -384,13 +385,17 @@ public class Glide implements ComponentCallbacks2 {
             registry.register(new ExifInterfaceImageHeaderParser());
         }
 
+        // 获取所有图片解析器
         List<ImageHeaderParser> imageHeaderParsers = registry.getImageHeaderParsers();
 
+        // Gif解码器
         ByteBufferGifDecoder byteBufferGifDecoder =
                 new ByteBufferGifDecoder(context, imageHeaderParsers, bitmapPool, arrayPool);
+        // 视频解析器
         ResourceDecoder<ParcelFileDescriptor, Bitmap> parcelFileDescriptorVideoDecoder =
                 VideoDecoder.parcel(bitmapPool);
 
+        // Bitmap解析器
         ResourceDecoder<ByteBuffer, Bitmap> byteBufferBitmapDecoder;
         ResourceDecoder<InputStream, Bitmap> streamBitmapDecoder;
         if (isImageDecoderEnabledForBitmaps && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

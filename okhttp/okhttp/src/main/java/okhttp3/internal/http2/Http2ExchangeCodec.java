@@ -122,11 +122,11 @@ public final class Http2ExchangeCodec implements ExchangeCodec {
         boolean hasRequestBody = request.body() != null;
         // 解析请求头文件列表
         List<Header> requestHeaders = http2HeadersList(request);
-        // 连接网络获取流
+        // 写入请求头并获取Http2Stream
         stream = connection.newStream(requestHeaders, hasRequestBody);
         // We may have been asked to cancel while creating the new stream and sending the request
         // headers, but there was still no stream to close.
-        if (canceled) {
+        if (canceled) {// 取消请求
             stream.closeLater(ErrorCode.CANCEL);
             throw new IOException("Canceled");
         }
@@ -146,7 +146,9 @@ public final class Http2ExchangeCodec implements ExchangeCodec {
 
     @Override
     public Response.Builder readResponseHeaders(boolean expectContinue) throws IOException {
+        // 获取相应头
         Headers headers = stream.takeHeaders();
+        // 获取相应
         Response.Builder responseBuilder = readHttp2HeadersList(headers, protocol);
         if (expectContinue && Internal.instance.code(responseBuilder) == HTTP_CONTINUE) {
             return null;

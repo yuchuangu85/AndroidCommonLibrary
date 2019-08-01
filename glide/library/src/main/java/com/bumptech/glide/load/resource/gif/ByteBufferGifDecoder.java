@@ -34,6 +34,8 @@ import androidx.annotation.VisibleForTesting;
 /**
  * An {@link com.bumptech.glide.load.ResourceDecoder} that decodes {@link
  * com.bumptech.glide.load.resource.gif.GifDrawable} from {@link java.io.InputStream} data.
+ *
+ * 从流数据解码GifDrawable文件
  */
 public class ByteBufferGifDecoder implements ResourceDecoder<ByteBuffer, GifDrawable> {
     private static final String TAG = "BufferGifDecoder";

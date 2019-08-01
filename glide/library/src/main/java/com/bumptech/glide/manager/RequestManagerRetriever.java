@@ -35,6 +35,8 @@ import androidx.fragment.app.FragmentManager;
 /**
  * A collection of static methods for creating new {@link com.bumptech.glide.RequestManager}s or
  * retrieving existing ones from activities and fragment.
+ *
+ * 用来创建新的或者回收activity和fragment中已经存在的RequestManager对象的静态方法集合，
  */
 public class RequestManagerRetriever implements Handler.Callback {
     @VisibleForTesting

@@ -236,6 +236,8 @@ public final class Http2Connection implements Closeable {
     /**
      * Returns a new locally-initiated stream.
      *
+     * 创建新的Http2Stream并写入请求头
+     *
      * @param out true to create an output stream that we can use to send data to the remote peer.
      *            Corresponds to {@code FLAG_FIN}.
      */
@@ -268,10 +270,12 @@ public final class Http2Connection implements Closeable {
                 }
             }
             if (associatedStreamId == 0) {
+                // 写入请求头
                 writer.headers(outFinished, streamId, requestHeaders);
             } else if (client) {
                 throw new IllegalArgumentException("client streams shouldn't have associated stream IDs");
             } else { // HTTP/2 has a PUSH_PROMISE frame.
+                // 写入请求头
                 writer.pushPromise(associatedStreamId, streamId, requestHeaders);
             }
         }

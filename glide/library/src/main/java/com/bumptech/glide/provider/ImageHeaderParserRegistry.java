@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 /**
  * Contains an unordered list of {@link ImageHeaderParser}s capable of parsing image headers.
+ * 存储图片Header解析器
  */
 public final class ImageHeaderParserRegistry {
     private final List<ImageHeaderParser> parsers = new ArrayList<>();
