@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/samples/crawler/crawler.iml" filepath="$PROJECT_DIR$/samples/crawler/crawler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/guide/guide.iml" filepath="$PROJECT_DIR$/samples/guide/guide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-logging-interceptor/logging-interceptor.iml" filepath="$PROJECT_DIR$/okhttp-logging-interceptor/logging-interceptor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mockwebserver/mockwebserver.iml" filepath="$PROJECT_DIR$/mockwebserver/mockwebserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okcurl/okcurl.iml" filepath="$PROJECT_DIR$/okcurl/okcurl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp/okhttp.iml" filepath="$PROJECT_DIR$/okhttp/okhttp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-dnsoverhttps/okhttp-dnsoverhttps.iml" filepath="$PROJECT_DIR$/okhttp-dnsoverhttps/okhttp-dnsoverhttps.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-sse/okhttp-sse.iml" filepath="$PROJECT_DIR$/okhttp-sse/okhttp-sse.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-testing-support/okhttp-testing-support.iml" filepath="$PROJECT_DIR$/okhttp-testing-support/okhttp-testing-support.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-tests/okhttp-tests.iml" filepath="$PROJECT_DIR$/okhttp-tests/okhttp-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-tls/okhttp-tls.iml" filepath="$PROJECT_DIR$/okhttp-tls/okhttp-tls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/okhttp-urlconnection/okhttp-urlconnection.iml" filepath="$PROJECT_DIR$/okhttp-urlconnection/okhttp-urlconnection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parent.iml" filepath="$PROJECT_DIR$/parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/sample-parent.iml" filepath="$PROJECT_DIR$/samples/sample-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/simple-client/simple-client.iml" filepath="$PROJECT_DIR$/samples/simple-client/simple-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/slack/slack.iml" filepath="$PROJECT_DIR$/samples/slack/slack.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/static-server/static-server.iml" filepath="$PROJECT_DIR$/samples/static-server/static-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/unixdomainsockets/unixdomainsockets.iml" filepath="$PROJECT_DIR$/samples/unixdomainsockets/unixdomainsockets.iml" />
+    </modules>
+  </component>
+</project>

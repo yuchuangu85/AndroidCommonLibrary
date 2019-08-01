@@ -120,7 +120,9 @@ public final class Http2ExchangeCodec implements ExchangeCodec {
         if (stream != null) return;
 
         boolean hasRequestBody = request.body() != null;
+        // 解析请求头文件列表
         List<Header> requestHeaders = http2HeadersList(request);
+        // 连接网络获取流
         stream = connection.newStream(requestHeaders, hasRequestBody);
         // We may have been asked to cancel while creating the new stream and sending the request
         // headers, but there was still no stream to close.

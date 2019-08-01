@@ -23,6 +23,8 @@ import okhttp3.Response;
 
 /**
  * An HTTP response status line like "HTTP/1.1 200 OK".
+ *
+ * HTTP相应状态行
  */
 public final class StatusLine {
     /**

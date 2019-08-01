@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mockwebserver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okcurl" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-dnsoverhttps" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-logging-interceptor" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-sse" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-testing-support" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-tests" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-tls" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-urlconnection" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/crawler" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/guide" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/simple-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/slack" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/static-server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/unixdomainsockets" charset="UTF-8" />
+  </component>
+</project>
