@@ -16,6 +16,7 @@
 package okio;
 
 import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,117 +24,126 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public final class PushableTimeoutTest {
-  @Test public void originalEmptyTimeoutIsIgnored() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.timeout(0L, TimeUnit.NANOSECONDS);
-    pushable.timeout(250L, TimeUnit.NANOSECONDS);
+    @Test
+    public void originalEmptyTimeoutIsIgnored() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.timeout(0L, TimeUnit.NANOSECONDS);
+        pushable.timeout(250L, TimeUnit.NANOSECONDS);
 
-    pushable.push(target);
-    assertEquals(250L, target.timeoutNanos());
+        pushable.push(target);
+        assertEquals(250L, target.timeoutNanos());
 
-    pushable.pop();
-    assertEquals(0L, target.timeoutNanos());
-  }
+        pushable.pop();
+        assertEquals(0L, target.timeoutNanos());
+    }
 
-  @Test public void otherEmptyTimeoutIsIgnored() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.timeout(250L, TimeUnit.NANOSECONDS);
-    pushable.timeout(0L, TimeUnit.NANOSECONDS);
+    @Test
+    public void otherEmptyTimeoutIsIgnored() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.timeout(250L, TimeUnit.NANOSECONDS);
+        pushable.timeout(0L, TimeUnit.NANOSECONDS);
 
-    pushable.push(target);
-    assertEquals(250L, target.timeoutNanos());
+        pushable.push(target);
+        assertEquals(250L, target.timeoutNanos());
 
-    pushable.pop();
-    assertEquals(250L, target.timeoutNanos());
-  }
+        pushable.pop();
+        assertEquals(250L, target.timeoutNanos());
+    }
 
-  @Test public void originalTimeoutPrevailsWhenSmaller() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.timeout(250L, TimeUnit.NANOSECONDS);
-    pushable.timeout(500L, TimeUnit.NANOSECONDS);
+    @Test
+    public void originalTimeoutPrevailsWhenSmaller() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.timeout(250L, TimeUnit.NANOSECONDS);
+        pushable.timeout(500L, TimeUnit.NANOSECONDS);
 
-    pushable.push(target);
-    assertEquals(250L, target.timeoutNanos());
+        pushable.push(target);
+        assertEquals(250L, target.timeoutNanos());
 
-    pushable.pop();
-    assertEquals(250L, target.timeoutNanos());
-  }
+        pushable.pop();
+        assertEquals(250L, target.timeoutNanos());
+    }
 
-  @Test public void originalTimeoutCollapsesWhenBigger() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.timeout(500L, TimeUnit.NANOSECONDS);
-    pushable.timeout(250L, TimeUnit.NANOSECONDS);
+    @Test
+    public void originalTimeoutCollapsesWhenBigger() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.timeout(500L, TimeUnit.NANOSECONDS);
+        pushable.timeout(250L, TimeUnit.NANOSECONDS);
 
-    pushable.push(target);
-    assertEquals(250L, target.timeoutNanos());
+        pushable.push(target);
+        assertEquals(250L, target.timeoutNanos());
 
-    pushable.pop();
-    assertEquals(500L, target.timeoutNanos());
-  }
+        pushable.pop();
+        assertEquals(500L, target.timeoutNanos());
+    }
 
-  @Test public void originalDeadlinePrevailsWhenSmaller() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.deadlineNanoTime(250L);
-    pushable.deadlineNanoTime(500L);
+    @Test
+    public void originalDeadlinePrevailsWhenSmaller() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.deadlineNanoTime(250L);
+        pushable.deadlineNanoTime(500L);
 
-    pushable.push(target);
-    assertEquals(250L, target.deadlineNanoTime());
+        pushable.push(target);
+        assertEquals(250L, target.deadlineNanoTime());
 
-    pushable.pop();
-    assertEquals(250L, target.deadlineNanoTime());
-  }
+        pushable.pop();
+        assertEquals(250L, target.deadlineNanoTime());
+    }
 
-  @Test public void originalDeadlineCollapsesWhenBigger() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.deadlineNanoTime(500L);
-    pushable.deadlineNanoTime(250L);
+    @Test
+    public void originalDeadlineCollapsesWhenBigger() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.deadlineNanoTime(500L);
+        pushable.deadlineNanoTime(250L);
 
-    pushable.push(target);
-    assertEquals(250L, target.deadlineNanoTime());
+        pushable.push(target);
+        assertEquals(250L, target.deadlineNanoTime());
 
-    pushable.pop();
-    assertEquals(500L, target.deadlineNanoTime());
-  }
+        pushable.pop();
+        assertEquals(500L, target.deadlineNanoTime());
+    }
 
-  @Test public void originalDeadlineAppliesWhenOtherHasNoDeadline() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    target.deadlineNanoTime(250L);
+    @Test
+    public void originalDeadlineAppliesWhenOtherHasNoDeadline() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        target.deadlineNanoTime(250L);
 
-    pushable.push(target);
-    assertEquals(250L, target.deadlineNanoTime());
+        pushable.push(target);
+        assertEquals(250L, target.deadlineNanoTime());
 
-    pushable.pop();
-    assertTrue(target.hasDeadline());
-    assertEquals(250L, target.deadlineNanoTime());
-  }
+        pushable.pop();
+        assertTrue(target.hasDeadline());
+        assertEquals(250L, target.deadlineNanoTime());
+    }
 
-  @Test public void otherDeadlineAppliesWhenOriginalHasNoDeadline() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
-    pushable.deadlineNanoTime(250L);
+    @Test
+    public void otherDeadlineAppliesWhenOriginalHasNoDeadline() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
+        pushable.deadlineNanoTime(250L);
 
-    pushable.push(target);
-    assertEquals(250L, target.deadlineNanoTime());
+        pushable.push(target);
+        assertEquals(250L, target.deadlineNanoTime());
 
-    pushable.pop();
-    assertFalse(target.hasDeadline());
-  }
+        pushable.pop();
+        assertFalse(target.hasDeadline());
+    }
 
-  @Test public void noDeadlineWhenEitherHaveNone() {
-    PushableTimeout pushable = new PushableTimeout();
-    Timeout target = new Timeout();
+    @Test
+    public void noDeadlineWhenEitherHaveNone() {
+        PushableTimeout pushable = new PushableTimeout();
+        Timeout target = new Timeout();
 
-    pushable.push(target);
-    assertFalse(target.hasDeadline());
+        pushable.push(target);
+        assertFalse(target.hasDeadline());
 
-    pushable.pop();
-    assertFalse(target.hasDeadline());
-  }
+        pushable.pop();
+        assertFalse(target.hasDeadline());
+    }
 }

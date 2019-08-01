@@ -30,87 +30,97 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public final class HashingSourceTest {
-  private final Buffer source = new Buffer();
-  private final Buffer sink = new Buffer();
+    private final Buffer source = new Buffer();
+    private final Buffer sink = new Buffer();
 
-  @Test public void md5() throws Exception {
-    HashingSource hashingSource = HashingSource.md5(source);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(MD5_abc, hashingSource.hash());
-  }
-
-  @Test public void sha1() throws Exception {
-    HashingSource hashingSource = HashingSource.sha1(source);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(SHA1_abc, hashingSource.hash());
-  }
-
-  @Test public void sha256() throws Exception {
-    HashingSource hashingSource = HashingSource.sha256(source);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(SHA256_abc, hashingSource.hash());
-  }
-
-  @Test public void hmacSha1() throws Exception {
-    HashingSource hashingSource = HashingSource.hmacSha1(source, HMAC_KEY);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(HMAC_SHA1_abc, hashingSource.hash());
-  }
-
-  @Test public void hmacSha256() throws Exception {
-    HashingSource hashingSource = HashingSource.hmacSha256(source, HMAC_KEY);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(HMAC_SHA256_abc, hashingSource.hash());
-  }
-
-  @Test public void multipleReads() throws Exception {
-    HashingSource hashingSource = HashingSource.sha256(source);
-    BufferedSource bufferedSource = Okio.buffer(hashingSource);
-    source.writeUtf8("a");
-    assertEquals('a', bufferedSource.readUtf8CodePoint());
-    source.writeUtf8("b");
-    assertEquals('b', bufferedSource.readUtf8CodePoint());
-    source.writeUtf8("c");
-    assertEquals('c', bufferedSource.readUtf8CodePoint());
-    assertEquals(SHA256_abc, hashingSource.hash());
-  }
-
-  @Test public void multipleHashes() throws Exception {
-    HashingSource hashingSource = HashingSource.sha256(source);
-    source.writeUtf8("abc");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(SHA256_abc, hashingSource.hash());
-    source.writeUtf8("def");
-    assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(SHA256_def, hashingSource.hash());
-  }
-
-  @Test public void multipleSegments() throws Exception {
-    HashingSource hashingSource = HashingSource.sha256(source);
-    BufferedSource bufferedSource = Okio.buffer(hashingSource);
-    source.write(r32k);
-    assertEquals(r32k, bufferedSource.readByteString());
-    assertEquals(SHA256_r32k, hashingSource.hash());
-  }
-
-  @Test public void readIntoSuffixOfBuffer() throws Exception {
-    HashingSource hashingSource = HashingSource.sha256(source);
-    source.write(r32k);
-    sink.writeUtf8(TestUtil.repeat('z', Segment.SIZE * 2 - 1));
-    assertEquals(r32k.size(), hashingSource.read(sink, Long.MAX_VALUE));
-    assertEquals(SHA256_r32k, hashingSource.hash());
-  }
-
-  @Test public void hmacEmptyKey() throws Exception {
-    try {
-      HashingSource.hmacSha256(source, ByteString.EMPTY);
-      fail();
-    } catch (IllegalArgumentException expected) {
+    @Test
+    public void md5() throws Exception {
+        HashingSource hashingSource = HashingSource.md5(source);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(MD5_abc, hashingSource.hash());
     }
-  }
+
+    @Test
+    public void sha1() throws Exception {
+        HashingSource hashingSource = HashingSource.sha1(source);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(SHA1_abc, hashingSource.hash());
+    }
+
+    @Test
+    public void sha256() throws Exception {
+        HashingSource hashingSource = HashingSource.sha256(source);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(SHA256_abc, hashingSource.hash());
+    }
+
+    @Test
+    public void hmacSha1() throws Exception {
+        HashingSource hashingSource = HashingSource.hmacSha1(source, HMAC_KEY);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(HMAC_SHA1_abc, hashingSource.hash());
+    }
+
+    @Test
+    public void hmacSha256() throws Exception {
+        HashingSource hashingSource = HashingSource.hmacSha256(source, HMAC_KEY);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(HMAC_SHA256_abc, hashingSource.hash());
+    }
+
+    @Test
+    public void multipleReads() throws Exception {
+        HashingSource hashingSource = HashingSource.sha256(source);
+        BufferedSource bufferedSource = Okio.buffer(hashingSource);
+        source.writeUtf8("a");
+        assertEquals('a', bufferedSource.readUtf8CodePoint());
+        source.writeUtf8("b");
+        assertEquals('b', bufferedSource.readUtf8CodePoint());
+        source.writeUtf8("c");
+        assertEquals('c', bufferedSource.readUtf8CodePoint());
+        assertEquals(SHA256_abc, hashingSource.hash());
+    }
+
+    @Test
+    public void multipleHashes() throws Exception {
+        HashingSource hashingSource = HashingSource.sha256(source);
+        source.writeUtf8("abc");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(SHA256_abc, hashingSource.hash());
+        source.writeUtf8("def");
+        assertEquals(3L, hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(SHA256_def, hashingSource.hash());
+    }
+
+    @Test
+    public void multipleSegments() throws Exception {
+        HashingSource hashingSource = HashingSource.sha256(source);
+        BufferedSource bufferedSource = Okio.buffer(hashingSource);
+        source.write(r32k);
+        assertEquals(r32k, bufferedSource.readByteString());
+        assertEquals(SHA256_r32k, hashingSource.hash());
+    }
+
+    @Test
+    public void readIntoSuffixOfBuffer() throws Exception {
+        HashingSource hashingSource = HashingSource.sha256(source);
+        source.write(r32k);
+        sink.writeUtf8(TestUtil.repeat('z', Segment.SIZE * 2 - 1));
+        assertEquals(r32k.size(), hashingSource.read(sink, Long.MAX_VALUE));
+        assertEquals(SHA256_r32k, hashingSource.hash());
+    }
+
+    @Test
+    public void hmacEmptyKey() throws Exception {
+        try {
+            HashingSource.hmacSha256(source, ByteString.EMPTY);
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 }

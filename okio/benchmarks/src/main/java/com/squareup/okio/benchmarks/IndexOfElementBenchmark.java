@@ -17,8 +17,10 @@ package com.squareup.okio.benchmarks;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
 import okio.Buffer;
 import okio.ByteString;
+
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -40,38 +42,38 @@ import org.openjdk.jmh.runner.RunnerException;
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class IndexOfElementBenchmark {
-  ByteString byteString = ByteString.encodeUtf8("abcd");
-  Buffer buffer;
+    ByteString byteString = ByteString.encodeUtf8("abcd");
+    Buffer buffer;
 
-  @Param({ "32768" })
-  int bufferSize;
+    @Param({"32768"})
+    int bufferSize;
 
-  @Setup
-  public void setup() throws IOException {
-    buffer = new Buffer()
-        .write(new byte[bufferSize / 2])
-        .write(byteString)
-        .write(new byte[(bufferSize / 2) - byteString.size()]);
-  }
+    @Setup
+    public void setup() throws IOException {
+        buffer = new Buffer()
+                .write(new byte[bufferSize / 2])
+                .write(byteString)
+                .write(new byte[(bufferSize / 2) - byteString.size()]);
+    }
 
-  @Benchmark
-  public void indexOfByte() throws IOException {
-    buffer.indexOf((byte) 'b', 0L);
-  }
+    @Benchmark
+    public void indexOfByte() throws IOException {
+        buffer.indexOf((byte) 'b', 0L);
+    }
 
-  @Benchmark
-  public void indexOfByteString() throws IOException {
-    buffer.indexOf(byteString, 0L);
-  }
+    @Benchmark
+    public void indexOfByteString() throws IOException {
+        buffer.indexOf(byteString, 0L);
+    }
 
-  @Benchmark
-  public void indexOfElement() throws IOException {
-    buffer.indexOfElement(byteString, 0L);
-  }
+    @Benchmark
+    public void indexOfElement() throws IOException {
+        buffer.indexOfElement(byteString, 0L);
+    }
 
-  public static void main(String[] args) throws IOException, RunnerException {
-    Main.main(new String[] {
-        IndexOfElementBenchmark.class.getName()
-    });
-  }
+    public static void main(String[] args) throws IOException, RunnerException {
+        Main.main(new String[]{
+                IndexOfElementBenchmark.class.getName()
+        });
+    }
 }

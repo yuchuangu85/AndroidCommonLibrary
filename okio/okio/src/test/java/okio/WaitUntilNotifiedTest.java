@@ -19,6 +19,7 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -27,132 +28,144 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public final class WaitUntilNotifiedTest {
-  final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(0);
+    final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(0);
 
-  @After public void tearDown() throws Exception {
-    executorService.shutdown();
-  }
+    @After
+    public void tearDown() throws Exception {
+        executorService.shutdown();
+    }
 
-  @Test public synchronized void notified() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.timeout(5000, TimeUnit.MILLISECONDS);
+    @Test
+    public synchronized void notified() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.timeout(5000, TimeUnit.MILLISECONDS);
 
-    double start = now();
-    executorService.schedule(new Runnable() {
-      @Override public void run() {
-        synchronized (WaitUntilNotifiedTest.this) {
-          WaitUntilNotifiedTest.this.notify();
+        double start = now();
+        executorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (WaitUntilNotifiedTest.this) {
+                    WaitUntilNotifiedTest.this.notify();
+                }
+            }
+        }, 1000, TimeUnit.MILLISECONDS);
+
+        timeout.waitUntilNotified(this);
+        assertElapsed(1000.0, start);
+    }
+
+    @Test
+    public synchronized void timeout() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.timeout(1000, TimeUnit.MILLISECONDS);
+        double start = now();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("timeout", expected.getMessage());
         }
-      }
-    }, 1000, TimeUnit.MILLISECONDS);
-
-    timeout.waitUntilNotified(this);
-    assertElapsed(1000.0, start);
-  }
-
-  @Test public synchronized void timeout() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.timeout(1000, TimeUnit.MILLISECONDS);
-    double start = now();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("timeout", expected.getMessage());
+        assertElapsed(1000.0, start);
     }
-    assertElapsed(1000.0, start);
-  }
 
-  @Test public synchronized void deadline() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.deadline(1000, TimeUnit.MILLISECONDS);
-    double start = now();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("timeout", expected.getMessage());
+    @Test
+    public synchronized void deadline() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.deadline(1000, TimeUnit.MILLISECONDS);
+        double start = now();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("timeout", expected.getMessage());
+        }
+        assertElapsed(1000.0, start);
     }
-    assertElapsed(1000.0, start);
-  }
 
-  @Test public synchronized void deadlineBeforeTimeout() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.timeout(5000, TimeUnit.MILLISECONDS);
-    timeout.deadline(1000, TimeUnit.MILLISECONDS);
-    double start = now();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("timeout", expected.getMessage());
+    @Test
+    public synchronized void deadlineBeforeTimeout() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.timeout(5000, TimeUnit.MILLISECONDS);
+        timeout.deadline(1000, TimeUnit.MILLISECONDS);
+        double start = now();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("timeout", expected.getMessage());
+        }
+        assertElapsed(1000.0, start);
     }
-    assertElapsed(1000.0, start);
-  }
 
-  @Test public synchronized void timeoutBeforeDeadline() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.timeout(1000, TimeUnit.MILLISECONDS);
-    timeout.deadline(5000, TimeUnit.MILLISECONDS);
-    double start = now();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("timeout", expected.getMessage());
+    @Test
+    public synchronized void timeoutBeforeDeadline() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.timeout(1000, TimeUnit.MILLISECONDS);
+        timeout.deadline(5000, TimeUnit.MILLISECONDS);
+        double start = now();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("timeout", expected.getMessage());
+        }
+        assertElapsed(1000.0, start);
     }
-    assertElapsed(1000.0, start);
-  }
 
-  @Test public synchronized void deadlineAlreadyReached() throws Exception {
-    Timeout timeout = new Timeout();
-    timeout.deadlineNanoTime(System.nanoTime());
-    double start = now();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("timeout", expected.getMessage());
+    @Test
+    public synchronized void deadlineAlreadyReached() throws Exception {
+        Timeout timeout = new Timeout();
+        timeout.deadlineNanoTime(System.nanoTime());
+        double start = now();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("timeout", expected.getMessage());
+        }
+        assertElapsed(0.0, start);
     }
-    assertElapsed(0.0, start);
-  }
 
-  @Test public synchronized void threadInterrupted() throws Exception {
-    Timeout timeout = new Timeout();
-    double start = now();
-    Thread.currentThread().interrupt();
-    try {
-      timeout.waitUntilNotified(this);
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("interrupted", expected.getMessage());
-      assertTrue(Thread.interrupted());
+    @Test
+    public synchronized void threadInterrupted() throws Exception {
+        Timeout timeout = new Timeout();
+        double start = now();
+        Thread.currentThread().interrupt();
+        try {
+            timeout.waitUntilNotified(this);
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("interrupted", expected.getMessage());
+            assertTrue(Thread.interrupted());
+        }
+        assertElapsed(0.0, start);
     }
-    assertElapsed(0.0, start);
-  }
 
-  @Test public synchronized void threadInterruptedOnThrowIfReached() throws Exception {
-    Timeout timeout = new Timeout();
-    Thread.currentThread().interrupt();
-    try {
-      timeout.throwIfReached();
-      fail();
-    } catch (InterruptedIOException expected) {
-      assertEquals("interrupted", expected.getMessage());
-      assertTrue(Thread.interrupted());
+    @Test
+    public synchronized void threadInterruptedOnThrowIfReached() throws Exception {
+        Timeout timeout = new Timeout();
+        Thread.currentThread().interrupt();
+        try {
+            timeout.throwIfReached();
+            fail();
+        } catch (InterruptedIOException expected) {
+            assertEquals("interrupted", expected.getMessage());
+            assertTrue(Thread.interrupted());
+        }
     }
-  }
 
-  /** Returns the nanotime in milliseconds as a double for measuring timeouts. */
-  private double now() {
-    return System.nanoTime() / 1000000.0d;
-  }
+    /**
+     * Returns the nanotime in milliseconds as a double for measuring timeouts.
+     */
+    private double now() {
+        return System.nanoTime() / 1000000.0d;
+    }
 
-  /**
-   * Fails the test unless the time from start until now is duration, accepting differences in
-   * -50..+450 milliseconds.
-   */
-  private void assertElapsed(double duration, double start) {
-    assertEquals(duration, now() - start - 200d, 250.0);
-  }
+    /**
+     * Fails the test unless the time from start until now is duration, accepting differences in
+     * -50..+450 milliseconds.
+     */
+    private void assertElapsed(double duration, double start) {
+        assertEquals(duration, now() - start - 200d, 250.0);
+    }
 }

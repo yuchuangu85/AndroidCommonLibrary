@@ -17,7 +17,9 @@ package com.squareup.okio.benchmarks;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
 import okio.Buffer;
+
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -39,67 +41,67 @@ import org.openjdk.jmh.runner.RunnerException;
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class BufferCursorSeekBenchmark {
-  Buffer buffer;
-  Buffer.UnsafeCursor cursor;
+    Buffer buffer;
+    Buffer.UnsafeCursor cursor;
 
-  @Param({ "2097152" })
-  int bufferSize; // 2 MB = 256 Segments
+    @Param({"2097152"})
+    int bufferSize; // 2 MB = 256 Segments
 
-  @Setup
-  public void setup() throws IOException {
-    byte[] source = new byte[8192];
-    buffer = new Buffer();
-    while (buffer.size() < bufferSize) {
-      buffer.write(source);
+    @Setup
+    public void setup() throws IOException {
+        byte[] source = new byte[8192];
+        buffer = new Buffer();
+        while (buffer.size() < bufferSize) {
+            buffer.write(source);
+        }
+        cursor = new Buffer.UnsafeCursor();
     }
-    cursor = new Buffer.UnsafeCursor();
-  }
 
-  @Benchmark
-  public void seekBeginning() {
-    buffer.readUnsafe(cursor);
-    try {
-      cursor.seek(0);
-    } finally {
-      cursor.close();
+    @Benchmark
+    public void seekBeginning() {
+        buffer.readUnsafe(cursor);
+        try {
+            cursor.seek(0);
+        } finally {
+            cursor.close();
+        }
     }
-  }
 
-  @Benchmark
-  public void seekEnd() {
-    buffer.readUnsafe(cursor);
-    try {
-      cursor.seek(buffer.size() - 1);
-    } finally {
-      cursor.close();
+    @Benchmark
+    public void seekEnd() {
+        buffer.readUnsafe(cursor);
+        try {
+            cursor.seek(buffer.size() - 1);
+        } finally {
+            cursor.close();
+        }
     }
-  }
 
-  @Benchmark
-  public void seekForward() {
-    buffer.readUnsafe(cursor);
-    try {
-      cursor.seek(0);
-      cursor.seek(1);
-    } finally {
-      cursor.close();
+    @Benchmark
+    public void seekForward() {
+        buffer.readUnsafe(cursor);
+        try {
+            cursor.seek(0);
+            cursor.seek(1);
+        } finally {
+            cursor.close();
+        }
     }
-  }
 
-  @Benchmark
-  public void seekBackward() {
-    buffer.readUnsafe(cursor);
-    try {
-      cursor.seek(buffer.size() - 1);
-      cursor.seek(buffer.size() - 2);
-    } finally {
-      cursor.close();
+    @Benchmark
+    public void seekBackward() {
+        buffer.readUnsafe(cursor);
+        try {
+            cursor.seek(buffer.size() - 1);
+            cursor.seek(buffer.size() - 2);
+        } finally {
+            cursor.close();
+        }
     }
-  }
 
-  public static void main(String[] args) throws IOException, RunnerException {
-    Main.main(new String[] {
-        BufferCursorSeekBenchmark.class.getName()
-    });
-  }
+    public static void main(String[] args) throws IOException, RunnerException {
+        Main.main(new String[]{
+                BufferCursorSeekBenchmark.class.getName()
+        });
+    }
 }

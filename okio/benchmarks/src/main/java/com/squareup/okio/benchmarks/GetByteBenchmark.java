@@ -17,7 +17,9 @@ package com.squareup.okio.benchmarks;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
 import okio.Buffer;
+
 import org.openjdk.jmh.Main;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -39,37 +41,37 @@ import org.openjdk.jmh.runner.RunnerException;
 @BenchmarkMode(Mode.SampleTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class GetByteBenchmark {
-  Buffer buffer;
+    Buffer buffer;
 
-  @Param({ "2097152" })
-  int bufferSize; // 2 MB = 256 Segments
+    @Param({"2097152"})
+    int bufferSize; // 2 MB = 256 Segments
 
-  @Setup
-  public void setup() throws IOException {
-    buffer = new Buffer();
-    while (buffer.size() < bufferSize) {
-      buffer.write(new byte[8192]);
+    @Setup
+    public void setup() throws IOException {
+        buffer = new Buffer();
+        while (buffer.size() < bufferSize) {
+            buffer.write(new byte[8192]);
+        }
     }
-  }
 
-  @Benchmark
-  public void getByteBeginning() {
-    buffer.getByte(0);
-  }
+    @Benchmark
+    public void getByteBeginning() {
+        buffer.getByte(0);
+    }
 
-  @Benchmark
-  public void getByteEnd() {
-    buffer.getByte(buffer.size() - 1);
-  }
+    @Benchmark
+    public void getByteEnd() {
+        buffer.getByte(buffer.size() - 1);
+    }
 
-  @Benchmark
-  public void getByteMiddle() {
-    buffer.getByte(buffer.size() / 2);
-  }
+    @Benchmark
+    public void getByteMiddle() {
+        buffer.getByte(buffer.size() / 2);
+    }
 
-  public static void main(String[] args) throws IOException, RunnerException {
-    Main.main(new String[] {
-        GetByteBenchmark.class.getName()
-    });
-  }
+    public static void main(String[] args) throws IOException, RunnerException {
+        Main.main(new String[]{
+                GetByteBenchmark.class.getName()
+        });
+    }
 }

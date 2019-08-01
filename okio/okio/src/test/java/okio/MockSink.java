@@ -25,46 +25,52 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/** A scriptable sink. Like Mockito, but worse and requiring less configuration. */
+/**
+ * A scriptable sink. Like Mockito, but worse and requiring less configuration.
+ */
 final class MockSink implements Sink {
-  private final List<String> log = new ArrayList<String>();
-  private final Map<Integer, IOException> callThrows = new LinkedHashMap<Integer, IOException>();
+    private final List<String> log = new ArrayList<String>();
+    private final Map<Integer, IOException> callThrows = new LinkedHashMap<Integer, IOException>();
 
-  public void assertLog(String... messages) {
-    assertEquals(Arrays.asList(messages), log);
-  }
+    public void assertLog(String... messages) {
+        assertEquals(Arrays.asList(messages), log);
+    }
 
-  public void assertLogContains(String message) {
-    assertTrue(log.contains(message));
-  }
+    public void assertLogContains(String message) {
+        assertTrue(log.contains(message));
+    }
 
-  public void scheduleThrow(int call, IOException e) {
-    callThrows.put(call, e);
-  }
+    public void scheduleThrow(int call, IOException e) {
+        callThrows.put(call, e);
+    }
 
-  private void throwIfScheduled() throws IOException {
-    IOException exception = callThrows.get(log.size() - 1);
-    if (exception != null) throw exception;
-  }
+    private void throwIfScheduled() throws IOException {
+        IOException exception = callThrows.get(log.size() - 1);
+        if (exception != null) throw exception;
+    }
 
-  @Override public void write(Buffer source, long byteCount) throws IOException {
-    log.add("write(" + source + ", " + byteCount + ")");
-    source.skip(byteCount);
-    throwIfScheduled();
-  }
+    @Override
+    public void write(Buffer source, long byteCount) throws IOException {
+        log.add("write(" + source + ", " + byteCount + ")");
+        source.skip(byteCount);
+        throwIfScheduled();
+    }
 
-  @Override public void flush() throws IOException {
-    log.add("flush()");
-    throwIfScheduled();
-  }
+    @Override
+    public void flush() throws IOException {
+        log.add("flush()");
+        throwIfScheduled();
+    }
 
-  @Override public Timeout timeout() {
-    log.add("timeout()");
-    return Timeout.NONE;
-  }
+    @Override
+    public Timeout timeout() {
+        log.add("timeout()");
+        return Timeout.NONE;
+    }
 
-  @Override public void close() throws IOException {
-    log.add("close()");
-    throwIfScheduled();
-  }
+    @Override
+    public void close() throws IOException {
+        log.add("close()");
+        throwIfScheduled();
+    }
 }
