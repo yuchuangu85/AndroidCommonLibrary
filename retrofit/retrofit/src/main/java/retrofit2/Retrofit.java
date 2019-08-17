@@ -125,11 +125,11 @@ public final class Retrofit {
      * CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
      * <p>
      * 手动配置：
-     * GuavaCallAdapterFactory：get返回ResponseCallAdapter
-     * Java8CallAdapterFactory：get返回ResponseCallAdapter
-     * RxJavaCallAdapterFactory：get返回RxJavaCallAdapter
-     * RxJava2CallAdapterFactory：get返回RxJava2CallAdapter
-     * ScalaCallAdapterFactory：get返回ResponseCallAdapter
+     * GuavaCallAdapterFactory：get返回-ResponseCallAdapter
+     * Java8CallAdapterFactory：get返回-ResponseCallAdapter
+     * RxJavaCallAdapterFactory：get返回-RxJavaCallAdapter
+     * RxJava2CallAdapterFactory：get返回-RxJava2CallAdapter
+     * ScalaCallAdapterFactory：get返回-ResponseCallAdapter
      */
     final List<CallAdapter.Factory> callAdapterFactories;
     final @Nullable
