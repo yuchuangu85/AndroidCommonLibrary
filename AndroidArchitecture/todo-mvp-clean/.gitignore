@@ -4,18 +4,6 @@
 build
 gradlew.bat
 gradlew
-将删除 CONTRIBUTING.md
-将删除 LICENSE
-将删除 README.md
-将删除 app/.gitignore
-将删除 app/build.gradle
-将删除 app/proguard-rules.pro
-将删除 app/proguardTest-rules.pro
-将删除 app/src/
-将删除 build.gradle
-将删除 circle.yml
-将删除 gradle.properties
-将删除 gradle/
-将删除 local.properties
-将删除 settings.gradle
+gradle.properties
+gradle/
 todo-mvp-clean.iml
