@@ -1,0 +1,5 @@
+# Created by .ignore support plugin (hsz.mobi)
+findbugs/findbugs.iml
+library.iml
+pmd/pmd.iml
+test/library-test.iml
