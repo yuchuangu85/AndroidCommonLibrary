@@ -19,3 +19,4 @@ retrofit-converters/simplexml/converter-simplexml.iml
 retrofit-converters/wire/converter-wire.iml
 retrofit-mock/retrofit-mock.iml
 samples/samples.iml
+parent.iml
