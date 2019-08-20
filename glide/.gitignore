@@ -86,3 +86,7 @@ third_party/disklrucache/disklrucache.iml
 third_party/gif_decoder/build/
 third_party/gif_decoder/gif_decoder.iml
 third_party/third_party.iml
+library/findbugs/findbugs.iml
+library/library.iml
+library/pmd/pmd.iml
+library/test/library-test.iml
