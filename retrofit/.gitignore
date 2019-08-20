@@ -1,0 +1,21 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+retrofit-adapters/guava/adapter-guava.iml
+retrofit-adapters/java8/adapter-java8.iml
+retrofit-adapters/retrofit-adapters.iml
+retrofit-adapters/rxjava/adapter-rxjava.iml
+retrofit-adapters/rxjava2/adapter-rxjava2.iml
+retrofit-adapters/scala/adapter-scala.iml
+retrofit-converters/gson/converter-gson.iml
+retrofit-converters/guava/converter-guava.iml
+retrofit-converters/jackson/converter-jackson.iml
+retrofit-converters/java8/converter-java8.iml
+retrofit-converters/jaxb/converter-jaxb.iml
+retrofit-converters/moshi/converter-moshi.iml
+retrofit-converters/protobuf/converter-protobuf.iml
+retrofit-converters/retrofit-converters.iml
+retrofit-converters/scalars/converter-scalars.iml
+retrofit-converters/simplexml/converter-simplexml.iml
+retrofit-converters/wire/converter-wire.iml
+retrofit-mock/retrofit-mock.iml
+samples/samples.iml
