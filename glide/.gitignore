@@ -90,3 +90,4 @@ library/findbugs/findbugs.iml
 library/library.iml
 library/pmd/pmd.iml
 library/test/library-test.iml
+将删除 .gitignore
