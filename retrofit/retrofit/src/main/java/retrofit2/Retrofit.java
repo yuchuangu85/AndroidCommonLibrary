@@ -155,11 +155,11 @@ public final class Retrofit {
      * {@link retrofit2.http.PUT PUT}, {@link retrofit2.http.POST POST}, {@link retrofit2.http.PATCH
      * PATCH}, {@link retrofit2.http.HEAD HEAD}, {@link retrofit2.http.DELETE DELETE} and
      * {@link retrofit2.http.OPTIONS OPTIONS}. You can use a custom HTTP method with
-     * {@link HTTP @HTTP}. For a dynamic URL, omit the path on the annotation and annotate the first
+     * {@link HTTP @HTTP}. For a dynamic(动态) URL, omit(省略) the path on the annotation and annotate the first
      * parameter with {@link Url @Url}.
      * <p>
      * Method parameters can be used to replace parts of the URL by annotating them with
-     * {@link retrofit2.http.Path @Path}. Replacement sections are denoted by an identifier
+     * {@link retrofit2.http.Path @Path}. Replacement sections are denoted(表示) by an identifier
      * surrounded by curly braces (e.g., "{foo}"). To add items to the query string of a URL use
      * {@link retrofit2.http.Query @Query}.
      * <p>
@@ -216,13 +216,14 @@ public final class Retrofit {
                      × <pre>
                      * public interface CategoryService {
                      *   @POST("category/{cat}/")
-                     *   Call<List<Item>> categoryList(@Path("cat") String a, @Query("page") int b);
+                     *   Call<List < Item>> categoryList(@Path("cat") String a, @Query("page") int b);
                      * }
                      * </pre>
                      * @param proxy  表示通过 Proxy.newProxyInstance() 生成的代理类对象。--CategoryService
                      * @param method 表示代理对象被调用的函数。--categoryList方法(有注解)
                      * @param args   表示代理对象被调用的函数的参数。--a,b(有注解)
-                     * @return
+                     *
+                     * @return CallAdapterFactory(CompletableFutureCallAdapterFactory或DefaultCallAdapterFactory)
                      * @throws Throwable
                      */
                     @Override
@@ -241,7 +242,9 @@ public final class Retrofit {
                         /**
                          * loadServiceMethod返回的是CallAdapted（HttpServiceMethod）
                          * 这里调用invoke方法实际上调用的是CallAdapted的invoke方法也就是父类
-                         * （HttpServiceMethod）的方法
+                         * （HttpServiceMethod）的invoke方法，然后返回CallAdapter的工厂：
+                         * Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+                         * Android平台 sdk<24 只添加DefaultCallAdapterFactory
                          */
                         return loadServiceMethod(method).invoke(args != null ? args : emptyArgs);
                     }

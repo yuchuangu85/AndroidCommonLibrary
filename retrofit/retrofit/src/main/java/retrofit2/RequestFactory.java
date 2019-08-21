@@ -283,7 +283,7 @@ final class RequestFactory {
          * 解析http请求
          *
          * @param httpMethod http请求方法名：get.post等
-         * @param value      注解中的值
+         * @param value      注解中的值(相对url)
          * @param hasBody    是否有body
          */
         private void parseHttpMethodAndPath(String httpMethod, String value, boolean hasBody) {
@@ -365,7 +365,7 @@ final class RequestFactory {
                         continue;
                     }
 
-                    if (result != null) {// Retrofit参数注解只允许有一个
+                    if (result != null) {// Retrofit同一个参数注解只允许有一个
                         throw parameterError(method, p,
                                 "Multiple Retrofit annotations found, only one allowed.");
                     }
