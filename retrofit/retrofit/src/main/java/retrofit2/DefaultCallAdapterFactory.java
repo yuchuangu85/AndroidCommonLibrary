@@ -41,6 +41,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
     public @Nullable
     CallAdapter<?, ?> get(
             Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        // 返回的类型必须是Call 类型
         if (getRawType(returnType) != Call.class) {
             return null;
         }
@@ -48,6 +49,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
             throw new IllegalArgumentException(
                     "Call return type must be parameterized as Call<Foo> or Call<? extends Foo>");
         }
+        // 例如returnType为：List<User> 那么responseType 就是User
         final Type responseType = Utils.getParameterUpperBound(0, (ParameterizedType) returnType);
 
         // 注解中是否包含SkipCallbackExecutor注解
@@ -71,6 +73,9 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
         };
     }
 
+    // 这里使用了典型的代理模式，不过这次是静态代理。ExecutorCallbackCall 代理了OkHttpCall，
+    // 他们都实现了接口Call。这样代理就有能力在执行被代理对象的动作是附加一些动作了，
+    // 例如这里的线程切换。妙哉否？妙哉！
     static final class ExecutorCallbackCall<T> implements Call<T> {
         final Executor callbackExecutor;
         final Call<T> delegate;

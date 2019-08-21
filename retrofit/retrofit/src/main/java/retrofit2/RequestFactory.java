@@ -102,7 +102,8 @@ final class RequestFactory {
     }
 
     /**
-     * 创建Request
+     * 创建了一个okhttp 的 Request，里面使用到了RequestBuilder 类，这个类负责使用RequestFactory类
+     * 处理出来的信息构建http请求
      *
      * @param args 网络请求接口参数
      *
@@ -111,6 +112,8 @@ final class RequestFactory {
      * @throws IOException
      */
     okhttp3.Request create(Object[] args) throws IOException {
+        // 下面的代码比较关键，通过参数信息来完善RequestBuilder ，而这些参数信息存放在parameterHandlers里面，
+        // 它是通过parseParameter（）函数解析出来的
         @SuppressWarnings("unchecked") // It is an error to invoke a method with the wrong arg types.
                 ParameterHandler<Object>[] handlers = (ParameterHandler<Object>[]) parameterHandlers;
 
@@ -128,7 +131,7 @@ final class RequestFactory {
             argumentCount--;
         }
 
-        // 参数列表
+        // 关键代码 使用上面得到的ParameterHandler来配置 RequestBuilder
         List<Object> argumentList = new ArrayList<>(argumentCount);
         for (int p = 0; p < argumentCount; p++) {
             argumentList.add(args[p]);
@@ -196,6 +199,7 @@ final class RequestFactory {
         }
 
         RequestFactory build() {
+            // 解析方法上的注解，例如@GET,@POST等
             for (Annotation annotation : methodAnnotations) {
                 // 单独解析每一个方法注解内容
                 parseMethodAnnotation(annotation);
@@ -218,9 +222,11 @@ final class RequestFactory {
 
             int parameterCount = parameterAnnotationsArray.length;
             parameterHandlers = new ParameterHandler<?>[parameterCount];
-            // 解析所有参数注解
+            // 解析参数注解，如@Path,@Query等
+            // 将处理方法参数注解的ParameterHandler放在一个数组中parameterHandlers
             for (int p = 0, lastParameter = parameterCount - 1; p < parameterCount; p++) {
                 // 每一个参数初始化一个ParameterHandler
+                // parameterTypes[p]：参数的类型是 @QueryMap Map<String,String> map，那么这个值就是Map<String,String>
                 parameterHandlers[p] =
                         parseParameter(p, parameterTypes[p], parameterAnnotationsArray[p], p == lastParameter);
             }
@@ -283,7 +289,7 @@ final class RequestFactory {
          * 解析http请求
          *
          * @param httpMethod http请求方法名：get.post等
-         * @param value      注解中的值(相对url)
+         * @param value      注解中的值(相对路径url)
          * @param hasBody    是否有body
          */
         private void parseHttpMethodAndPath(String httpMethod, String value, boolean hasBody) {
@@ -294,6 +300,7 @@ final class RequestFactory {
             this.httpMethod = httpMethod;
             this.hasBody = hasBody;
 
+            // 没有设置相对路径就解析完毕了
             if (value.isEmpty()) {
                 return;
             }
@@ -304,6 +311,7 @@ final class RequestFactory {
              * Call<CardConfigInfo> getCardConfigList(@Field("model") String model, @Field("version") String version);
              */
             // Get the relative URL path and existing query string, if present.
+            // 解析相对路径与查询字符串
             int question = value.indexOf('?');// 解析是否有问号（?），问号前面是相对路径
             if (question != -1 && question < value.length() - 1) {// 有
                 // Ensure the query string does not have any named parameters.
@@ -357,10 +365,13 @@ final class RequestFactory {
                 int p, Type parameterType, @Nullable Annotation[] annotations, boolean allowContinuation) {
             ParameterHandler<?> result = null;
             if (annotations != null) {
+                // 循环某一个参数上的注解，因为一个参数除了使用Retrofit的注解标注以外，也有可能使用其他注解标注，
+                // 这里只处理retrofit自己的注解，如果一个参数上存在两个以上的retrofit注解，则会报错
                 for (Annotation annotation : annotations) {
                     ParameterHandler<?> annotationAction =
                             parseParameterAnnotation(p, parameterType, annotations, annotation);
 
+                    // 发现是非Retrofit注解，直接跳过
                     if (annotationAction == null) {
                         continue;
                     }
@@ -431,7 +442,7 @@ final class RequestFactory {
                         || type == String.class
                         || type == URI.class
                         || (type instanceof Class && "android.net.Uri".equals(((Class<?>) type).getName()))) {
-                    return new ParameterHandler.RelativeUrl(method, p);
+                    return new ParameterHandler.RelativeUrl(method, p);// 关键代码
                 } else {
                     throw parameterError(method, p,
                             "@Url must be okhttp3.HttpUrl, String, java.net.URI, or android.net.Uri type.");
@@ -461,6 +472,7 @@ final class RequestFactory {
                 String name = path.value();
                 validatePathName(p, name);
 
+                // 注意这里就开始使用converter了，在解析@Path注解的参数时，其类型是要被转换成String的
                 Converter<?, String> converter = retrofit.stringConverter(type, annotations);
                 return new ParameterHandler.Path<>(method, p, name, converter, path.encoded());
 
@@ -472,7 +484,10 @@ final class RequestFactory {
 
                 Class<?> rawParameterType = Utils.getRawType(type);
                 gotQuery = true;
+                // 针对参数类型为Iterable（例如集合），数组以及其他三种情况作了处理,这段代码基本上把
+                // ParameterHandler的功能都涉及到了。
                 if (Iterable.class.isAssignableFrom(rawParameterType)) {
+                    // 必须是泛型
                     if (!(type instanceof ParameterizedType)) {
                         throw parameterError(method, p, rawParameterType.getSimpleName()
                                 + " must include generic type (e.g., "

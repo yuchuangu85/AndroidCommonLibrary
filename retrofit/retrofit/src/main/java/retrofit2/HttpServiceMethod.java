@@ -78,7 +78,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
          */
         CallAdapter<ResponseT, ReturnT> callAdapter =
                 createCallAdapter(retrofit, method, adapterType, annotations);
-        // 返回结果类型
+        // 接口声明的返回类型例如Call<User>,那么这个就是User
         Type responseType = callAdapter.responseType();
         if (responseType == okhttp3.Response.class) {
             throw methodError(method, "'"
@@ -143,6 +143,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
         this.responseConverter = responseConverter;
     }
 
+    // 提交一个http请求，返回我们设定的类型的结果，例如Call<User>
     @Override
     final @Nullable
     ReturnT invoke(Object[] args) {

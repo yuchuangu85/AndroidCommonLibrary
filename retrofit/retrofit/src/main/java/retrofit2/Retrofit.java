@@ -87,6 +87,9 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Bob Lee (bob@squareup.com)
  * @author Jake Wharton (jw@squareup.com)
+ *
+ * 参考：
+ * https://blog.csdn.net/shusheng0007/article/details/81335264
  */
 public final class Retrofit {
     private final Map<Method, ServiceMethod<?>> serviceMethodCache = new ConcurrentHashMap<>();
@@ -185,6 +188,7 @@ public final class Retrofit {
      * {@link Converter.Factory} instances. {@link ResponseBody} can also be used for a raw
      * representation. {@link Void} can be used if you do not care about the body contents.
      * <p>
+     * <p>
      * For example:
      * <pre>
      * public interface CategoryService {
@@ -196,9 +200,15 @@ public final class Retrofit {
      */
     @SuppressWarnings("unchecked") // Single-interface proxy creation guarded by parameter safety.
     public <T> T create(final Class<T> service) {
+        // 验证接口的合法性以及是否要将所有请求方法缓存起来
         validateServiceInterface(service);
         /**
-         * 代理模式（参考上面链接）
+         * 代理模式（参考上面链接或下面内容）
+         * <p>
+         * 所谓动态代理：就是你定义了一个接口，里面声明了很多方法，那你正常情况下是不是应该有一个这个接口的实现类，
+         * 然后才能使用里面的方法。所谓动态代理就代理的这个实体类，我们这里的create()返回值就是此动态代理实例，
+         * 只要使用这个实例调用方法，那么都会进入invoke()方法里面。
+         * <p>
          * 通过Proxy.newProxyInstance(…)函数新建了一个代理对象，实际代理类就是在这时候动态生成的。
          * 第一个参数：表示类加载器
          * 第二个参数：表示委托类的接口，生成代理类时需要实现这些接口
@@ -211,6 +221,10 @@ public final class Retrofit {
 
                     /**
                      * 调用代理对象的每个函数实际最终都是调用了InvocationHandler的invoke函数。
+                     *
+                     * 我们使用Proxy类的newProxyInstance()方法生成的代理对象proxy去调用了
+                     * proxy.categoryList();操作，那么系统就会将此方法分发给invoke().
+                     * 其中proxy对象的类是系统帮我们动态生产的，其实现了我们的业务接口CategoryService。
                      *
                      * 实例
                      × <pre>
@@ -343,6 +357,7 @@ public final class Retrofit {
         Objects.requireNonNull(returnType, "returnType == null");
         Objects.requireNonNull(annotations, "annotations == null");
 
+        // 是否要跳过列表中某个callAdapter
         int start = callAdapterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = callAdapterFactories.size(); i < count; i++) {
             // DefaultCallAdapterFactory：返回CallAdapter
@@ -735,6 +750,8 @@ public final class Retrofit {
                 callFactory = new OkHttpClient();
             }
 
+            // 可以设置Executor，一般我们都不设置，直接使用系统默认的，对于Android来说就是一个
+            // 使用Handler切换到主线程的executor
             Executor callbackExecutor = this.callbackExecutor;
             if (callbackExecutor == null) {// 没有手动设置线程池
                 // 获取默认线程池：Android平台为MainThreadExecutor，Java平台为null
@@ -742,7 +759,7 @@ public final class Retrofit {
             }
 
             // Make a defensive copy of the adapters and add the default Call adapter.
-            // 添加手动设置的请求适配器工厂（CallAdapter.Factory）
+            // 添加手动设置的请求适配器工厂（CallAdapter.Factory），先添加用户的，然后添加默认的
             List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
             /**
              * 添加默认CallAdapter.Factory
@@ -758,6 +775,7 @@ public final class Retrofit {
 
             // Add the built-in converter factory first. This prevents overriding its behavior but also
             // ensures correct behavior when using converters that consume all types.
+            // 先添加默认的配置，再添加用户设置的
             converterFactories.add(new BuiltInConverters());// 内置Converter.Factory
             converterFactories.addAll(this.converterFactories);// 手动添加的Converter.Factory
             converterFactories.addAll(platform.defaultConverterFactories());// 平台默认Converter.Factory
