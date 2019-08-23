@@ -87,7 +87,7 @@ import static java.util.Collections.unmodifiableList;
  *
  * @author Bob Lee (bob@squareup.com)
  * @author Jake Wharton (jw@squareup.com)
- *
+ * <p>
  * 参考：
  * https://blog.csdn.net/shusheng0007/article/details/81335264
  */
@@ -126,6 +126,7 @@ public final class Retrofit {
      * <p>
      * DefaultCallAdapterFactory：返回CallAdapter
      * CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
+     * sdk<24返回第一个，否则返回两个第二个在前，第一个在后
      * <p>
      * 手动配置：
      * GuavaCallAdapterFactory：get返回-ResponseCallAdapter
@@ -237,7 +238,7 @@ public final class Retrofit {
                      * @param method 表示代理对象被调用的函数。--categoryList方法(有注解)
                      * @param args   表示代理对象被调用的函数的参数。--a,b(有注解)
                      *
-                     * @return CallAdapterFactory(CompletableFutureCallAdapterFactory或DefaultCallAdapterFactory)
+                     * @return 提交一个http请求，返回我们设定的类型的结果，例如Call<User>
                      * @throws Throwable
                      */
                     @Override
@@ -259,6 +260,8 @@ public final class Retrofit {
                          * （HttpServiceMethod）的invoke方法，然后返回CallAdapter的工厂：
                          * Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
                          * Android平台 sdk<24 只添加DefaultCallAdapterFactory
+                         * <p>
+                         * 提交一个http请求，返回我们设定的类型的结果，例如Call<User>
                          */
                         return loadServiceMethod(method).invoke(args != null ? args : emptyArgs);
                     }
@@ -310,6 +313,7 @@ public final class Retrofit {
                 serviceMethodCache.put(method, result);
             }
         }
+        // HttpServiceMethod.CallAdapted
         return result;
     }
 
@@ -350,6 +354,8 @@ public final class Retrofit {
      * Returns the {@link CallAdapter} for {@code returnType} from the available {@linkplain
      * #callAdapterFactories() factories} except {@code skipPast}.
      *
+     * @param returnType 返回数据类型：Call<User>
+     *
      * @throws IllegalArgumentException if no call adapter available for {@code type}.
      */
     public CallAdapter<?, ?> nextCallAdapter(@Nullable CallAdapter.Factory skipPast, Type returnType,
@@ -360,8 +366,12 @@ public final class Retrofit {
         // 是否要跳过列表中某个callAdapter
         int start = callAdapterFactories.indexOf(skipPast) + 1;
         for (int i = start, count = callAdapterFactories.size(); i < count; i++) {
-            // DefaultCallAdapterFactory：返回CallAdapter
-            // CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
+            /*
+             * CompletableFutureCallAdapterFactory：返回ResponseCallAdapter
+             * DefaultCallAdapterFactory：返回CallAdapter
+             * 当为CompletableFutureCallAdapterFactory时，通过校验返回类型最终返回的CallAdapter为null
+             * 这里最终返回的是DefaultCallAdapterFactory.CallAdapter
+             */
             CallAdapter<?, ?> adapter = callAdapterFactories.get(i).get(returnType, annotations, this);
             if (adapter != null) {
                 return adapter;

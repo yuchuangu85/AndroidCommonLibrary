@@ -41,7 +41,7 @@ public interface CallAdapter<R, T> {
     Type responseType();
 
     /**
-     * Returns an instance of {@code T} which delegates to {@code call}.
+     * Returns an instance of {@code T} which delegates(委托) to {@code call}.
      * <p>
      * For example, given an instance for a hypothetical utility, {@code Async}, this instance would
      * return a new {@code Async<R>} which invoked {@code call} when run.

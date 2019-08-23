@@ -333,7 +333,7 @@ final class Utils {
     }
 
     static Type getParameterUpperBound(int index, ParameterizedType type) {
-        // 获取<>里面的参数类型，为一个数组{CardConfigInfo}
+        // 获取<>里面的参数类型，为一个数组{User}
         Type[] types = type.getActualTypeArguments();
         if (index < 0 || index >= types.length) {
             throw new IllegalArgumentException(

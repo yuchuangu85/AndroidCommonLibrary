@@ -32,6 +32,7 @@ final class CompletableFutureCallAdapterFactory extends CallAdapter.Factory {
     public @Nullable
     CallAdapter<?, ?> get(
             Type returnType, Annotation[] annotations, Retrofit retrofit) {
+        // 校验返回类型，是不是CompletableFuture类型，我们在Android中使用是一般是Call<Object>类型，所以返回为null
         if (getRawType(returnType) != CompletableFuture.class) {
             return null;
         }

@@ -47,14 +47,14 @@ class Platform {
             }
         } catch (ClassNotFoundException ignored) {
         }
+        // 非Android平台，暂时不考虑
         return new Platform(true);
     }
 
     // Android平台并且sdk>=24为true，sdk<24为false
-    // Java平台为true
     private final boolean hasJava8Types;
 
-    // 默认Java平台
+    // sdk是否大于等于24
     Platform(boolean hasJava8Types) {
         this.hasJava8Types = hasJava8Types;
     }
@@ -84,7 +84,6 @@ class Platform {
     }
 
     // Android平台并且sdk>=24为1，sdk<24为0
-    // Java平台为1
     int defaultConverterFactoriesSize() {
         return hasJava8Types ? 1 : 0;
     }

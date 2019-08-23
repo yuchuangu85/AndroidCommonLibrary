@@ -40,7 +40,7 @@ import retrofit2.http.QueryMap;
  * Factory a factory} which is {@linkplain Retrofit.Builder#addConverterFactory(Factory) installed}
  * into the {@link Retrofit} instance.
  * <p>
- * 转化器接口
+ * 转化器接口(将okhttp返回的原始结果转换成需要的结果，例如：就返回的String字符串通过Gson转换器转换成需要的对象)
  */
 public interface Converter<F, T> {
     @Nullable

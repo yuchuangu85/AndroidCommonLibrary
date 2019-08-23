@@ -32,7 +32,7 @@ import okio.Okio;
 import static retrofit2.Utils.throwIfFatal;
 
 /**
- * Okhttp请求封装，最终的请求都在这个类中进行
+ * OkHttp请求封装，最终的请求都在这个类中进行
  * @param <T> 返回结果类型
  */
 final class OkHttpCall<T> implements Call<T> {
@@ -128,7 +128,7 @@ final class OkHttpCall<T> implements Call<T> {
             call.cancel();
         }
 
-        // 真正发起异步请求的地方，这个call是okhttp的call
+        // 真正发起异步请求的地方，这个call是OkHttp的call
         call.enqueue(new okhttp3.Callback() {
             @Override
             public void onResponse(okhttp3.Call call, okhttp3.Response rawResponse) {

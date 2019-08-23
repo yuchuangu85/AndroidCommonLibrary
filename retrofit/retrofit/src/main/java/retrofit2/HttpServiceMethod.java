@@ -75,6 +75,12 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
          * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
          * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
          * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         *
+         * sdk>=24：callAdapter = ResponseCallAdapter -> (CompletableFutureCallAdapterFactory)
+         * sdk<24：callAdapter = CallAdapter -> (DefaultCallAdapterFactory)
+         *
+         * 这里会根据数据请求接口返回类型来获取callAdapter，我们Android开发通常为Call<Object>类型，所以返回
+         * DefaultCallAdapterFactory.CallAdapter
          */
         CallAdapter<ResponseT, ReturnT> callAdapter =
                 createCallAdapter(retrofit, method, adapterType, annotations);
@@ -147,6 +153,7 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
     @Override
     final @Nullable
     ReturnT invoke(Object[] args) {
+        // 创建OkHttpCall对象(封装了OkHttp的请求)，用来发起网络请求
         Call<ResponseT> call = new OkHttpCall<>(requestFactory, args, callFactory, responseConverter);
         return adapt(call, args);
     }
@@ -162,6 +169,10 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
          * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
          * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
          * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+         *
+         * 根据定义的请求接口类型Call<Object>返回DefaultCallAdapterFactory.CallAdapter
+         * （如果定义的请求接口返回类型为CompletableFuture<Object>，那么
+         * 返回CompletableFutureCallAdapterFactory.CallAdapter）
          */
         private final CallAdapter<ResponseT, ReturnT> callAdapter;
 
@@ -172,10 +183,10 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
             this.callAdapter = callAdapter;
         }
 
+        // 返回类型（ReturnT）为Call<Object>
         @Override
         protected ReturnT adapt(Call<ResponseT> call, Object[] args) {
-            // 如果是DefaultCallAdapterFactory返回ExecutorCallbackCall
-            // 如果是CompletableFutureCallAdapterFactory返回CompletableFuture
+            // DefaultCallAdapterFactory返回ExecutorCallbackCall
             return callAdapter.adapt(call);
         }
     }

@@ -73,11 +73,12 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
         };
     }
 
-    // 这里使用了典型的代理模式，不过这次是静态代理。ExecutorCallbackCall 代理了OkHttpCall，
+    // 这里使用了典型的代理模式，不过这次是静态代理。ExecutorCallbackCall 代理了 OkHttpCall，
     // 他们都实现了接口Call。这样代理就有能力在执行被代理对象的动作是附加一些动作了，
     // 例如这里的线程切换。妙哉否？妙哉！
     static final class ExecutorCallbackCall<T> implements Call<T> {
         final Executor callbackExecutor;
+        // 代理了 OkHttpCall
         final Call<T> delegate;
 
         ExecutorCallbackCall(Executor callbackExecutor, Call<T> delegate) {
@@ -89,6 +90,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
         public void enqueue(final Callback<T> callback) {
             Objects.requireNonNull(callback, "callback == null");
 
+            // 这里最终调用到OkHttpCall.enqueue方法
             delegate.enqueue(new Callback<T>() {
                 @Override
                 public void onResponse(Call<T> call, final Response<T> response) {

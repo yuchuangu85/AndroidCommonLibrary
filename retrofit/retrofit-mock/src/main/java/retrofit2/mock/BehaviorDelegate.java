@@ -31,6 +31,8 @@ import retrofit2.Retrofit;
  * return type using the {@linkplain Retrofit#callAdapterFactories() call adapters} of
  * {@link Retrofit}.
  *
+ * 联网行为代理
+ *
  * @see MockRetrofit#create(Class)
  */
 public final class BehaviorDelegate<T> {
