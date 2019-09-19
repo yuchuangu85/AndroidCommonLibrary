@@ -1,0 +1,35 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    api project(':leakcanary-analyzer')
+    // We don't need the latest version of the support library (there are no bugs that impact what
+    // LeakCanary relies on), we're sticking a bit older because most apps will be using a more
+    // recent version and they'll automatically resolve to higher version without having to
+    // necessarily resort to a resolution strategy. This is also the version we use in
+    // leakcanary-support-fragment.
+    //noinspection GradleDependency
+    implementation 'com.android.support:support-core-utils:26.0.0'
+}
+
+def gitSha() {
+    return 'git rev-parse --short HEAD'.execute().text.trim()
+}
+
+android {
+    resourcePrefix 'leak_canary_'
+    compileSdkVersion versions.compileSdk
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        buildConfigField "String", "LIBRARY_VERSION", "\"${rootProject.ext.VERSION_NAME}\""
+        buildConfigField "String", "GIT_SHA", "\"${gitSha()}\""
+        consumerProguardFiles 'consumer-proguard-rules.pro'
+    }
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
+        error 'ObsoleteSdkInt'
+        check 'Interoperability'
+    }
+}
+
+apply from: rootProject.file('gradle/checkstyle.gradle')
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

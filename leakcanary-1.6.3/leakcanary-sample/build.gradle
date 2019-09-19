@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    debugImplementation project(':leakcanary-android')
+    releaseImplementation project(':leakcanary-android-no-op')
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.robolectric:robolectric:4.0-alpha-3"
+    androidTestImplementation project(':leakcanary-android-instrumentation')
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+android {
+    compileSdkVersion versions.compileSdk
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    defaultConfig {
+        applicationId "com.example.leakcanary"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.compileSdk
+
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "listener", "com.squareup.leakcanary.FailTestOnLeakRunListener"
+    }
+
+    buildTypes {
+        debug
+    }
+
+    dexOptions {
+        dexInProcess false
+    }
+
+    lintOptions {
+        disable 'GoogleAppIndexingWarning'
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+// Instrumentation test dependencies resolve to 27.1.1 so we align the sample.
+configurations.all {
+    resolutionStrategy {
+        eachDependency { details ->
+            // Force all of the primary support libraries to use the same version.
+            if (details.requested.group == 'com.android.support') {
+                details.useVersion "27.1.1"
+            }
+        }
+    }
+}
