@@ -31,47 +31,58 @@ import javax.annotation.Nullable;
  * The lone exception is that the owner segment is allowed to append to the segment, writing data at
  * {@code limit} and beyond. There is a single owning segment for each byte array. Positions,
  * limits, prev, and next references are not shared.
+ * <p>
+ * 在 Okio 中，每个 Segment 代表一段数据，多个 Segment 串成一个循环双向链表。
  */
 final class Segment {
     /**
      * The size of all segments in bytes.
+     * segment数据的字节数
      */
     static final int SIZE = 8192;
 
     /**
      * Segments will be shared when doing so avoids {@code arraycopy()} of this many bytes.
+     * 共享的Segment的最低的数据大小
      */
     static final int SHARE_MINIMUM = 1024;
 
+    // 实际保存的数据
     final byte[] data;
 
     /**
      * The next byte of application data byte to read in this segment.
+     * 下一个可读的位置
      */
     int pos;
 
     /**
      * The first byte of available data ready to be written to.
+     * 下一个可写的位置
      */
     int limit;
 
     /**
      * True if other segments or byte strings use the same byte array.
+     * 保存的数据是否是共享的
      */
     boolean shared;
 
     /**
      * True if this segment owns the byte array and can append to it, extending {@code limit}.
+     * 保存的数据是否是独占的
      */
     boolean owner;
 
     /**
      * Next segment in a linked or circularly-linked list.
+     * 链表中下一个节点
      */
     Segment next;
 
     /**
      * Previous segment in a circularly-linked list.
+     * 链表中上一个节点
      */
     Segment prev;
 
@@ -109,6 +120,7 @@ final class Segment {
     /**
      * Removes this segment of a circularly-linked list and returns its successor.
      * Returns null if the list is now empty.
+     * 从链表中删除当前Segment，并返回其后继节点
      */
     public final @Nullable
     Segment pop() {
@@ -123,6 +135,7 @@ final class Segment {
     /**
      * Appends {@code segment} after this segment in the circularly-linked list.
      * Returns the pushed segment.
+     * 在当前Segment后面插入一个Segment
      */
     public final Segment push(Segment segment) {
         segment.prev = this;

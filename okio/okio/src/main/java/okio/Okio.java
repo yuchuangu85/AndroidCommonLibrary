@@ -38,7 +38,18 @@ import javax.annotation.Nullable;
 import static okio.Util.checkOffsetAndCount;
 
 /**
- * Essential APIs for working with Okio.
+ * Essential(至关重要的) APIs for working with Okio.
+ * <p>
+ * Okio 中有4个接口，分别是 Source、Sink、 BufferedSource 和 BufferedSink。Source 和 Sink 分别
+ * 用于提供字节流和接收字节流，对应于 Inpustream 和 OutputStream。BufferedSource 和 BufferedSink
+ * 则是保存了相应的缓存数据用于高效读写
+ * <p>
+ * 提供超时机制
+ * 不需要人工区分字节流与字符流，易于使用
+ * 易于测试
+ * <p>
+ * <p>
+ * 参考：https://www.jianshu.com/p/ef6d5e48acb0
  */
 public final class Okio {
     static final Logger logger = Logger.getLogger(Okio.class.getName());
@@ -48,7 +59,7 @@ public final class Okio {
 
     /**
      * Returns a new source that buffers reads from {@code source}. The returned
-     * source will perform bulk reads into its in-memory buffer. Use this wherever
+     * source will perform bulk(大量，批量) reads into its in-memory buffer. Use this wherever
      * you read a source to get an ergonomic and efficient access to data.
      */
     public static BufferedSource buffer(Source source) {
@@ -57,8 +68,8 @@ public final class Okio {
 
     /**
      * Returns a new sink that buffers writes to {@code sink}. The returned sink
-     * will batch writes to {@code sink}. Use this wherever you write to a sink to
-     * get an ergonomic and efficient access to data.
+     * will batch(批处理) writes to {@code sink}. Use this wherever you write to a sink to
+     * get an ergonomic(人体工学的) and efficient access to data.
      */
     public static BufferedSink buffer(Sink sink) {
         return new RealBufferedSink(sink);
