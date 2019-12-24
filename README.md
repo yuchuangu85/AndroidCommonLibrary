@@ -20,26 +20,26 @@
 | RxAndroid                | https://github.com/ReactiveX/RxAndroid                       |    2.1.1     |    AS    |          |
 | RxJava                   | https://github.com/ReactiveX/RxJava                          |     3.x      |   Idea   |          |
 | Dagger2                  | https://github.com/google/dagger                             |     2.x      |   Idea   |          |
-| butterknife              | https://github.com/JakeWharton/butterknife                   |    10.1.0    |    AS    |          |
+| leakcanary               | https://github.com/square/leakcanary                         |    1.6.3     |    AS    |          |
 | guava                    | https://github.com/google/guava                              |    28-jre    |   Idea   |          |
 | VirtualXposed            | https://github.com/android-hacker/VirtualXposed              |    master    |    AS    |          |
 | dexposed                 | https://github.com/alibaba/dexposed                          |    master    |    AS    |          |
 | AndroidArchitecture      | https://github.com/googlesamples/android-architecture        |    master    |    AS    |          |
 | AndroidCleanArchitecture | https://github.com/bufferapp/android-clean-architecture-boilerplate |    master    |    AS    |          |
 | AndroidUtilCode          | https://github.com/Blankj/AndroidUtilCode                    |   abc7a5da   |    AS    |          |
-| leakcanary               | https://github.com/square/leakcanary                         |    master    |    AS    |          |
+|                          |                                                              |              |          |          |
 |                          |                                                              |              |          |          |
 
 
 
 ##  2.版本
 
-| 库     | 版本-语言                      | 备注 |
-| ------ | ------------------------------ | ---- |
-| okio   | 1.x(Java)</br>2.x(kotlin)      |      |
-| okhttp | 3.14.x(Java)</br>4.0.x(kotlin) |      |
-|        |                                |      |
-|        |                                |      |
+| 库         | 版本-语言                      | 备注 |
+| ---------- | ------------------------------ | ---- |
+| okio       | 1.x(Java)</br>2.x(kotlin)      |      |
+| okhttp     | 3.14.x(Java)</br>4.0.x(kotlin) |      |
+| leakcanary | 1.6.3(Java)</br>2.x(kotlin)    |      |
+|            |                                |      |
 
 
 

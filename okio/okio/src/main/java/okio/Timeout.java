@@ -20,19 +20,19 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A policy on how much time to spend on a task before giving up. When a task
+ * A policy(政策，策略) on how much time to spend on a task before giving up. When a task
  * times out, it is left in an unspecified state and should be abandoned. For
  * example, if reading from a source times out, that source should be closed and
  * the read should be retried later. If writing to a sink times out, the same
  * rules apply: close the sink and retry later.
  *
  * <h3>Timeouts and Deadlines</h3>
- * This class offers two complementary controls to define a timeout policy.
+ * This class offers two complementary(互补的) controls to define a timeout policy.
  *
  * <p><strong>Timeouts</strong> specify the maximum time to wait for a single
- * operation to complete. Timeouts are typically used to detect problems like
- * network partitions. For example, if a remote peer doesn't return <i>any</i>
- * data for ten seconds, we may assume that the peer is unavailable.
+ * operation to complete. Timeouts are typically used to detect(检测) problems like
+ * network partitions(分区). For example, if a remote peer doesn't return <i>any</i>
+ * data for ten seconds, we may assume(假设) that the peer is unavailable.
  *
  * <p><strong>Deadlines</strong> specify the maximum time to spend on a job,
  * composed of one or more operations. Use deadlines to set an upper bound on

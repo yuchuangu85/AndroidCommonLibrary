@@ -57,8 +57,10 @@ public final class Buffer implements BufferedSource, BufferedSink, Cloneable, By
             {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     static final int REPLACEMENT_CHARACTER = '\ufffd';
 
+    // 表示这个 Buffer 保存的 Segment 链表的头结点
     @Nullable
     Segment head;
+    // 用于记录 Buffer 当前的字节数。
     long size;
 
     public Buffer() {

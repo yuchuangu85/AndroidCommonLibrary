@@ -38,15 +38,15 @@ import static okio.Util.arrayRangeEquals;
 import static okio.Util.checkOffsetAndCount;
 
 /**
- * An immutable sequence of bytes.
+ * An immutable(不可变的) sequence(序列) of bytes.
  *
- * <p>Byte strings compare lexicographically as a sequence of <strong>unsigned</strong> bytes. That
+ * <p>Byte strings compare lexicographically(字母顺序) as a sequence of <strong>unsigned</strong> bytes. That
  * is, the byte string {@code ff} sorts after {@code 00}. This is counter to the sort order of the
  * corresponding bytes, where {@code -1} sorts before {@code 0}.
  *
- * <p><strong>Full disclosure:</strong> this class provides untrusted input and output streams with
- * raw access to the underlying byte array. A hostile stream implementation could keep a reference
- * to the mutable byte string, violating the immutable guarantee of this class. For this reason a
+ * <p><strong>Full disclosure(信息披露):</strong> this class provides untrusted(不可信的) input and output streams with
+ * raw access to the underlying byte array. A hostile(充满敌意的) stream implementation could keep a reference
+ * to the mutable byte string, violating(违反) the immutable guarantee of this class. For this reason a
  * byte string's immutability guarantee cannot be relied upon for security in applets and other
  * environments that run both trusted and untrusted code in the same process.
  */
