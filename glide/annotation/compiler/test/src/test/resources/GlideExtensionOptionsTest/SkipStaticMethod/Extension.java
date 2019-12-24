@@ -1,21 +1,20 @@
 package com.bumptech.glide.test;
 
+import androidx.annotation.NonNull;
 import com.bumptech.glide.annotation.GlideExtension;
 import com.bumptech.glide.annotation.GlideOption;
 import com.bumptech.glide.request.BaseRequestOptions;
 
-import androidx.annotation.NonNull;
-
 @GlideExtension
 public final class Extension {
 
-    private Extension() {
-        // Utility class.
-    }
+  private Extension() {
+    // Utility class.
+  }
 
-    @NonNull
-    @GlideOption(skipStaticMethod = true)
-    public static BaseRequestOptions<?> test(BaseRequestOptions<?> requestOptions) {
-        return requestOptions.centerCrop();
-    }
+  @NonNull
+  @GlideOption(skipStaticMethod = true)
+  public static BaseRequestOptions<?> test(BaseRequestOptions<?> requestOptions) {
+    return requestOptions.centerCrop();
+  }
 }

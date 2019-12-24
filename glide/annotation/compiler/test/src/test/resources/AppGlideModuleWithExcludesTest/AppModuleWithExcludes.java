@@ -6,5 +6,4 @@ import com.bumptech.glide.module.AppGlideModule;
 
 @GlideModule
 @Excludes(EmptyLibraryModule.class)
-public final class AppModuleWithExcludes extends AppGlideModule {
-}
+public final class AppModuleWithExcludes extends AppGlideModule {}

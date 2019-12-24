@@ -7,9 +7,9 @@ package com.bumptech.glide.load.engine;
  * developer errors on the part of developers of Glide itself.
  */
 final class CallbackException extends RuntimeException {
-    private static final long serialVersionUID = -7530898992688511851L;
+  private static final long serialVersionUID = -7530898992688511851L;
 
-    CallbackException(Throwable cause) {
-        super("Unexpected exception thrown by non-Glide code", cause);
-    }
+  CallbackException(Throwable cause) {
+    super("Unexpected exception thrown by non-Glide code", cause);
+  }
 }

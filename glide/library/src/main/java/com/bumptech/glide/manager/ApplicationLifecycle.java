@@ -10,13 +10,13 @@ import androidx.annotation.NonNull;
  * simply defaults to notifying new listeners that they are started.
  */
 class ApplicationLifecycle implements Lifecycle {
-    @Override
-    public void addListener(@NonNull LifecycleListener listener) {
-        listener.onStart();
-    }
+  @Override
+  public void addListener(@NonNull LifecycleListener listener) {
+    listener.onStart();
+  }
 
-    @Override
-    public void removeListener(@NonNull LifecycleListener listener) {
-        // Do nothing.
-    }
+  @Override
+  public void removeListener(@NonNull LifecycleListener listener) {
+    // Do nothing.
+  }
 }

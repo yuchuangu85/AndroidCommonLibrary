@@ -2,7 +2,6 @@ package com.bumptech.glide.request.transition;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-
 import androidx.annotation.NonNull;
 
 /**
@@ -12,13 +11,13 @@ import androidx.annotation.NonNull;
  * @see BitmapContainerTransitionFactory
  */
 public class BitmapTransitionFactory extends BitmapContainerTransitionFactory<Bitmap> {
-    public BitmapTransitionFactory(@NonNull TransitionFactory<Drawable> realFactory) {
-        super(realFactory);
-    }
+  public BitmapTransitionFactory(@NonNull TransitionFactory<Drawable> realFactory) {
+    super(realFactory);
+  }
 
-    @Override
-    @NonNull
-    protected Bitmap getBitmap(@NonNull Bitmap current) {
-        return current;
-    }
+  @Override
+  @NonNull
+  protected Bitmap getBitmap(@NonNull Bitmap current) {
+    return current;
+  }
 }

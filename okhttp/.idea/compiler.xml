@@ -10,10 +10,10 @@
         <module name="okhttp-testing-support" />
         <module name="mockwebserver" />
         <module name="slack" />
-        <module name="crawler" />
-        <module name="unixdomainsockets" />
         <module name="okcurl" />
+        <module name="unixdomainsockets" />
         <module name="simple-client" />
+        <module name="crawler" />
         <module name="okhttp-tls" />
         <module name="guide" />
         <module name="okhttp-dnsoverhttps" />
@@ -37,8 +37,8 @@
       <module name="okhttp-tests" target="1.8" />
       <module name="okhttp-tls" target="1.8" />
       <module name="okhttp-urlconnection" target="1.8" />
-      <module name="parent" target="1.5" />
-      <module name="sample-parent" target="1.5" />
+      <module name="parent" target="1.8" />
+      <module name="sample-parent" target="1.8" />
       <module name="simple-client" target="1.8" />
       <module name="slack" target="1.8" />
       <module name="static-server" target="1.8" />

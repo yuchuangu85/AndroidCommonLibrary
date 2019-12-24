@@ -2,10 +2,8 @@ package com.bumptech.glide.request.target;
 
 import android.graphics.drawable.Drawable;
 import android.view.View;
-
-import com.bumptech.glide.util.Util;
-
 import androidx.annotation.NonNull;
+import com.bumptech.glide.util.Util;
 
 /**
  * A simple {@link com.bumptech.glide.request.target.Target} base class with default (usually no-op)
@@ -59,66 +57,66 @@ import androidx.annotation.NonNull;
  * texture size or memory limitations. You don't have to worry about providing a size in most cases
  * if you use {@link ViewTarget} so prefer {@link ViewTarget} over this class whenver possible.
  *
- * @param <Z> The type of resource that this target will receive.
- *
  * @see <a href="http://bumptech.github.io/glide/doc/targets.html">Glide's Target docs page</a>
+ * @param <Z> The type of resource that this target will receive.
  * @deprecated Use {@link CustomViewTarget} if loading the content into a view, the download API if
- * in the background (http://bumptech.github.io/glide/doc/getting-started.html#background-threads),
- * or a {@link CustomTarget} for any specialized use-cases. Using {@link SimpleTarget} or {@link
- * BaseTarget} is unsafe if the user does not implement {@link #onLoadCleared}, resulting in
- * recycled bitmaps being referenced from the UI and hard to root-cause crashes.
+ *     in the background
+ *     (http://bumptech.github.io/glide/doc/getting-started.html#background-threads), or a {@link
+ *     CustomTarget} for any specialized use-cases. Using {@link SimpleTarget} or {@link BaseTarget}
+ *     is unsafe if the user does not implement {@link #onLoadCleared}, resulting in recycled
+ *     bitmaps being referenced from the UI and hard to root-cause crashes.
  */
 @Deprecated
 public abstract class SimpleTarget<Z> extends BaseTarget<Z> {
-    private final int width;
-    private final int height;
+  private final int width;
+  private final int height;
 
-    /**
-     * Constructor for the target that uses {@link Target#SIZE_ORIGINAL} as the target width and
-     * height.
-     */
-    // Public API.
-    @SuppressWarnings("WeakerAccess")
-    public SimpleTarget() {
-        this(SIZE_ORIGINAL, SIZE_ORIGINAL);
-    }
+  /**
+   * Constructor for the target that uses {@link Target#SIZE_ORIGINAL} as the target width and
+   * height.
+   */
+  // Public API.
+  @SuppressWarnings("WeakerAccess")
+  public SimpleTarget() {
+    this(SIZE_ORIGINAL, SIZE_ORIGINAL);
+  }
 
-    /**
-     * Constructor for the target that takes the desired dimensions of the decoded and/or transformed
-     * resource.
-     *
-     * @param width  The width in pixels of the desired resource.
-     * @param height The height in pixels of the desired resource.
-     */
-    // Public API.
-    @SuppressWarnings("WeakerAccess")
-    public SimpleTarget(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
+  /**
+   * Constructor for the target that takes the desired dimensions of the decoded and/or transformed
+   * resource.
+   *
+   * @param width The width in pixels of the desired resource.
+   * @param height The height in pixels of the desired resource.
+   */
+  // Public API.
+  @SuppressWarnings("WeakerAccess")
+  public SimpleTarget(int width, int height) {
+    this.width = width;
+    this.height = height;
+  }
 
-    /**
-     * Immediately calls the given callback with the sizes given in the constructor.
-     *
-     * @param cb {@inheritDoc}
-     */
-    @Override
-    public final void getSize(@NonNull SizeReadyCallback cb) {
-        if (!Util.isValidDimensions(width, height)) {
-            throw new IllegalArgumentException(
-                    "Width and height must both be > 0 or Target#SIZE_ORIGINAL, but given"
-                            + " width: "
-                            + width
-                            + " and height: "
-                            + height
-                            + ", either provide dimensions in the constructor"
-                            + " or call override()");
-        }
-        cb.onSizeReady(width, height);
+  /**
+   * Immediately calls the given callback with the sizes given in the constructor.
+   *
+   * @param cb {@inheritDoc}
+   */
+  @Override
+  public final void getSize(@NonNull SizeReadyCallback cb) {
+    if (!Util.isValidDimensions(width, height)) {
+      throw new IllegalArgumentException(
+          "Width and height must both be > 0 or Target#SIZE_ORIGINAL, but given"
+              + " width: "
+              + width
+              + " and height: "
+              + height
+              + ", either provide dimensions in the constructor"
+              + " or call override()");
     }
+    cb.onSizeReady(width, height);
+  }
 
-    @Override
-    public void removeCallback(@NonNull SizeReadyCallback cb) {
-        // Do nothing, we never retain a reference to the callback.
-    }
+  @Override
+  public void removeCallback(@NonNull SizeReadyCallback cb) {
+    // Do nothing, we never retain a reference to the callback.
+  }
 }

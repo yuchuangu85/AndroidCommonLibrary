@@ -3,7 +3,7 @@
     <item>
         <bitmap
             android:src="@mipmap/ic_launcher"
-            android:gravity="center"/>
+            android:gravity="center" />
     </item>
     <item
         android:top="20dp"

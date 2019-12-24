@@ -6,8 +6,8 @@ package com.bumptech.glide;
  * guarantees about the order in which loads will start or finish.
  */
 public enum Priority {
-    IMMEDIATE,
-    HIGH,
-    NORMAL,
-    LOW,
+  IMMEDIATE,
+  HIGH,
+  NORMAL,
+  LOW,
 }

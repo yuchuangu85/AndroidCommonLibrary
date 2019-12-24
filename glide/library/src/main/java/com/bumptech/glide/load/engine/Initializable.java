@@ -6,8 +6,6 @@ package com.bumptech.glide.load.engine;
  */
 public interface Initializable {
 
-    /**
-     * Called on a background thread so the {@link Resource} can do some eager initialization.
-     */
-    void initialize();
+  /** Called on a background thread so the {@link Resource} can do some eager initialization. */
+  void initialize();
 }

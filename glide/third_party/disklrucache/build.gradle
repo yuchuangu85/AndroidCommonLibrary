@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 repositories {
-    jcenter()
+  jcenter()
 }
 
 checkstyle {
@@ -36,5 +36,5 @@ android {
 
 def uploaderScript = "${rootProject.projectDir}/scripts/upload.gradle"
 if (file(uploaderScript).exists()) {
-    apply from: uploaderScript
+	apply from: uploaderScript
 }

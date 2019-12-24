@@ -5,5 +5,4 @@ import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.LibraryGlideModule;
 
 @GlideModule
-public final class LibraryModuleInPackage extends LibraryGlideModule {
-}
+public final class LibraryModuleInPackage extends LibraryGlideModule {}
