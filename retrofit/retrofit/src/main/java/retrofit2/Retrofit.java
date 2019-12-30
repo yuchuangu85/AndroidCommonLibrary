@@ -254,7 +254,7 @@ public final class Retrofit {
                         if (platform.isDefaultMethod(method)) {// 接口中声明为default的方法，非接口方法
                             return platform.invokeDefaultMethod(method, service, proxy, args);
                         }
-                        /**
+                        /*
                          * loadServiceMethod返回的是CallAdapted（HttpServiceMethod）
                          * 这里调用invoke方法实际上调用的是CallAdapted的invoke方法也就是父类
                          * （HttpServiceMethod）的invoke方法，然后返回CallAdapter的工厂：

@@ -159,7 +159,7 @@ final class RequestFactory {
         final Method method;// 请求数据接口方法
         final Annotation[] methodAnnotations;// 方法上的所有注解数组
         final Annotation[][] parameterAnnotationsArray;// 接口方法中的参数注解数组(每个参数可能对应多个注解)
-        final Type[] parameterTypes;// 参数类型
+        final Type[] parameterTypes;// 参数类型数组
 
         boolean gotField;
         boolean gotPart;
@@ -191,7 +191,7 @@ final class RequestFactory {
             this.method = method;
             // 返回方法的注解数组
             this.methodAnnotations = method.getAnnotations();
-            // 其返回的是参数的参数化的类型,里面的带有实际的参数类型
+            // 返回的是参数的参数化的类型,里面的带有实际的参数类型
             this.parameterTypes = method.getGenericParameterTypes();
             // 参数注解数组，参数里面如果不是参数化类型的话，那么 getGenericParameterTypes
             // 就返回与 getParameterTypes 一样
@@ -305,7 +305,7 @@ final class RequestFactory {
                 return;
             }
 
-            /**
+            /*
              * 例如：
              * @POST("/negscr/home/cardConfig?")
              * Call<CardConfigInfo> getCardConfigList(@Field("model") String model, @Field("version") String version);
