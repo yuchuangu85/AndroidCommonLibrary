@@ -51,29 +51,29 @@ subprojects { project ->
         // modified, so we're not going to worry about cleaning it up.
         // Imgur uses generated code from dagger that has warnings.
         if ("gifencoder" != project.getName() && "imgur" != project.getName()) {
-            options.compilerArgs \
+          options.compilerArgs \
                 /*
                  * Treat all warnings as errors.
                  */ \
-                   << "-Werror" \
+                << "-Werror" \
                 /*
                  * Enable all warnings.
                  */ \
-                   << "-Xlint:all" \
+                << "-Xlint:all" \
                 /*
                  * Java expects every annotation to have a processor, but we use
                  * javax.annotation.Nullable, which doesn't have one.
                  */ \
-                   << "-Xlint:-processing" \
+                << "-Xlint:-processing" \
                 /*
                  * See https://github.com/google/dagger/issues/945
                  * and https://bugs.openjdk.java.net/browse/JDK-8190452
                  */ \
-                   << "-Xlint:-classfile" \
+                << "-Xlint:-classfile" \
                 /*
                  * Disable deprecation warnings for ViewTarget/BaseTarget for now.
                  */ \
-                   << "-Xlint:-deprecation"
+                << "-Xlint:-deprecation"
 
             if (project.plugins.hasPlugin('net.ltgt.errorprone')) {
                 // It's often useful to track individual objects when debugging object pooling.
@@ -143,10 +143,10 @@ subprojects { project ->
         // Formats are listed here: https://github.com/tomasbjerre/violations-lib
         def dir = projectDir.absolutePath
         violations = [
-                ["FINDBUGS", dir, ".*/findbugs/.*\\.xml\$", "Findbugs"],
-                ["PMD", dir, ".*/pmd/.*\\.xml\$", "PMD"],
-                ["ANDROIDLINT", dir, ".*/lint-results\\.xml\$", "AndroidLint"],
-                ["CHECKSTYLE", dir, ".*/checkstyle/.*\\.xml\$", "Checkstyle"],
+                ["FINDBUGS",    dir, ".*/findbugs/.*\\.xml\$",   "Findbugs"],
+                ["PMD",         dir, ".*/pmd/.*\\.xml\$",        "PMD"],
+                ["ANDROIDLINT", dir, ".*/lint-results\\.xml\$",  "AndroidLint"],
+                ["CHECKSTYLE",  dir, ".*/checkstyle/.*\\.xml\$", "Checkstyle"],
         ]
     }
 
@@ -169,7 +169,7 @@ subprojects { project ->
             }
 
             android.variantFilter { variant ->
-                if (variant.buildType.name == 'release') {
+                if(variant.buildType.name == 'release') {
                     variant.setIgnore(true)
                 }
             }

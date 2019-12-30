@@ -1,5 +1,5 @@
 <manifest
-    package="com.bumptech.glide.integration.gifencoder">
+  package="com.bumptech.glide.integration.gifencoder">
 
     <application>
     </application>

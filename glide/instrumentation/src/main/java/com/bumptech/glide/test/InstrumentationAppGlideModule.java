@@ -5,5 +5,5 @@ import com.bumptech.glide.module.AppGlideModule;
 
 @GlideModule
 public class InstrumentationAppGlideModule extends AppGlideModule {
-    // Intentionally empty.
+  // Intentionally empty.
 }

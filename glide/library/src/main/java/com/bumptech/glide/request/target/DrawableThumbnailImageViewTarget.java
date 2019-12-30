@@ -9,21 +9,19 @@ import android.widget.ImageView;
 // Public API.
 @SuppressWarnings("unused")
 public class DrawableThumbnailImageViewTarget extends ThumbnailImageViewTarget<Drawable> {
-    public DrawableThumbnailImageViewTarget(ImageView view) {
-        super(view);
-    }
+  public DrawableThumbnailImageViewTarget(ImageView view) {
+    super(view);
+  }
 
-    /**
-     * @deprecated Use {@link #waitForLayout()} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public DrawableThumbnailImageViewTarget(ImageView view, boolean waitForLayout) {
-        super(view, waitForLayout);
-    }
+  /** @deprecated Use {@link #waitForLayout()} instead. */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public DrawableThumbnailImageViewTarget(ImageView view, boolean waitForLayout) {
+    super(view, waitForLayout);
+  }
 
-    @Override
-    protected Drawable getDrawable(Drawable resource) {
-        return resource;
-    }
+  @Override
+  protected Drawable getDrawable(Drawable resource) {
+    return resource;
+  }
 }

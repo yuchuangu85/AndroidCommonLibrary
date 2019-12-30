@@ -6,7 +6,7 @@ apply plugin: 'java'
 configurations {
     // adapted from https://android.googlesource.com/platform/frameworks/testing/+/976c423/espresso/espresso-lib/build.gradle
     // compileOnly dependencies will be repackaged, see rules in jarjar ant task below
-    jarjar
+    jarjar 
 }
 
 dependencies {
@@ -51,8 +51,8 @@ task jarjar(dependsOn: [tasks.compiledJar, configurations.compileOnly]) {
             jarjar(jarfile: repackagedJar) {
                 configurations.compileOnly.resolve().each {
                     zipfileset(src: it.absolutePath, excludes: [
-                            'META-INF/maven/**',
-                            'META-INF/services/javax.annotation.processing.Processor'
+                        'META-INF/maven/**',
+                        'META-INF/services/javax.annotation.processing.Processor'
                     ].join(','))
                 }
                 zipfileset(src: tasks.compiledJar.archivePath)

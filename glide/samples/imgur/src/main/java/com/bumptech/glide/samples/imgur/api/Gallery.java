@@ -8,10 +8,10 @@ import java.util.List;
  * <p>Populated automatically by GSON.
  */
 final class Gallery {
-    public List<Image> data;
+  public List<Image> data;
 
-    @Override
-    public String toString() {
-        return "Gallery{" + "data=" + data + '}';
-    }
+  @Override
+  public String toString() {
+    return "Gallery{" + "data=" + data + '}';
+  }
 }

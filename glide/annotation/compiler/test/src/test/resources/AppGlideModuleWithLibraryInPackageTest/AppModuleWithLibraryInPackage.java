@@ -7,5 +7,4 @@ import com.bumptech.glide.test._package.LibraryModuleInPackage;
 
 @GlideModule
 @Excludes(LibraryModuleInPackage.class)
-public final class AppModuleWithLibraryInPackage extends AppGlideModule {
-}
+public final class AppModuleWithLibraryInPackage extends AppGlideModule {}

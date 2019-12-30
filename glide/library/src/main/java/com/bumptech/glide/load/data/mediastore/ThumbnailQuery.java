@@ -4,5 +4,5 @@ import android.database.Cursor;
 import android.net.Uri;
 
 interface ThumbnailQuery {
-    Cursor query(Uri uri);
+  Cursor query(Uri uri);
 }
