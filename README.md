@@ -24,8 +24,6 @@
 | guava                    | https://github.com/google/guava                              |    28-jre    |   Idea   |          |
 | VirtualXposed            | https://github.com/android-hacker/VirtualXposed              |    master    |    AS    |          |
 | dexposed                 | https://github.com/alibaba/dexposed                          |    master    |    AS    |          |
-| AndroidArchitecture      | https://github.com/googlesamples/android-architecture        |    master    |    AS    |          |
-| AndroidCleanArchitecture | https://github.com/bufferapp/android-clean-architecture-boilerplate |    master    |    AS    |          |
 | AndroidUtilCode          | https://github.com/Blankj/AndroidUtilCode                    |   abc7a5da   |    AS    |          |
 |                          |                                                              |              |          |          |
 |                          |                                                              |              |          |          |
