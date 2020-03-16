@@ -1,9 +1,0 @@
-# Created by .ignore support plugin (hsz.mobi)
-.idea
-.gradle
-build
-gradlew.bat
-gradlew
-gradle.properties
-gradle/
-todo-mvp-clean.iml

@@ -36,7 +36,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * the value will be resolved against a base URL to create the full endpoint URL.
  *
  * 作用于方法参数
- * 用于添加请求的接口地址
+ * 用于添加请求的接口地址(完整的请求接口地址，之前设置的baseUrl则无效)
  */
 @Documented
 @Target(PARAMETER)

@@ -3,21 +3,39 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mockwebserver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mockwebserver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okcurl" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okcurl/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okcurl/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-dnsoverhttps" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-dnsoverhttps/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-logging-interceptor" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-logging-interceptor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-sse" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-sse/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-testing-support" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-testing-support/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-tests" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-tests/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-tls" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-tls/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/okhttp-urlconnection" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp-urlconnection/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/okhttp/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/crawler" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/crawler/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/guide" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/guide/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/simple-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/simple-client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/slack" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/slack/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/static-server" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/static-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/samples/unixdomainsockets" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/samples/unixdomainsockets/src/main/java" charset="UTF-8" />
   </component>
 </project>

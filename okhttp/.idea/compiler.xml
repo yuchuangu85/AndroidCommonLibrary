@@ -6,19 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="crawler" />
         <module name="okhttp-urlconnection" />
-        <module name="okhttp-testing-support" />
-        <module name="mockwebserver" />
         <module name="slack" />
         <module name="okcurl" />
         <module name="unixdomainsockets" />
         <module name="simple-client" />
-        <module name="crawler" />
+        <module name="mockwebserver" />
         <module name="okhttp-tls" />
         <module name="guide" />
         <module name="okhttp-dnsoverhttps" />
-        <module name="okhttp" />
         <module name="logging-interceptor" />
+        <module name="okhttp" />
+        <module name="okhttp-testing-support" />
         <module name="static-server" />
         <module name="okhttp-sse" />
         <module name="okhttp-tests" />
@@ -37,8 +37,8 @@
       <module name="okhttp-tests" target="1.8" />
       <module name="okhttp-tls" target="1.8" />
       <module name="okhttp-urlconnection" target="1.8" />
-      <module name="parent" target="1.8" />
-      <module name="sample-parent" target="1.8" />
+      <module name="parent" target="1.5" />
+      <module name="sample-parent" target="1.5" />
       <module name="simple-client" target="1.8" />
       <module name="slack" target="1.8" />
       <module name="static-server" target="1.8" />
