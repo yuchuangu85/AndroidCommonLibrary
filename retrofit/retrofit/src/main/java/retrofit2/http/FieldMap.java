@@ -36,7 +36,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <p>
  * A {@code null} value for the map, as a key, or as a value is not allowed.
  *
- * 作用于方法的参数
+ * 作用于方法的参数（放到请求体中）
  * 用于发送一个表单请求
  * map中每一项的键和值都不能为空,否则抛出IllegalArgumentException异常
  *

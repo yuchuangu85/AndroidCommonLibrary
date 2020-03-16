@@ -24,17 +24,17 @@ import okio.Sink;
 import okio.Source;
 
 /**
- * Access to read and write files on a hierarchical data store. Most callers should use the {@link
- * #SYSTEM} implementation, which uses the host machine's local file system. Alternate
- * implementations may be used to inject faults (for testing) or to transform stored data (to add
- * encryption, for example).
+ * Access to read and write files on a hierarchical(分组，分层) data store. Most callers should use the {@link
+ * #SYSTEM} implementation, which uses the host machine's local file system. Alternate(备用，代理)
+ * implementations may be used to inject faults (for testing) or to transform(变换) stored data (to add
+ * encryption(加密), for example).
  *
- * <p>All operations on a file system are racy. For example, guarding a call to {@link #source} with
- * {@link #exists} does not guarantee that {@link FileNotFoundException} will not be thrown. The
+ * <p>All operations on a file system are racy(生动的). For example, guarding(守卫) a call to {@link #source} with
+ * {@link #exists} does not guarantee(保证) that {@link FileNotFoundException} will not be thrown. The
  * file may be moved between the two calls!
  *
  * <p>This interface is less ambitious than {@link java.nio.file.FileSystem} introduced in Java 7.
- * It lacks important features like file watching, metadata, permissions, and disk space
+ * It lacks(缺乏) important features like file watching, metadata(元数据), permissions, and disk space
  * information. In exchange for these limitations, this interface is easier to implement and works
  * on all versions of Java and Android.
  */
