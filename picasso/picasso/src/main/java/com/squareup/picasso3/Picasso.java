@@ -176,20 +176,23 @@ public class Picasso implements LifecycleObserver {
         // Adjust this and Builder(Picasso) as internal handlers are added or removed.
         int builtInHandlers = 8;
         int extraCount = extraRequestHandlers.size();
+
+        // 请求处理器列表
         List<RequestHandler> allRequestHandlers = new ArrayList<>(builtInHandlers + extraCount);
 
+        // 本地图片资源请求处理器
         // ResourceRequestHandler needs to be the first in the list to avoid
         // forcing other RequestHandlers to perform null checks on request.uri
         // to cover the (request.resourceId != 0) case.
-        allRequestHandlers.add(ResourceDrawableRequestHandler.create(context));
-        allRequestHandlers.add(new ResourceRequestHandler(context));
-        allRequestHandlers.addAll(extraRequestHandlers);
-        allRequestHandlers.add(new ContactsPhotoRequestHandler(context));
-        allRequestHandlers.add(new MediaStoreRequestHandler(context));
-        allRequestHandlers.add(new ContentStreamRequestHandler(context));
-        allRequestHandlers.add(new AssetRequestHandler(context));
-        allRequestHandlers.add(new FileRequestHandler(context));
-        allRequestHandlers.add(new NetworkRequestHandler(callFactory, stats));
+        allRequestHandlers.add(ResourceDrawableRequestHandler.create(context));// 引入了Androidx的兼容包加载Bitmap
+        allRequestHandlers.add(new ResourceRequestHandler(context));// 通过系统自身加载方法加载Bitmap
+        allRequestHandlers.addAll(extraRequestHandlers);// 使用者自动添加的请求处理器
+        allRequestHandlers.add(new ContactsPhotoRequestHandler(context));// 联系人照片
+        allRequestHandlers.add(new MediaStoreRequestHandler(context));// 多媒体图片
+        allRequestHandlers.add(new ContentStreamRequestHandler(context));// ContentProvider提供的图片
+        allRequestHandlers.add(new AssetRequestHandler(context));// assets下的图片
+        allRequestHandlers.add(new FileRequestHandler(context));// 图片文件路径加载图片
+        allRequestHandlers.add(new NetworkRequestHandler(callFactory, stats));// 网络请求
         requestHandlers = Collections.unmodifiableList(allRequestHandlers);
 
         this.stats = stats;
@@ -566,6 +569,7 @@ public class Picasso implements LifecycleObserver {
 
     void enqueueAndSubmit(Action action) {
         Object target = action.getTarget();
+        // 如果没有该target，则把target放入map中
         if (targetToAction.get(target) != action) {
             // This will also check we are on the main thread.
             cancelExistingRequest(target);
@@ -865,22 +869,27 @@ public class Picasso implements LifecycleObserver {
 
             okhttp3.Cache unsharedCache = null;
             if (callFactory == null) {
-                File cacheDir = createDefaultCacheDir(context);
-                long maxSize = calculateDiskCacheSize(cacheDir);
+                File cacheDir = createDefaultCacheDir(context);// 创建缓存空间
+                long maxSize = calculateDiskCacheSize(cacheDir);// 计算最大缓存空间大小
+                // 通过okhttp里的Cache创建缓存
                 unsharedCache = new okhttp3.Cache(cacheDir, maxSize);
                 callFactory = new OkHttpClient.Builder()
                         .cache(unsharedCache)
                         .build();
             }
+            // 创建缓存对象
             if (cache == null) {
                 cache = new PlatformLruCache(Utils.calculateMemoryCacheSize(context));
             }
+            // 创建线程池
             if (service == null) {
                 service = new PicassoExecutorService(new PicassoThreadFactory());
             }
 
+            // 缓存统计数据对象
             Stats stats = new Stats(cache);
 
+            // 创建调度器
             Dispatcher dispatcher = new Dispatcher(context, service, HANDLER, cache, stats);
 
             return new Picasso(context, dispatcher, callFactory, unsharedCache, cache, listener,

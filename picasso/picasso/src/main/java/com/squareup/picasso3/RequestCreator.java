@@ -24,16 +24,19 @@ import android.net.Uri;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
+
+import com.squareup.picasso3.RemoteViewsAction.RemoteViewsTarget;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
-import com.squareup.picasso3.RemoteViewsAction.RemoteViewsTarget;
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.squareup.picasso3.BitmapHunter.forRequest;
 import static com.squareup.picasso3.MemoryPolicy.shouldReadFromMemoryCache;
@@ -687,20 +690,20 @@ public class RequestCreator {
       throw new IllegalArgumentException("Target must not be null.");
     }
 
-    if (!data.hasImage()) {
-      picasso.cancelRequest(target);
-      if (setPlaceholder) {
+    if (!data.hasImage()) {// 没有资源id或者url
+      picasso.cancelRequest(target);// 取消请求
+      if (setPlaceholder) {// 设置了占位图
         setPlaceholder(target, getPlaceholderDrawable());
       }
       return;
     }
 
-    if (deferred) {
-      if (data.hasSize()) {
+    if (deferred) {// 延缓（调整图片大小适应ImageView）
+      if (data.hasSize()) {// 延缓的话不能同时又设置宽高
         throw new IllegalStateException("Fit cannot be used with resize.");
       }
-      int width = target.getWidth();
-      int height = target.getHeight();
+      int width = target.getWidth();// ImageView宽
+      int height = target.getHeight();// ImageView高
       if (width == 0 || height == 0) {
         if (setPlaceholder) {
           setPlaceholder(target, getPlaceholderDrawable());
@@ -708,14 +711,16 @@ public class RequestCreator {
         picasso.defer(target, new DeferredRequestCreator(this, target, callback));
         return;
       }
-      data.resize(width, height);
+      data.resize(width, height);// 根据ImageView宽高调整大小
     }
 
+    // 创建请求
     Request request = createRequest(started);
 
+    // 是否应该从内存缓存读取
     if (shouldReadFromMemoryCache(request.memoryPolicy)) {
       Bitmap bitmap = picasso.quickMemoryCacheCheck(request.key);
-      if (bitmap != null) {
+      if (bitmap != null) {// 缓存中有
         picasso.cancelRequest(target);
         RequestHandler.Result result = new RequestHandler.Result(bitmap, MEMORY);
         setResult(target, picasso.context, result, noFade, picasso.indicatorsEnabled);
@@ -729,6 +734,7 @@ public class RequestCreator {
       }
     }
 
+    // 缓存中没有，先设置占位图
     if (setPlaceholder) {
       setPlaceholder(target, getPlaceholderDrawable());
     }
@@ -752,6 +758,7 @@ public class RequestCreator {
     request.id = id;
     request.started = started;
 
+    // log信息
     boolean loggingEnabled = picasso.loggingEnabled;
     if (loggingEnabled) {
       log(OWNER_MAIN, VERB_CREATED, request.plainId(), request.toString());

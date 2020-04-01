@@ -27,14 +27,16 @@ import android.os.Process;
 import android.os.StatFs;
 import android.provider.Settings;
 import android.util.Log;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import okio.BufferedSource;
 import okio.ByteString;
 
@@ -151,6 +153,7 @@ final class Utils {
     Log.d(TAG, format("%1$-11s %2$-12s %3$s %4$s", owner, verb, logId, extras));
   }
 
+  // 创建名字为picasso-cache的文件缓存路径
   static File createDefaultCacheDir(Context context) {
     File cache = new File(context.getApplicationContext().getCacheDir(), PICASSO_CACHE);
     if (!cache.exists()) {
@@ -160,10 +163,12 @@ final class Utils {
     return cache;
   }
 
+  // 计算磁盘缓存大小
   static long calculateDiskCacheSize(File dir) {
-    long size = MIN_DISK_CACHE_SIZE;
+    long size = MIN_DISK_CACHE_SIZE;//5M
 
     try {
+      // 统计缓存文件空间
       StatFs statFs = new StatFs(dir.getAbsolutePath());
       //noinspection deprecation
       long blockCount =
@@ -173,7 +178,7 @@ final class Utils {
           SDK_INT < JELLY_BEAN_MR2 ? (long) statFs.getBlockSize() : statFs.getBlockSizeLong();
       long available = blockCount * blockSize;
       // Target 2% of the total space.
-      size = available / 50;
+      size = available / 50;// 获取整个存储空间的2%
     } catch (IllegalArgumentException ignored) {
     }
 
@@ -181,6 +186,7 @@ final class Utils {
     return Math.max(Math.min(size, MAX_DISK_CACHE_SIZE), MIN_DISK_CACHE_SIZE);
   }
 
+  // 计算内容缓存大小
   static int calculateMemoryCacheSize(Context context) {
     ActivityManager am = ContextCompat.getSystemService(context, ActivityManager.class);
     boolean largeHeap = (context.getApplicationInfo().flags & FLAG_LARGE_HEAP) != 0;
@@ -237,7 +243,7 @@ final class Utils {
     } else if (segments.size() == 2) {
       String type = segments.get(0);
       String name = segments.get(1);
-
+      // 根据名字，类型，报名查找id
       id = resources.getIdentifier(name, type, pkg);
     } else {
       throw new FileNotFoundException("More than two path segments: " + data.uri);

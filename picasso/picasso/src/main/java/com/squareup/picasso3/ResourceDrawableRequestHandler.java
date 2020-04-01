@@ -57,6 +57,7 @@ public final class ResourceDrawableRequestHandler extends RequestHandler {
   public static ResourceDrawableRequestHandler create(@NonNull final Context context) {
     return create(context, new DrawableLoader() {
       @Override public Drawable load(int resId) {
+        // Androidx兼容包
         return ContextCompat.getDrawable(context, resId);
       }
     });

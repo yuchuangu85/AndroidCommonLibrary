@@ -17,9 +17,9 @@ package com.squareup.picasso3;
 
 import android.graphics.Bitmap;
 import android.net.NetworkInfo;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import com.squareup.picasso3.RequestHandler.Result;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
@@ -28,6 +28,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import okio.Buffer;
 
 import static com.squareup.picasso3.MemoryPolicy.shouldReadFromMemoryCache;
@@ -106,9 +109,9 @@ class BitmapHunter implements Runnable {
       result = hunt();
 
       if (result.getBitmap() == null && result.getDrawable() == null) {
-        dispatcher.dispatchFailed(this);
+        dispatcher.dispatchFailed(this);// 加载失败
       } else {
-        dispatcher.dispatchComplete(this);
+        dispatcher.dispatchComplete(this);// 加载完成
       }
     } catch (IOException e) {
       exception = e;
@@ -130,8 +133,9 @@ class BitmapHunter implements Runnable {
     }
   }
 
+  // 获取图片
   Result hunt() throws IOException {
-    if (shouldReadFromMemoryCache(data.memoryPolicy)) {
+    if (shouldReadFromMemoryCache(data.memoryPolicy)) {// 内存缓存
       Bitmap bitmap = cache.get(key);
       if (bitmap != null) {
         stats.dispatchCacheHit();
@@ -150,6 +154,7 @@ class BitmapHunter implements Runnable {
     final AtomicReference<Throwable> exceptionReference = new AtomicReference<>();
     final CountDownLatch latch = new CountDownLatch(1);
     try {
+      // 根据之前获取到的对应的RequestHandler加载图片
       requestHandler.load(picasso, data, new RequestHandler.Callback() {
         @Override public void onSuccess(@Nullable Result result) {
           resultReference.set(result);
@@ -362,6 +367,7 @@ class BitmapHunter implements Runnable {
     Request request = action.request;
     List<RequestHandler> requestHandlers = picasso.getRequestHandlers();
 
+    // for循环检查是否有能够处理该action的RequestHandler，如果有创建一个包含该RequestHandler的BitmapHunter
     // Index-based loop to avoid allocating an iterator.
     //noinspection ForLoopReplaceableByForEach
     for (int i = 0, count = requestHandlers.size(); i < count; i++) {
@@ -370,7 +376,7 @@ class BitmapHunter implements Runnable {
         return new BitmapHunter(picasso, dispatcher, cache, stats, action, requestHandler);
       }
     }
-
+    // 否则返回一个包含错误RequestHandler的BitmapHunter
     return new BitmapHunter(picasso, dispatcher, cache, stats, action, ERRORING_HANDLER);
   }
 

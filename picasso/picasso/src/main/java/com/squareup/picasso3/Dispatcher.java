@@ -64,13 +64,13 @@ class Dispatcher {
     private static final int AIRPLANE_MODE_ON = 1;
     private static final int AIRPLANE_MODE_OFF = 0;
 
-    static final int REQUEST_SUBMIT = 1;
-    static final int REQUEST_CANCEL = 2;
-    static final int HUNTER_COMPLETE = 4;
-    static final int HUNTER_RETRY = 5;
-    static final int HUNTER_DECODE_FAILED = 6;
-    static final int NETWORK_STATE_CHANGE = 9;
-    static final int AIRPLANE_MODE_CHANGE = 10;
+    static final int REQUEST_SUBMIT = 1;// 提交请求
+    static final int REQUEST_CANCEL = 2;// 取消
+    static final int HUNTER_COMPLETE = 4;// 完成
+    static final int HUNTER_RETRY = 5;// 重试
+    static final int HUNTER_DECODE_FAILED = 6;// 失败
+    static final int NETWORK_STATE_CHANGE = 9;// 网络状态改变
+    static final int AIRPLANE_MODE_CHANGE = 10;// 飞行模式
     static final int TAG_PAUSE = 11;
     static final int TAG_RESUME = 12;
     static final int REQUEST_BATCH_RESUME = 13;
@@ -171,7 +171,7 @@ class Dispatcher {
     }
 
     void performSubmit(Action action, boolean dismissFailed) {
-        if (pausedTags.contains(action.getTag())) {
+        if (pausedTags.contains(action.getTag())) {// 暂停集合中已经有了，不再继续执行
             pausedActions.put(action.getTarget(), action);
             if (action.picasso.loggingEnabled) {
                 log(OWNER_DISPATCHER, VERB_PAUSED, action.request.logId(),
@@ -186,15 +186,16 @@ class Dispatcher {
             return;
         }
 
-        if (service.isShutdown()) {
+        if (service.isShutdown()) {// 线程池被关闭
             if (action.picasso.loggingEnabled) {
                 log(OWNER_DISPATCHER, VERB_IGNORED, action.request.logId(), "because shut down");
             }
             return;
         }
 
+        // 创建一个包含能处理该action的RequestHandler的BitmapHunter对象，如果都不能处理，携带一个错误的RequestHandler
         hunter = forRequest(action.picasso, this, cache, stats, action);
-        hunter.future = service.submit(hunter);
+        hunter.future = service.submit(hunter);// 提交到线程池，如果执行会调用BitmapHunter的run方法
         hunterMap.put(action.request.key, hunter);
         if (dismissFailed) {
             failedActions.remove(action.getTarget());
@@ -348,17 +349,17 @@ class Dispatcher {
     }
 
     void performComplete(BitmapHunter hunter) {
-        if (shouldWriteToMemoryCache(hunter.data.memoryPolicy)) {
+        if (shouldWriteToMemoryCache(hunter.data.memoryPolicy)) {// 设置了缓存
             RequestHandler.Result result = hunter.getResult();
             if (result != null) {
                 Bitmap bitmap = result.getBitmap();
                 if (bitmap != null) {
-                    cache.set(hunter.getKey(), bitmap);
+                    cache.set(hunter.getKey(), bitmap);// 添加缓存
                 }
             }
         }
-        hunterMap.remove(hunter.getKey());
-        deliver(hunter);
+        hunterMap.remove(hunter.getKey());// 移除任务
+        deliver(hunter);// 交付
     }
 
     void performError(BitmapHunter hunter) {
@@ -425,9 +426,9 @@ class Dispatcher {
         }
 
         Message message = mainThreadHandler.obtainMessage(HUNTER_COMPLETE, hunter);
-        if (hunter.priority == Picasso.Priority.HIGH) {
+        if (hunter.priority == Picasso.Priority.HIGH) {// 属性值高，放到队列最前面
             mainThreadHandler.sendMessageAtFrontOfQueue(message);
-        } else {
+        } else {// 正常队列
             mainThreadHandler.sendMessage(message);
         }
         logDelivery(hunter);
