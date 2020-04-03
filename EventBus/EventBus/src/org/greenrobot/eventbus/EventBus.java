@@ -156,20 +156,23 @@ public class EventBus {
 
     // Must be called in synchronized block
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
+        // 订阅方法第一个参数类型
         Class<?> eventType = subscriberMethod.eventType;
-        // 封装订阅者和订阅方法对应的对象
+        // 封装订阅者和订阅方法对应的对象（同一个订阅者类可能对应多个订阅方法）
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
+        // 先取缓存
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
-        if (subscriptions == null) {
+        if (subscriptions == null) {// 无
             subscriptions = new CopyOnWriteArrayList<>();
             subscriptionsByEventType.put(eventType, subscriptions);
-        } else {
+        } else {// 有，已经注册
             if (subscriptions.contains(newSubscription)) {
                 throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
                         + eventType);
             }
         }
 
+        // 对同一个订阅者中的不同订阅方法根据优先级排序
         int size = subscriptions.size();
         for (int i = 0; i <= size; i++) {
             // 根据优先级插入队列
@@ -179,6 +182,7 @@ public class EventBus {
             }
         }
 
+        // 根据订阅者对象缓存订阅方法参数类型
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
             subscribedEvents = new ArrayList<>();
@@ -195,12 +199,13 @@ public class EventBus {
                 Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
                 for (Map.Entry<Class<?>, Object> entry : entries) {
                     Class<?> candidateEventType = entry.getKey();
+                    // 判断两个类或者两个接口，或者超类或者超接口是否相同
                     if (eventType.isAssignableFrom(candidateEventType)) {
                         Object stickyEvent = entry.getValue();
                         checkPostStickyEventToSubscription(newSubscription, stickyEvent);
                     }
                 }
-            } else {
+            } else {// 如果有粘性事件，先发一个
                 Object stickyEvent = stickyEvents.get(eventType);
                 checkPostStickyEventToSubscription(newSubscription, stickyEvent);
             }
@@ -268,18 +273,21 @@ public class EventBus {
      * Posts the given event to the event bus.
      */
     public void post(Object event) {
+        // 获取当前的发布线程状态
         PostingThreadState postingState = currentPostingThreadState.get();
+        // 获取线程中的事件队列
         List<Object> eventQueue = postingState.eventQueue;
+        // 加入队列
         eventQueue.add(event);
 
-        if (!postingState.isPosting) {
-            postingState.isMainThread = isMainThread();
-            postingState.isPosting = true;
+        if (!postingState.isPosting) {// 没有发送
+            postingState.isMainThread = isMainThread();// 是否是主线程
+            postingState.isPosting = true;// 标记正在发送
             if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
-                while (!eventQueue.isEmpty()) {
+                while (!eventQueue.isEmpty()) {// 消息队列不为空，循环发送所有消息
                     postSingleEvent(eventQueue.remove(0), postingState);
                 }
             } finally {
@@ -391,6 +399,7 @@ public class EventBus {
         return false;
     }
 
+    // 发送单个事件
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
         Class<?> eventClass = event.getClass();
         boolean subscriptionFound = false;
