@@ -26,7 +26,6 @@
 | dexposed                 | https://github.com/alibaba/dexposed                          |    master    |    AS    |          |
 | AndroidUtilCode          | https://github.com/Blankj/AndroidUtilCode                    |   abc7a5da   |    AS    |          |
 |                          |                                                              |              |          |          |
-|                          |                                                              |              |          |          |
 
 
 
@@ -49,8 +48,9 @@
 
   
 
-  ##  
-
+##  4.结构流程图
+  
+![](/media/Picasso/Picasso.jpg)
 
 
 
