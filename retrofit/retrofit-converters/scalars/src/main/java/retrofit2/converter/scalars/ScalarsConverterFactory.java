@@ -72,6 +72,15 @@ public final class ScalarsConverterFactory extends Converter.Factory {
         return null;
     }
 
+    /**
+     * 数据返回类型转换
+     *
+     * @param type        需要返回的数据类型
+     * @param annotations 注解
+     * @param retrofit    retrofit对象
+     *
+     * @return
+     */
     @Override
     public @Nullable
     Converter<ResponseBody, ?> responseBodyConverter(

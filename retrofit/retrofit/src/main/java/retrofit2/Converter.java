@@ -50,7 +50,7 @@ public interface Converter<F, T> {
 
     /**
      * Creates {@link Converter} instances based on a type and target usage.
-     *
+     * <p>
      * 转换器工厂接口，通过工厂模式创建转换器
      */
     abstract class Factory {
@@ -61,6 +61,9 @@ public interface Converter<F, T> {
          * declaration.
          * <p>
          * 返回结果转换器（就是将返回的数据转换成需要的结果对象的转换器）
+         * <p>
+         *
+         * @param type 返回数据的类型
          */
         public @Nullable
         Converter<ResponseBody, ?> responseBodyConverter(Type type,
@@ -88,7 +91,7 @@ public interface Converter<F, T> {
          * specified by {@link Field @Field}, {@link FieldMap @FieldMap} values,
          * {@link Header @Header}, {@link HeaderMap @HeaderMap}, {@link Path @Path},
          * {@link Query @Query}, and {@link QueryMap @QueryMap} values.
-         *
+         * <p>
          * 将请求参数转换为String的转换器
          */
         public @Nullable
