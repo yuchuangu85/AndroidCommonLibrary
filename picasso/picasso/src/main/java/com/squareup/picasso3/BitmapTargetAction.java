@@ -21,6 +21,9 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+/**
+ * Action主要是显示图片到ImageView上或者返回Bitmap对象
+ */
 final class BitmapTargetAction extends Action {
   final @Nullable Drawable errorDrawable;
   final @DrawableRes int errorResId;

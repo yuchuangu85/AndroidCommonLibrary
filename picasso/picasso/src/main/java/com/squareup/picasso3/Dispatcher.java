@@ -59,6 +59,10 @@ import static com.squareup.picasso3.Utils.getLogIdsForHunter;
 import static com.squareup.picasso3.Utils.hasPermission;
 import static com.squareup.picasso3.Utils.log;
 
+/**
+ * 调度器，通过该调度器链接Picasso和BitmapHunter，将Picasso发送过来的请求放入到线程池，
+ * 然后调度BitmapHunter来加载图标，加载完成把结果返回给Picasso
+ */
 class Dispatcher {
     private static final int RETRY_DELAY = 500;
     private static final int AIRPLANE_MODE_ON = 1;
@@ -114,6 +118,7 @@ class Dispatcher {
         receiver.register();
     }
 
+    // 关闭所有服务
     void shutdown() {
         // Shutdown the thread pool only if it is the one created by Picasso.
         if (service instanceof PicassoExecutorService) {
@@ -129,6 +134,7 @@ class Dispatcher {
         });
     }
 
+    // 下面操作是将调度消息发送给handler进行处理
     void dispatchSubmit(Action action) {
         handler.sendMessage(handler.obtainMessage(REQUEST_SUBMIT, action));
     }
@@ -170,6 +176,7 @@ class Dispatcher {
         performSubmit(action, true);
     }
 
+    // 提交请求Action
     void performSubmit(Action action, boolean dismissFailed) {
         if (pausedTags.contains(action.getTag())) {// 暂停集合中已经有了，不再继续执行
             pausedActions.put(action.getTarget(), action);
@@ -180,6 +187,7 @@ class Dispatcher {
             return;
         }
 
+        // 获取是否有缓存的BitmapHunter
         BitmapHunter hunter = hunterMap.get(action.request.key);
         if (hunter != null) {
             hunter.attach(action);
@@ -193,9 +201,12 @@ class Dispatcher {
             return;
         }
 
-        // 创建一个包含能处理该action的RequestHandler的BitmapHunter对象，如果都不能处理，携带一个错误的RequestHandler
+        // 创建一个包含能处理该action的RequestHandler的BitmapHunter对象，如果都不能处理，
+        // 携带一个错误的RequestHandler
         hunter = forRequest(action.picasso, this, cache, stats, action);
-        hunter.future = service.submit(hunter);// 提交到线程池，如果执行会调用BitmapHunter的run方法
+        // 提交到线程池，如果执行会调用BitmapHunter的run方法
+        hunter.future = service.submit(hunter);
+        // 把BitmapHunter放入缓存
         hunterMap.put(action.request.key, hunter);
         if (dismissFailed) {
             failedActions.remove(action.getTarget());
@@ -425,6 +436,7 @@ class Dispatcher {
             }
         }
 
+        // 发送完成的消息给Picasso中的HANDLER（Handler）进行处理
         Message message = mainThreadHandler.obtainMessage(HUNTER_COMPLETE, hunter);
         if (hunter.priority == Picasso.Priority.HIGH) {// 属性值高，放到队列最前面
             mainThreadHandler.sendMessageAtFrontOfQueue(message);
