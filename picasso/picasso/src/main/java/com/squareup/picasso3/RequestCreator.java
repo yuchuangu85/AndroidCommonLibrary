@@ -55,6 +55,10 @@ import static com.squareup.picasso3.Utils.checkMain;
 import static com.squareup.picasso3.Utils.checkNotMain;
 import static com.squareup.picasso3.Utils.log;
 
+/**
+ * 请求对象，包含请求的需求，以及请求接口，请求配置操作通过该类进行配置
+ */
+
 /** Fluent API for building an image download request. */
 @SuppressWarnings("UnusedDeclaration") // Public API.
 public class RequestCreator {
@@ -200,6 +204,7 @@ public class RequestCreator {
    * will result in delayed execution of the request until the {@link ImageView} has been laid out.
    * <p>
    * <em>Note:</em> This method works only when your target is an {@link ImageView}.
+   * 加载的图片适合ImageView的宽、高
    */
   @NonNull
   public RequestCreator fit() {
@@ -523,6 +528,8 @@ public class RequestCreator {
    * <p>
    * To receive callbacks when an image is loaded use
    * {@link #into(android.widget.ImageView, Callback)}.
+   *
+   * 开始加载图片并返回
    */
   public void into(@NonNull BitmapTarget target) {
     long started = System.nanoTime();
@@ -554,6 +561,7 @@ public class RequestCreator {
 
     target.onPrepareLoad(setPlaceholder ? getPlaceholderDrawable() : null);
 
+    // 创建BitmapTargetAction对象并提交该Action到Picasso中的消息队列
     Action action = new BitmapTargetAction(picasso, target, request, errorDrawable, errorResId);
     picasso.enqueueAndSubmit(action);
   }

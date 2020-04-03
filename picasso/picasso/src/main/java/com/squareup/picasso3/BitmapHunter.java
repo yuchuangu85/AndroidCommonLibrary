@@ -46,6 +46,9 @@ import static com.squareup.picasso3.Utils.VERB_TRANSFORMED;
 import static com.squareup.picasso3.Utils.getLogIdsForHunter;
 import static com.squareup.picasso3.Utils.log;
 
+/**
+ * 获取bitmap的类
+ */
 class BitmapHunter implements Runnable {
   private static final ThreadLocal<StringBuilder> NAME_BUILDER = new ThreadLocal<StringBuilder>() {
     @Override protected StringBuilder initialValue() {
@@ -106,12 +109,14 @@ class BitmapHunter implements Runnable {
         log(OWNER_HUNTER, VERB_EXECUTING, getLogIdsForHunter(this));
       }
 
+      // 获取图片
       result = hunt();
 
       if (result.getBitmap() == null && result.getDrawable() == null) {
         dispatcher.dispatchFailed(this);// 加载失败
       } else {
-        dispatcher.dispatchComplete(this);// 加载完成
+        // 通知调度器图片加载完成
+        dispatcher.dispatchComplete(this);
       }
     } catch (IOException e) {
       exception = e;
@@ -206,6 +211,7 @@ class BitmapHunter implements Runnable {
       }
       transformations.addAll(data.transformations);
 
+      // 通过Transformation转换为需要的图片（比如大小，旋转等）
       result = applyTransformations(picasso, data, transformations, result);
       bitmap = result.getBitmap();
       if (bitmap != null) {

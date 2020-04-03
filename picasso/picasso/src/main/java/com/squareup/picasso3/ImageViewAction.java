@@ -21,6 +21,9 @@ import android.widget.ImageView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
+/**
+ * 调用into方法的时候，如果传入的是ImageView则创建该ImageViewAction
+ */
 class ImageViewAction extends Action {
   @Nullable Callback callback;
   final ImageView target;

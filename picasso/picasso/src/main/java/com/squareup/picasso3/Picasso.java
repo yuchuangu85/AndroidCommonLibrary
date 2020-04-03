@@ -118,12 +118,12 @@ public class Picasso implements LifecycleObserver {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case HUNTER_COMPLETE: {
+                case HUNTER_COMPLETE: {// 获取图片完成
                     BitmapHunter hunter = (BitmapHunter) msg.obj;
                     hunter.picasso.complete(hunter);
                     break;
                 }
-                case REQUEST_BATCH_RESUME:
+                case REQUEST_BATCH_RESUME:// 恢复加载
                     @SuppressWarnings("unchecked") List<Action> batch = (List<Action>) msg.obj;
                     //noinspection ForLoopReplaceableByForEach
                     for (int i = 0, n = batch.size(); i < n; i++) {
@@ -143,13 +143,13 @@ public class Picasso implements LifecycleObserver {
     final List<RequestHandler> requestHandlers;
 
     final Context context;
-    final Dispatcher dispatcher;
+    final Dispatcher dispatcher;// 调度器
     final Call.Factory callFactory;
     private final @Nullable
-    okhttp3.Cache closeableCache;
-    final PlatformLruCache cache;
+    okhttp3.Cache closeableCache;// disk缓存
+    final PlatformLruCache cache;// memory缓存
     final Stats stats;
-    final Map<Object, Action> targetToAction;
+    final Map<Object, Action> targetToAction;// Action集合
     final Map<ImageView, DeferredRequestCreator> targetToDeferredRequestCreator;
     @Nullable
     final Bitmap.Config defaultBitmapConfig;
@@ -518,6 +518,7 @@ public class Picasso implements LifecycleObserver {
 
     /**
      * Stops this instance from accepting further requests.
+     * 关闭该实例的请求
      */
     public void shutdown() {
         if (shutdown) {
@@ -567,6 +568,7 @@ public class Picasso implements LifecycleObserver {
         targetToDeferredRequestCreator.put(view, request);
     }
 
+    // 提交Action到消息队列
     void enqueueAndSubmit(Action action) {
         Object target = action.getTarget();
         // 如果没有该target，则把target放入map中
@@ -609,6 +611,7 @@ public class Picasso implements LifecycleObserver {
         RequestHandler.Result result = hunter.getResult();
 
         if (single != null) {
+            // 将结果传递给Action处理
             deliverAction(result, single, exception);
         }
 
@@ -655,6 +658,7 @@ public class Picasso implements LifecycleObserver {
             targetToAction.remove(action.getTarget());
         }
         if (result != null) {
+            // 传递给对应的Action进行显示
             action.complete(result);
             if (loggingEnabled) {
                 log(OWNER_MAIN, VERB_COMPLETED, action.request.logId(), "from " + result.getLoadedFrom());
@@ -871,7 +875,7 @@ public class Picasso implements LifecycleObserver {
             if (callFactory == null) {
                 File cacheDir = createDefaultCacheDir(context);// 创建缓存空间
                 long maxSize = calculateDiskCacheSize(cacheDir);// 计算最大缓存空间大小
-                // 通过okhttp里的Cache创建缓存
+                // 通过okhttp里的Cache创建存储缓存
                 unsharedCache = new okhttp3.Cache(cacheDir, maxSize);
                 callFactory = new OkHttpClient.Builder()
                         .cache(unsharedCache)

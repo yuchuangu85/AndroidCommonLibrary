@@ -24,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+/**
+ * 调用into方法的时候，如果传入的是RemoteViewsAction则创建该RemoteViewsAction
+ */
 abstract class RemoteViewsAction extends Action {
   @Nullable Callback callback;
   final @DrawableRes int errorResId;
