@@ -11,7 +11,7 @@
 | 项目                     | Github地址                                                   |     版本     | 开发工具 | 是否完成 |
 | ------------------------ | ------------------------------------------------------------ | :----------: | :------: | -------- |
 | EventBus                 | https://github.com/greenrobot/EventBus                       |    3.1.1     |    AS    |          |
-| Picasso                  | https://github.com/square/picasso                            |   2.71828    |    AS    |          |
+| Picasso                  | https://github.com/square/picasso                            |   2.71828    |    AS    |     完成     |
 | Glide                    | https://github.com/bumptech/glide                            |    4.10.0     |    AS    |          |
 | Gson                     | https://github.com/google/gson                               |    2.8.5     |    AS    |          |
 | okio                     | https://github.com/square/okio                               |  1.x(Java)   |   Idea   |          |
