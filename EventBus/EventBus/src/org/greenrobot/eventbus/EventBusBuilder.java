@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
 /**
  * Creates EventBus instances with custom parameters and also allows to install a custom default EventBus instance.
  * Create a new builder using {@link EventBus#builder()}.
+ *
+ * EventBus的配置信息
  */
 public class EventBusBuilder {
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
@@ -92,6 +94,8 @@ public class EventBusBuilder {
      * <p/>
      * However, keep in mind that event posting usually consumes just a small proportion of CPU time inside an app,
      * unless it is posting at high rates, e.g. hundreds/thousands of events per second.
+     *
+     * 是否继承事件，如果继承，发送事件的时候要考虑超类，接口等
      */
     public EventBusBuilder eventInheritance(boolean eventInheritance) {
         this.eventInheritance = eventInheritance;

@@ -35,12 +35,13 @@ public class HandlerPoster extends Handler implements Poster {
     }
 
     public void enqueue(Subscription subscription, Object event) {
+        // 取出最后加入的等待事件，加入队列
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
             queue.enqueue(pendingPost);
             if (!handlerActive) {
                 handlerActive = true;
-                if (!sendMessage(obtainMessage())) {
+                if (!sendMessage(obtainMessage())) {// 发送消息
                     throw new EventBusException("Could not send handler message");
                 }
             }
@@ -53,8 +54,9 @@ public class HandlerPoster extends Handler implements Poster {
         try {
             long started = SystemClock.uptimeMillis();
             while (true) {
+                // 出队列
                 PendingPost pendingPost = queue.poll();
-                if (pendingPost == null) {
+                if (pendingPost == null) {// 检测两次，都为空，则停止
                     synchronized (this) {
                         // Check again, this time in synchronized
                         pendingPost = queue.poll();
@@ -64,8 +66,10 @@ public class HandlerPoster extends Handler implements Poster {
                         }
                     }
                 }
+                // 直接调用事件接收方法
                 eventBus.invokeSubscriber(pendingPost);
                 long timeInMethod = SystemClock.uptimeMillis() - started;
+                // 处理消息处理事件大于最大允许的时间
                 if (timeInMethod >= maxMillisInsideHandleMessage) {
                     if (!sendMessage(obtainMessage())) {
                         throw new EventBusException("Could not send handler message");

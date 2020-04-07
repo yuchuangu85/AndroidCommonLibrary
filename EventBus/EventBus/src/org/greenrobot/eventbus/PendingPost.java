@@ -22,8 +22,11 @@ final class PendingPost {
     // 静态变量，等待消息列表
     private final static List<PendingPost> pendingPostPool = new ArrayList<PendingPost>();
 
+    // 事件
     Object event;
+    // 封装了订阅者和对应订阅方法的对象
     Subscription subscription;
+    // 下一个事件
     PendingPost next;
 
     private PendingPost(Object event, Subscription subscription) {
@@ -31,8 +34,9 @@ final class PendingPost {
         this.subscription = subscription;
     }
 
+    // 如果等待池中存在空闲PendingPost返回，如果没有返回一个新的
     static PendingPost obtainPendingPost(Subscription subscription, Object event) {
-        synchronized (pendingPostPool) {
+        synchronized (pendingPostPool) {// 等待池中有，从后面开始取等待事件
             int size = pendingPostPool.size();
             if (size > 0) {
                 PendingPost pendingPost = pendingPostPool.remove(size - 1);

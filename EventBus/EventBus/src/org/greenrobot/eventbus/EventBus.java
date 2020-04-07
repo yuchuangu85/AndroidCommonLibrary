@@ -32,6 +32,10 @@ import java.util.logging.Level;
  * 2.发送事件
  * 3.取消注册事件
  * <p>
+ * 参考：
+ * https://www.jianshu.com/p/d9516884dbd4
+ * https://www.jianshu.com/p/56540e07416a
+ * <p>
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
  * bus, which delivers it to subscribers that have a matching handler method for the event type. To receive events,
  * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered, subscribers
@@ -192,7 +196,7 @@ public class EventBus {
             }
         }
 
-        // 根据订阅者对象缓存订阅方法参数类型
+        // 根据订阅者对象缓存订阅方法参数类型集合
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
             subscribedEvents = new ArrayList<>();
@@ -201,21 +205,23 @@ public class EventBus {
         subscribedEvents.add(eventType);
 
         if (subscriberMethod.sticky) {// 粘性订阅者，注册时如果有粘性事件，就能接收到粘性事件
-            if (eventInheritance) {
+            if (eventInheritance) {// 如果继承事件
                 // Existing sticky events of all subclasses of eventType have to be considered.
                 // Note: Iterating over all events may be inefficient with lots of sticky events,
                 // thus data structure should be changed to allow a more efficient lookup
                 // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
                 Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
                 for (Map.Entry<Class<?>, Object> entry : entries) {
-                    Class<?> candidateEventType = entry.getKey();
-                    // 判断两个类或者两个接口，或者超类或者超接口是否相同
+                    Class<?> candidateEventType = entry.getKey();// 已注册的事件类型
+                    // isAssignableFrom方法确定此Class对象所表示的类或接口是不一样的，或者说是一个超类或超接口，
+                    // 由指定的Class参数所表示类或接口。
                     if (eventType.isAssignableFrom(candidateEventType)) {
+                        // 获取粘性事件
                         Object stickyEvent = entry.getValue();
                         checkPostStickyEventToSubscription(newSubscription, stickyEvent);
                     }
                 }
-            } else {// 如果有粘性事件，先发一个
+            } else {// 如果不继承粘性事件，只查找自己的粘性事件
                 Object stickyEvent = stickyEvents.get(eventType);
                 checkPostStickyEventToSubscription(newSubscription, stickyEvent);
             }
@@ -284,6 +290,7 @@ public class EventBus {
 
     /**
      * Posts the given event to the event bus.
+     * 发送事件
      */
     public void post(Object event) {
         // 获取当前的发布线程状态
@@ -300,7 +307,7 @@ public class EventBus {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
-                while (!eventQueue.isEmpty()) {// 消息队列不为空，循环发送所有消息
+                while (!eventQueue.isEmpty()) {// 消息队列不为空，遍历发送所有消息
                     postSingleEvent(eventQueue.remove(0), postingState);
                 }
             } finally {
@@ -334,11 +341,12 @@ public class EventBus {
     }
 
     /**
+     * 发送粘性事件
      * Posts the given event to the event bus and holds on to the event (because it is sticky). The most recent sticky
      * event of an event's type is kept in memory for future access by subscribers using {@link Subscribe#sticky()}.
      */
     public void postSticky(Object event) {
-        synchronized (stickyEvents) {
+        synchronized (stickyEvents) {// 放入粘性事件缓存
             stickyEvents.put(event.getClass(), event);
         }
         // Should be posted after it is putted, in case the subscriber wants to remove immediately
@@ -414,19 +422,20 @@ public class EventBus {
 
     // 发送单个事件
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
+        // 获取事件的class对象
         Class<?> eventClass = event.getClass();
-        boolean subscriptionFound = false;
-        if (eventInheritance) {
+        boolean subscriptionFound = false;// 是否能够找到对应的事件缓存
+        if (eventInheritance) {// 继承事件，要处理超类的事件
             List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
                 Class<?> clazz = eventTypes.get(h);
                 subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
             }
-        } else {
+        } else {// 如果不继承只处理自己的事件
             subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
         }
-        if (!subscriptionFound) {
+        if (!subscriptionFound) {// 没有找到，则表示还没有注册该事件
             if (logNoSubscriberMessages) {
                 logger.log(Level.FINE, "No subscribers registered for event " + eventClass);
             }
@@ -437,9 +446,10 @@ public class EventBus {
         }
     }
 
+    // 根据类型发送事件
     private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
         CopyOnWriteArrayList<Subscription> subscriptions;
-        synchronized (this) {
+        synchronized (this) {// 查找事件类型对应的所有事件缓存列表
             subscriptions = subscriptionsByEventType.get(eventClass);
         }
         if (subscriptions != null && !subscriptions.isEmpty()) {
@@ -448,6 +458,7 @@ public class EventBus {
                 postingState.subscription = subscription;
                 boolean aborted = false;
                 try {
+                    // 发送事件
                     postToSubscription(subscription, event, postingState.isMainThread);
                     aborted = postingState.canceled;
                 } finally {
@@ -473,17 +484,17 @@ public class EventBus {
      */
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         switch (subscription.subscriberMethod.threadMode) {
-            case POSTING:
+            case POSTING:// 不切换线程
                 invokeSubscriber(subscription, event);
                 break;
-            case MAIN:
+            case MAIN:// 如果是主线程，不切换，如果不是，切换到主线程
                 if (isMainThread) {
                     invokeSubscriber(subscription, event);
                 } else {
                     mainThreadPoster.enqueue(subscription, event);
                 }
                 break;
-            case MAIN_ORDERED:
+            case MAIN_ORDERED:// 主线程调用顺序进行
                 if (mainThreadPoster != null) {
                     mainThreadPoster.enqueue(subscription, event);
                 } else {
@@ -491,14 +502,14 @@ public class EventBus {
                     invokeSubscriber(subscription, event);
                 }
                 break;
-            case BACKGROUND:
+            case BACKGROUND:// 如果是主线程切换到子线程调用事件，如果不是直接调用
                 if (isMainThread) {
                     backgroundPoster.enqueue(subscription, event);
                 } else {
                     invokeSubscriber(subscription, event);
                 }
                 break;
-            case ASYNC:
+            case ASYNC:// 切换到子线程处理事件
                 asyncPoster.enqueue(subscription, event);
                 break;
             default:
@@ -508,6 +519,7 @@ public class EventBus {
 
     /**
      * Looks up all Class objects including super classes and interfaces. Should also work for interfaces.
+     * 查找所有事件类的类型列表包含超类和接口
      */
     private static List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
         synchronized (eventTypesCache) {
@@ -517,7 +529,9 @@ public class EventBus {
                 Class<?> clazz = eventClass;
                 while (clazz != null) {
                     eventTypes.add(clazz);
+                    // 添加该类所有接口
                     addInterfaces(eventTypes, clazz.getInterfaces());
+                    // 获取超类
                     clazz = clazz.getSuperclass();
                 }
                 eventTypesCache.put(eventClass, eventTypes);
@@ -593,10 +607,15 @@ public class EventBus {
      * For ThreadLocal, much faster to set (and get multiple values).
      */
     final static class PostingThreadState {
+        // 消息队列
         final List<Object> eventQueue = new ArrayList<>();
+        // 是否正在发送消息
         boolean isPosting;
+        // 是否是主线程
         boolean isMainThread;
+        // 订阅者信息
         Subscription subscription;
+        // 事件
         Object event;
         boolean canceled;
     }

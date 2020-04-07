@@ -37,9 +37,11 @@ final class BackgroundPoster implements Runnable, Poster {
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
+            // 入队
             queue.enqueue(pendingPost);
             if (!executorRunning) {
                 executorRunning = true;
+                // 线程池执行
                 eventBus.getExecutorService().execute(this);
             }
         }
@@ -50,6 +52,7 @@ final class BackgroundPoster implements Runnable, Poster {
         try {
             try {
                 while (true) {
+                    // 获取事件
                     PendingPost pendingPost = queue.poll(1000);
                     if (pendingPost == null) {
                         synchronized (this) {
@@ -61,6 +64,7 @@ final class BackgroundPoster implements Runnable, Poster {
                             }
                         }
                     }
+                    // 直接调用事件方法
                     eventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
