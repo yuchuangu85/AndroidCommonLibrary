@@ -9,8 +9,8 @@
 ## 1.项目信息表格
 
 | 项目                     | Github地址                                                   |     版本     | 开发工具 | 是否完成 |
-| ------------------------ | ------------------------------------------------------------ | :----------: | :------: | -------- |
-| EventBus                 | https://github.com/greenrobot/EventBus                       |    3.1.1     |    AS    |          |
+| ------------------------ | ------------------------------------------------------------ | :----------: | :------: | :------: |
+| EventBus                 | https://github.com/greenrobot/EventBus                       |    3.1.1     |    AS    | 完成 |
 | Picasso                  | https://github.com/square/picasso                            |   2.71828    |    AS    |     完成     |
 | Glide                    | https://github.com/bumptech/glide                            |    4.10.0     |    AS    |          |
 | Gson                     | https://github.com/google/gson                               |    2.8.5     |    AS    |          |
@@ -49,7 +49,7 @@
   
 
 ##  4.结构流程图
-  
+
 ![](/media/Picasso/Picasso.jpg)
 
 
