@@ -17,17 +17,18 @@
 package org.greenrobot.eventbus;
 
 final class PendingPostQueue {
-    private PendingPost head;
-    private PendingPost tail;
+    private PendingPost head;// 头
+    private PendingPost tail;// 尾
 
+    // 入队
     synchronized void enqueue(PendingPost pendingPost) {
         if (pendingPost == null) {
             throw new NullPointerException("null cannot be enqueued");
         }
-        if (tail != null) {
-            tail.next = pendingPost;
-            tail = pendingPost;
-        } else if (head == null) {
+        if (tail != null) {// 尾部不为null
+            tail.next = pendingPost;// 放到最后
+            tail = pendingPost;// 尾部引用后移，指向最后一个
+        } else if (head == null) {// 首次加入，队列头部和尾部都指向同一个消息
             head = tail = pendingPost;
         } else {
             throw new IllegalStateException("Head present, but no tail");
@@ -35,17 +36,27 @@ final class PendingPostQueue {
         notifyAll();
     }
 
+    // 出队列（从头部开始）
     synchronized PendingPost poll() {
         PendingPost pendingPost = head;
         if (head != null) {
             head = head.next;
-            if (head == null) {
+            if (head == null) {// 只有一个，清空队列
                 tail = null;
             }
         }
         return pendingPost;
     }
 
+    /**
+     * 出队列
+     *
+     * @param maxMillisToWait 最大等待时间
+     *
+     * @return 消息
+     *
+     * @throws InterruptedException
+     */
     synchronized PendingPost poll(int maxMillisToWait) throws InterruptedException {
         if (head == null) {
             wait(maxMillisToWait);

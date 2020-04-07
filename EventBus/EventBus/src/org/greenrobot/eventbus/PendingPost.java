@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class PendingPost {
+    // 静态变量，等待消息列表
     private final static List<PendingPost> pendingPostPool = new ArrayList<PendingPost>();
 
     Object event;

@@ -27,6 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
 /**
+ * 主要是三个部分：
+ * 1.注册事件
+ * 2.发送事件
+ * 3.取消注册事件
+ * <p>
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
  * bus, which delivers it to subscribers that have a matching handler method for the event type. To receive events,
  * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered, subscribers
@@ -136,6 +141,8 @@ public class EventBus {
     }
 
     /**
+     * 1.注册事件
+     * <p>
      * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
      * are no longer interested in receiving events.
      * <p/>
@@ -144,10 +151,13 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
+        // 获取当前订阅者的class对象
         Class<?> subscriberClass = subscriber.getClass();
-        // 根据注解查找注册订阅者中的订阅方法
+        // 根据注解(@Subscribe)查找注册订阅者中的订阅方法(有public修饰符、一个参数的方法)
+        // SubscriberMethod封装了订阅方法的相关信息：Method对象、线程模式、事件类型、优先级、是否是粘性事等
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         synchronized (this) {
+            // 循环遍历解析的所有方法完成注册
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
                 subscribe(subscriber, subscriberMethod);
             }
@@ -242,7 +252,7 @@ public class EventBus {
         List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions != null) {
             int size = subscriptions.size();
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {// 从列表中移除
                 Subscription subscription = subscriptions.get(i);
                 if (subscription.subscriber == subscriber) {
                     subscription.active = false;
@@ -255,9 +265,12 @@ public class EventBus {
     }
 
     /**
+     * 3.取消注册
+     * <p>
      * Unregisters the given subscriber from all event classes.
      */
     public synchronized void unregister(Object subscriber) {
+        // 关注者形参类型列表
         List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
         if (subscribedTypes != null) {
             for (Class<?> eventType : subscribedTypes) {
