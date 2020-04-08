@@ -189,12 +189,11 @@ final class RequestFactory {
         Builder(Retrofit retrofit, Method method) {
             this.retrofit = retrofit;
             this.method = method;
-            // 返回方法的注解数组
+            // 返回请求方法的注解数组
             this.methodAnnotations = method.getAnnotations();
-            // 返回的是参数的参数化的类型,里面的带有实际的参数类型
+            // 返回的是请求方法中形参的类型数组
             this.parameterTypes = method.getGenericParameterTypes();
-            // 参数注解数组，参数里面如果不是参数化类型的话，那么 getGenericParameterTypes
-            // 就返回与 getParameterTypes 一样
+            // 返回的是方法参数的注解数组，如果一个注解对应多个参数，则会返回一个嵌套数组
             this.parameterAnnotationsArray = method.getParameterAnnotations();
         }
 
@@ -365,7 +364,7 @@ final class RequestFactory {
                 int p, Type parameterType, @Nullable Annotation[] annotations, boolean allowContinuation) {
             ParameterHandler<?> result = null;
             if (annotations != null) {
-                // 循环某一个参数上的注解，因为一个参数除了使用Retrofit的注解标注以外，也有可能使用其他注解标注，
+                // 遍历某一个参数上的注解，因为一个参数除了使用Retrofit的注解标注以外，也有可能使用其他注解标注，
                 // 这里只处理retrofit自己的注解，如果一个参数上存在两个以上的retrofit注解，则会报错
                 for (Annotation annotation : annotations) {
                     ParameterHandler<?> annotationAction =

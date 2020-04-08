@@ -37,14 +37,14 @@ abstract class ServiceMethod<T> {
         RequestFactory requestFactory = RequestFactory.parseAnnotations(retrofit, method);
 
         /**
-         * 获取返回类型，例如下面正常返回{Call<CardConfigInfo>}
+         * 获取请求方法的返回类型，例如下面正常返回{Call<CardConfigInfo>}
          *
          * @FormUrlEncoded
          * @Headers("Content-Type:application/x-www-form-urlencoded")
-         * @POST("/negscr/home/cardConfig?")
-         * Call<CardConfigInfo> getCardConfigList(@Field("model") String model, @Field("version") String version);
+         * @POST("category/{cat}/")
+         * Call<List<Item>> categoryList(@Path("cat") String a, @Query("page") int b);
          *
-         * 这里returnType是：Call<CardConfigInfo>
+         * 这里returnType是：Call<List<Item>>
          */
         Type returnType = method.getGenericReturnType();
         if (Utils.hasUnresolvableType(returnType)) {

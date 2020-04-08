@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
  * {@linkplain Retrofit.Builder#addCallAdapterFactory(Factory) installed} into the {@link Retrofit}
  * instance.
  * <p>
- * 适配器接口
+ * 网络请求的适配器接口
  */
 public interface CallAdapter<R, T> {
     /**

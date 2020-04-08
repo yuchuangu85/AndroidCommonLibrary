@@ -139,8 +139,8 @@ abstract class HttpServiceMethod<ResponseT, ReturnT> extends ServiceMethod<Retur
     }
 
     private final RequestFactory requestFactory;
-    private final okhttp3.Call.Factory callFactory;
-    private final Converter<ResponseBody, ResponseT> responseConverter;
+    private final okhttp3.Call.Factory callFactory;// OkHttpClient
+    private final Converter<ResponseBody, ResponseT> responseConverter;// 请求相应转换器
 
     HttpServiceMethod(RequestFactory requestFactory, okhttp3.Call.Factory callFactory,
                       Converter<ResponseBody, ResponseT> responseConverter) {

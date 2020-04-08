@@ -41,8 +41,8 @@ import retrofit2.http.QueryMap;
  * into the {@link Retrofit} instance.
  * <p>
  * 转化器接口(将okhttp返回的原始结果转换成需要的结果，例如：就返回的String字符串通过Gson转换器转换成需要的对象)
- * F：来源类型
- * T：目标类型
+ * F：来源类型(From)
+ * T：目标类型(To)
  */
 public interface Converter<F, T> {
     @Nullable

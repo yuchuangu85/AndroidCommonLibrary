@@ -92,6 +92,8 @@ import static java.util.Collections.unmodifiableList;
  * https://blog.csdn.net/shusheng0007/article/details/81335264
  */
 public final class Retrofit {
+
+    // 缓存解析出来的方法
     private final Map<Method, ServiceMethod<?>> serviceMethodCache = new ConcurrentHashMap<>();
 
     // 负责创建 HTTP 请求，HTTP 请求被抽象为了 okhttp3.Call 类，它表示一个已经准备好，
@@ -120,7 +122,7 @@ public final class Retrofit {
     final List<Converter.Factory> converterFactories;
     /**
      * 添加默认CallAdapter.Factory
-     * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
+     * 1.Android平台 sdk>=24 添加 CompletableFutureCallAdapterFactory 和 DefaultCallAdapterFactory
      * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
      * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
      * <p>
@@ -136,8 +138,11 @@ public final class Retrofit {
      * ScalaCallAdapterFactory：get返回-ResponseCallAdapter
      */
     final List<CallAdapter.Factory> callAdapterFactories;
+
+    // 用于执行回调 Android中默认是 MainThreadExecutor
     final @Nullable
     Executor callbackExecutor;
+    // 是否需要立即解析接口中的方法
     final boolean validateEagerly;
 
     Retrofit(okhttp3.Call.Factory callFactory, HttpUrl baseUrl,
@@ -198,6 +203,8 @@ public final class Retrofit {
      * }
      * </pre>
      * 代理模式：https://a.codekk.com/detail/Android/Caij/%E5%85%AC%E5%85%B1%E6%8A%80%E6%9C%AF%E7%82%B9%E4%B9%8B%20Java%20%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86
+     * <p>
+     * 这里泛型T就是代理类service的Class类型（上面实例中的CategoryService）
      */
     @SuppressWarnings("unchecked") // Single-interface proxy creation guarded by parameter safety.
     public <T> T create(final Class<T> service) {
@@ -221,17 +228,19 @@ public final class Retrofit {
                     private final Object[] emptyArgs = new Object[0];
 
                     /**
-                     * 调用代理对象的每个函数实际最终都是调用了InvocationHandler的invoke函数。
+                     * 调用代理对象的每个函数(CategoryService.categoryList())实际最终都是
+                     * 调用了InvocationHandler的invoke函数。在这个方法中可以执行一些操作
+                     * (这里是解析方法的注解参数等)，通过这个方法真正的执行我们编写的接口中的网络请求。
                      *
                      * 我们使用Proxy类的newProxyInstance()方法生成的代理对象proxy去调用了
-                     * proxy.categoryList();操作，那么系统就会将此方法分发给invoke().
+                     * ((CategoryService)proxy).categoryList();操作，那么系统就会将此方法分发给invoke().
                      * 其中proxy对象的类是系统帮我们动态生产的，其实现了我们的业务接口CategoryService。
                      *
                      * 实例
                      × <pre>
                      * public interface CategoryService {
                      *   @POST("category/{cat}/")
-                     *   Call<List < Item>> categoryList(@Path("cat") String a, @Query("page") int b);
+                     *   Call<List<Item>> categoryList(@Path("cat") String a, @Query("page") int b);
                      * }
                      * </pre>
                      * @param proxy  表示通过 Proxy.newProxyInstance() 生成的代理类对象。--CategoryService
@@ -251,10 +260,11 @@ public final class Retrofit {
                             // invoke（调用）就是调用Method类代表的方法
                             return method.invoke(this, args);
                         }
-                        if (platform.isDefaultMethod(method)) {// 接口中声明为default的方法，非接口方法
+                        // 为了兼容 Java8 平台，Android 中不会执行
+                        if (platform.isDefaultMethod(method)) {
                             return platform.invokeDefaultMethod(method, service, proxy, args);
                         }
-                        /*
+                        /**
                          * loadServiceMethod返回的是CallAdapted（HttpServiceMethod）
                          * 这里调用invoke方法实际上调用的是CallAdapted的invoke方法也就是父类
                          * （HttpServiceMethod）的invoke方法，然后返回CallAdapter的工厂：
@@ -262,6 +272,8 @@ public final class Retrofit {
                          * Android平台 sdk<24 只添加DefaultCallAdapterFactory
                          * <p>
                          * 提交一个http请求，返回我们设定的类型的结果，例如Call<User>
+                         * <p>
+                         * 这里loadServiceMethod方法返回的是HttpServiceMethod
                          */
                         return loadServiceMethod(method).invoke(args != null ? args : emptyArgs);
                     }
@@ -289,6 +301,7 @@ public final class Retrofit {
             Collections.addAll(check, candidate.getInterfaces());
         }
 
+        // 提前解析方法
         if (validateEagerly) {
             Platform platform = Platform.get();
             for (Method method : service.getDeclaredMethods()) {
@@ -693,6 +706,8 @@ public final class Retrofit {
 
         /**
          * Add converter factory for serialization and deserialization of objects.
+         * <p>
+         * 添加返回结果转换器
          */
         public Builder addConverterFactory(Converter.Factory factory) {
             converterFactories.add(Objects.requireNonNull(factory, "factory == null"));
@@ -702,6 +717,8 @@ public final class Retrofit {
         /**
          * Add a call adapter factory for supporting service method return types other than {@link
          * Call}.
+         * <p>
+         * 添加数据请求适配器
          */
         public Builder addCallAdapterFactory(CallAdapter.Factory factory) {
             callAdapterFactories.add(Objects.requireNonNull(factory, "factory == null"));
@@ -760,8 +777,8 @@ public final class Retrofit {
                 callFactory = new OkHttpClient();
             }
 
-            // 可以设置Executor，一般我们都不设置，直接使用系统默认的，对于Android来说就是一个
-            // 使用Handler切换到主线程的executor
+            // 可以设置Executor，一般我们都不设置，直接使用系统默认的
+            // Android 中返回的是 MainThreadExecutor(就是一个使用Handler切换到主线程的executor)
             Executor callbackExecutor = this.callbackExecutor;
             if (callbackExecutor == null) {// 没有手动设置线程池
                 // 获取默认线程池：Android平台为MainThreadExecutor，Java平台为null
@@ -772,7 +789,7 @@ public final class Retrofit {
             // 添加手动设置的请求适配器工厂（CallAdapter.Factory），先添加用户的，然后添加默认的
             List<CallAdapter.Factory> callAdapterFactories = new ArrayList<>(this.callAdapterFactories);
             /**
-             * 添加默认CallAdapter.Factory
+             * 添加默认CallAdapter.Factory(网络请求适配器工厂)
              * 1.Android平台 sdk>=24 添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
              * 2.Android平台 sdk<24 只添加DefaultCallAdapterFactory
              * 3.java平台添加CompletableFutureCallAdapterFactory和DefaultCallAdapterFactory
