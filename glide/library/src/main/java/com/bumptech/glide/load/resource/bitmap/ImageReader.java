@@ -2,8 +2,10 @@ package com.bumptech.glide.load.resource.bitmap;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.bumptech.glide.load.ImageHeaderParser;
 import com.bumptech.glide.load.ImageHeaderParserUtils;
 import com.bumptech.glide.load.data.DataRewinder;
@@ -65,6 +67,7 @@ interface ImageReader {
     }
   }
 
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   final class ParcelFileDescriptorImageReader implements ImageReader {
     private final ArrayPool byteArrayPool;
     private final List<ImageHeaderParser> parsers;

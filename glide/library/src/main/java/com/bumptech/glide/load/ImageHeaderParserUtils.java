@@ -1,7 +1,9 @@
 package com.bumptech.glide.load;
 
+import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.bumptech.glide.load.ImageHeaderParser.ImageType;
 import com.bumptech.glide.load.data.ParcelFileDescriptorRewinder;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
@@ -71,6 +73,7 @@ public final class ImageHeaderParserUtils {
   }
 
   @NonNull
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   public static ImageType getType(
       @NonNull List<ImageHeaderParser> parsers,
       @NonNull final ParcelFileDescriptorRewinder parcelFileDescriptorRewinder,
@@ -83,16 +86,19 @@ public final class ImageHeaderParserUtils {
           public ImageType getType(ImageHeaderParser parser) throws IOException {
             // Wrap the FileInputStream into a RecyclableBufferedInputStream to optimize I/O
             // performance
-            InputStream is =
-                new RecyclableBufferedInputStream(
-                    new FileInputStream(
-                        parcelFileDescriptorRewinder.rewindAndGet().getFileDescriptor()),
-                    byteArrayPool);
+            InputStream is = null;
             try {
+              is =
+                  new RecyclableBufferedInputStream(
+                      new FileInputStream(
+                          parcelFileDescriptorRewinder.rewindAndGet().getFileDescriptor()),
+                      byteArrayPool);
               return parser.getType(is);
             } finally {
               try {
-                is.close();
+                if (is != null) {
+                  is.close();
+                }
               } catch (IOException e) {
                 // Ignored.
               }
@@ -147,6 +153,7 @@ public final class ImageHeaderParserUtils {
         });
   }
 
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   public static int getOrientation(
       @NonNull List<ImageHeaderParser> parsers,
       @NonNull final ParcelFileDescriptorRewinder parcelFileDescriptorRewinder,
@@ -159,16 +166,19 @@ public final class ImageHeaderParserUtils {
           public int getOrientation(ImageHeaderParser parser) throws IOException {
             // Wrap the FileInputStream into a RecyclableBufferedInputStream to optimize I/O
             // performance
-            InputStream is =
-                new RecyclableBufferedInputStream(
-                    new FileInputStream(
-                        parcelFileDescriptorRewinder.rewindAndGet().getFileDescriptor()),
-                    byteArrayPool);
+            InputStream is = null;
             try {
+              is =
+                  new RecyclableBufferedInputStream(
+                      new FileInputStream(
+                          parcelFileDescriptorRewinder.rewindAndGet().getFileDescriptor()),
+                      byteArrayPool);
               return parser.getOrientation(is, byteArrayPool);
             } finally {
               try {
-                is.close();
+                if (is != null) {
+                  is.close();
+                }
               } catch (IOException e) {
                 // Ignored.
               }

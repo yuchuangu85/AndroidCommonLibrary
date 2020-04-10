@@ -10,13 +10,14 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import com.bumptech.glide.GlideContext;
 import com.bumptech.glide.Priority;
@@ -43,7 +44,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 
+@LooperMode(LEGACY)
 @RunWith(RobolectricTestRunner.class)
 @Config(
     sdk = 18,
@@ -351,7 +354,7 @@ public class EngineTest {
   public void testResourceIsRecycledIfNotCacheableWhenReleased() {
     when(harness.resource.isMemoryCacheable()).thenReturn(false);
     harness.getEngine().onResourceReleased(harness.cacheKey, harness.resource);
-    verify(harness.resourceRecycler).recycle(eq(harness.resource));
+    verify(harness.resourceRecycler).recycle(eq(harness.resource), eq(false));
   }
 
   @Test
@@ -372,7 +375,7 @@ public class EngineTest {
   @Test
   public void testResourceIsRecycledWhenRemovedFromCache() {
     harness.getEngine().onResourceRemoved(harness.resource);
-    verify(harness.resourceRecycler).recycle(eq(harness.resource));
+    verify(harness.resourceRecycler).recycle(eq(harness.resource), eq(true));
   }
 
   @Test

@@ -10,6 +10,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.ImageHeaderParser;
 import com.bumptech.glide.load.ImageHeaderParser.ImageType;
@@ -211,6 +212,7 @@ public final class Downsampler {
         callbacks);
   }
 
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   public Resource<Bitmap> decode(
       ParcelFileDescriptor parcelFileDescriptor, int outWidth, int outHeight, Options options)
       throws IOException {
