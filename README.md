@@ -12,7 +12,7 @@
 | ------------------------ | ------------------------------------------------------------ | :----------: | :------: | :------: |
 | EventBus                 | https://github.com/greenrobot/EventBus                       |    3.1.1     |    AS    | 完成 |
 | Picasso                  | https://github.com/square/picasso                            |   2.71828    |    AS    |     完成     |
-| Glide                    | https://github.com/bumptech/glide                            |    4.10.0     |    AS    |          |
+| Glide                    | https://github.com/bumptech/glide                            |    4.11.0     |    AS    |          |
 | Gson                     | https://github.com/google/gson                               |    2.8.5     |    AS    |          |
 | okio                     | https://github.com/square/okio                               |  1.x(Java)   |   Idea   |          |
 | okhttp                   | https://github.com/square/okhttp                             | 3.14.x(Java) |   Idea   |          |
