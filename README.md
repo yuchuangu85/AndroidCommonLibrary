@@ -54,7 +54,27 @@
 
 ##  5.结构流程图
 
-![](/media/Picasso/Picasso.jpg)
+![EventBus](./media/EventBus.jpg)
+
+<center>EventBus</center>
+
+
+
+![](./media/Picasso.jpg)
+
+<center>Picasso</center>
+
+![Retrofit](./media/retrofit.jpg)
+
+<center>Retrofit</center>
+
+
+
+![](./media/leakcanary.png)
+
+<center>leakcanary</center>
+
+
 
 
 
