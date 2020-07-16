@@ -32,6 +32,11 @@ public final class AndroidRefWatcherBuilder extends RefWatcherBuilder<AndroidRef
     /**
      * Sets a custom {@link AbstractAnalysisResultService} to listen to analysis results. This
      * overrides any call to {@link #heapDumpListener(HeapDump.Listener)}.
+     * <p>
+     * isAssignableFrom()方法是判断是否为某个类的父类，instanceof关键字是判断是否某个类的子类。
+     * 使用方法：
+     * 父类.class.isAssignableFrom(子类.class)
+     * 子类实例 instanceof 父类类型
      */
     public @NonNull
     AndroidRefWatcherBuilder listenerServiceClass(

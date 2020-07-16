@@ -67,9 +67,15 @@ public class RequestManagerRetriever implements Handler.Callback {
   private final ArrayMap<View, Fragment> tempViewToSupportFragment = new ArrayMap<>();
   private final ArrayMap<View, android.app.Fragment> tempViewToFragment = new ArrayMap<>();
   private final Bundle tempBundle = new Bundle();
+  // This is really misplaced here, but to put it anywhere else means duplicating all of the
+  // Fragment/Activity extraction logic that already exists here. It's gross, but less likely to
+  // break.
+  @Nullable private final FirstFrameWaiter firstFrameWaiter;
 
-  public RequestManagerRetriever(@Nullable RequestManagerFactory factory) {
+  public RequestManagerRetriever(
+      @Nullable RequestManagerFactory factory, boolean addFirstFrameWaiter) {
     this.factory = factory != null ? factory : DEFAULT_FACTORY;
+    firstFrameWaiter = addFirstFrameWaiter ? new FirstFrameWaiter() : null;
     handler = new Handler(Looper.getMainLooper(), this /* Callback */);
   }
 
@@ -120,12 +126,19 @@ public class RequestManagerRetriever implements Handler.Callback {
     return getApplicationManager(context);
   }
 
+  private void maybeRegisterFirstFrameWaiter(@NonNull Activity activity) {
+    if (firstFrameWaiter != null) {
+      firstFrameWaiter.registerSelf(activity);
+    }
+  }
+
   @NonNull
   public RequestManager get(@NonNull FragmentActivity activity) {
     if (Util.isOnBackgroundThread()) {
       return get(activity.getApplicationContext());
     } else {
       assertNotDestroyed(activity);
+      maybeRegisterFirstFrameWaiter(activity);
       FragmentManager fm = activity.getSupportFragmentManager();
       return supportFragmentGet(activity, fm, /*parentHint=*/ null, isActivityVisible(activity));
     }
@@ -139,6 +152,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (Util.isOnBackgroundThread()) {
       return get(fragment.getContext().getApplicationContext());
     } else {
+      maybeRegisterFirstFrameWaiter(fragment.getActivity());
       FragmentManager fm = fragment.getChildFragmentManager();
       return supportFragmentGet(fragment.getContext(), fm, fragment, fragment.isVisible());
     }
@@ -149,8 +163,11 @@ public class RequestManagerRetriever implements Handler.Callback {
   public RequestManager get(@NonNull Activity activity) {
     if (Util.isOnBackgroundThread()) {
       return get(activity.getApplicationContext());
+    } else if (activity instanceof FragmentActivity) {
+      return get((FragmentActivity) activity);
     } else {
       assertNotDestroyed(activity);
+      maybeRegisterFirstFrameWaiter(activity);
       android.app.FragmentManager fm = activity.getFragmentManager();
       return fragmentGet(activity, fm, /*parentHint=*/ null, isActivityVisible(activity));
     }
@@ -330,6 +347,7 @@ public class RequestManagerRetriever implements Handler.Callback {
     if (Util.isOnBackgroundThread() || Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
       return get(fragment.getActivity().getApplicationContext());
     } else {
+      maybeRegisterFirstFrameWaiter(fragment.getActivity());
       android.app.FragmentManager fm = fragment.getChildFragmentManager();
       return fragmentGet(fragment.getActivity(), fm, fragment, fragment.isVisible());
     }
@@ -339,25 +357,19 @@ public class RequestManagerRetriever implements Handler.Callback {
   @Deprecated
   @NonNull
   RequestManagerFragment getRequestManagerFragment(Activity activity) {
-    return getRequestManagerFragment(
-        activity.getFragmentManager(), /*parentHint=*/ null, isActivityVisible(activity));
+    return getRequestManagerFragment(activity.getFragmentManager(), /*parentHint=*/ null);
   }
 
   @SuppressWarnings("deprecation")
   @NonNull
   private RequestManagerFragment getRequestManagerFragment(
-      @NonNull final android.app.FragmentManager fm,
-      @Nullable android.app.Fragment parentHint,
-      boolean isParentVisible) {
+      @NonNull final android.app.FragmentManager fm, @Nullable android.app.Fragment parentHint) {
     RequestManagerFragment current = (RequestManagerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
     if (current == null) {
       current = pendingRequestManagerFragments.get(fm);
       if (current == null) {
         current = new RequestManagerFragment();
         current.setParentFragmentHint(parentHint);
-        if (isParentVisible) {
-          current.getGlideLifecycle().onStart();
-        }
         pendingRequestManagerFragments.put(fm, current);
         fm.beginTransaction().add(current, FRAGMENT_TAG).commitAllowingStateLoss();
         handler.obtainMessage(ID_REMOVE_FRAGMENT_MANAGER, fm).sendToTarget();
@@ -374,7 +386,7 @@ public class RequestManagerRetriever implements Handler.Callback {
       @NonNull android.app.FragmentManager fm,
       @Nullable android.app.Fragment parentHint,
       boolean isParentVisible) {
-    RequestManagerFragment current = getRequestManagerFragment(fm, parentHint, isParentVisible);
+    RequestManagerFragment current = getRequestManagerFragment(fm, parentHint);
     RequestManager requestManager = current.getRequestManager();
     if (requestManager == null) {
       // TODO(b/27524013): Factor out this Glide.get() call.
@@ -382,16 +394,20 @@ public class RequestManagerRetriever implements Handler.Callback {
       requestManager =
           factory.build(
               glide, current.getGlideLifecycle(), current.getRequestManagerTreeNode(), context);
+      // This is a bit of hack, we're going to start the RequestManager, but not the
+      // corresponding Lifecycle. It's safe to start the RequestManager, but starting the
+      // Lifecycle might trigger memory leaks. See b/154405040
+      if (isParentVisible) {
+        requestManager.onStart();
+      }
       current.setRequestManager(requestManager);
     }
     return requestManager;
   }
 
   @NonNull
-  SupportRequestManagerFragment getSupportRequestManagerFragment(
-      Context context, FragmentManager fragmentManager) {
-    return getSupportRequestManagerFragment(
-        fragmentManager, /*parentHint=*/ null, isActivityVisible(context));
+  SupportRequestManagerFragment getSupportRequestManagerFragment(FragmentManager fragmentManager) {
+    return getSupportRequestManagerFragment(fragmentManager, /*parentHint=*/ null);
   }
 
   private static boolean isActivityVisible(Context context) {
@@ -403,7 +419,7 @@ public class RequestManagerRetriever implements Handler.Callback {
 
   @NonNull
   private SupportRequestManagerFragment getSupportRequestManagerFragment(
-      @NonNull final FragmentManager fm, @Nullable Fragment parentHint, boolean isParentVisible) {
+      @NonNull final FragmentManager fm, @Nullable Fragment parentHint) {
     SupportRequestManagerFragment current =
         (SupportRequestManagerFragment) fm.findFragmentByTag(FRAGMENT_TAG);
     if (current == null) {
@@ -411,9 +427,6 @@ public class RequestManagerRetriever implements Handler.Callback {
       if (current == null) {
         current = new SupportRequestManagerFragment();
         current.setParentFragmentHint(parentHint);
-        if (isParentVisible) {
-          current.getGlideLifecycle().onStart();
-        }
         pendingSupportRequestManagerFragments.put(fm, current);
         fm.beginTransaction().add(current, FRAGMENT_TAG).commitAllowingStateLoss();
         handler.obtainMessage(ID_REMOVE_SUPPORT_FRAGMENT_MANAGER, fm).sendToTarget();
@@ -428,8 +441,7 @@ public class RequestManagerRetriever implements Handler.Callback {
       @NonNull FragmentManager fm,
       @Nullable Fragment parentHint,
       boolean isParentVisible) {
-    SupportRequestManagerFragment current =
-        getSupportRequestManagerFragment(fm, parentHint, isParentVisible);
+    SupportRequestManagerFragment current = getSupportRequestManagerFragment(fm, parentHint);
     RequestManager requestManager = current.getRequestManager();
     if (requestManager == null) {
       // TODO(b/27524013): Factor out this Glide.get() call.
@@ -437,6 +449,12 @@ public class RequestManagerRetriever implements Handler.Callback {
       requestManager =
           factory.build(
               glide, current.getGlideLifecycle(), current.getRequestManagerTreeNode(), context);
+      // This is a bit of hack, we're going to start the RequestManager, but not the
+      // corresponding Lifecycle. It's safe to start the RequestManager, but starting the
+      // Lifecycle might trigger memory leaks. See b/154405040
+      if (isParentVisible) {
+        requestManager.onStart();
+      }
       current.setRequestManager(requestManager);
     }
     return requestManager;
