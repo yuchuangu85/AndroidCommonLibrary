@@ -104,14 +104,14 @@ public final class AndroidRefWatcherBuilder extends RefWatcherBuilder<AndroidRef
             throw new UnsupportedOperationException("buildAndInstall() should only be called once.");
         }
         RefWatcher refWatcher = build();
-        if (refWatcher != DISABLED) {
+        if (refWatcher != DISABLED) {// 不是禁用的
             if (enableDisplayLeakActivity) {
                 LeakCanaryInternals.setEnabledAsync(context, DisplayLeakActivity.class, true);
             }
-            if (watchActivities) {
+            if (watchActivities) {// 监控Activity
                 ActivityRefWatcher.install(context, refWatcher);
             }
-            if (watchFragments) {
+            if (watchFragments) {// 监控Fragment
                 FragmentRefWatcher.Helper.install(context, refWatcher);
             }
         }

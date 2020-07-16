@@ -38,14 +38,14 @@ public final class RefWatcher {
 
     public static final RefWatcher DISABLED = new RefWatcherBuilder<>().build();
 
-    private final WatchExecutor watchExecutor;
-    private final DebuggerControl debuggerControl;
-    private final GcTrigger gcTrigger;
-    private final HeapDumper heapDumper;
-    private final HeapDump.Listener heapdumpListener;
+    private final WatchExecutor watchExecutor; // 执行内存泄漏检测的 Executor
+    private final DebuggerControl debuggerControl;// 用于查询是否在 debug 调试模式下，调试中不会执行内存泄漏检测。
+    private final GcTrigger gcTrigger;// GC 开关，调用系统GC。
+    private final HeapDumper heapDumper;// 用于产生内存泄漏分析用的 dump 文件。即 dump 内存 head。
+    private final HeapDump.Listener heapdumpListener;// 用于分析 dump 文件，生成内存泄漏分析报告。
     private final HeapDump.Builder heapDumpBuilder;
-    private final Set<String> retainedKeys;
-    private final ReferenceQueue<Object> queue;
+    private final Set<String> retainedKeys;// 保存待检测和产生内存泄漏的引用的 key。
+    private final ReferenceQueue<Object> queue; // 用于判断弱引用持有的对象是否被 GC。
 
     RefWatcher(WatchExecutor watchExecutor, DebuggerControl debuggerControl, GcTrigger gcTrigger,
                HeapDumper heapDumper, HeapDump.Listener heapdumpListener, HeapDump.Builder heapDumpBuilder) {
@@ -81,12 +81,15 @@ public final class RefWatcher {
         }
         checkNotNull(watchedReference, "watchedReference");
         checkNotNull(referenceName, "referenceName");
+        //随机生成 watchedReference 的 key 保证其唯一性
         final long watchStartNanoTime = System.nanoTime();
         String key = UUID.randomUUID().toString();
         retainedKeys.add(key);
+        //这个一个弱引用的子类拓展类 用于我们之前所说的 watchedReference 和  queue 的联合使用
         final KeyedWeakReference reference =
                 new KeyedWeakReference(watchedReference, key, referenceName, queue);
 
+        // 确然是否 内存泄漏
         ensureGoneAsync(watchStartNanoTime, reference);
     }
 
@@ -126,28 +129,36 @@ public final class RefWatcher {
         long gcStartNanoTime = System.nanoTime();
         long watchDurationMs = NANOSECONDS.toMillis(gcStartNanoTime - watchStartNanoTime);
 
+        // 把 queue 的引用 根据 key 从 retainedKeys 中引出 。
+        // retainedKeys 中剩下的就是没有分析和内存泄漏的引用的 key
         removeWeaklyReachableReferences();
 
+        // 处于 debug 模式那么就直接返回
         if (debuggerControl.isDebuggerAttached()) {
             // The debugger can create false leaks.
             return RETRY;
         }
+        // 如果内存没有泄漏
         if (gone(reference)) {
             return DONE;
         }
+        // 如果内存依旧没有被释放 那么在 GC 一次
         gcTrigger.runGc();
+        // 再次 清理下 retainedKeys
         removeWeaklyReachableReferences();
+        // 最后还有 就是说明内存泄漏了
         if (!gone(reference)) {
             long startDumpHeap = System.nanoTime();
             long gcDurationMs = NANOSECONDS.toMillis(startDumpHeap - gcStartNanoTime);
 
+            // dump 出 Head 报告
             File heapDumpFile = heapDumper.dumpHeap();
             if (heapDumpFile == RETRY_LATER) {
                 // Could not dump the heap.
                 return RETRY;
             }
             long heapDumpDurationMs = NANOSECONDS.toMillis(System.nanoTime() - startDumpHeap);
-
+            // 最后进行分析 这份 HeapDump，LeakCanary 分析内存泄露用的是一个第三方工具 HAHA
             HeapDump heapDump = heapDumpBuilder.heapDumpFile(heapDumpFile).referenceKey(reference.key)
                     .referenceName(reference.name)
                     .watchDurationMs(watchDurationMs)

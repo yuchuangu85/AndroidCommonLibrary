@@ -36,6 +36,7 @@ public final class ActivityRefWatcher {
         install(application, refWatcher);
     }
 
+    // 监控Activity
     public static void install(@NonNull Context context, @NonNull RefWatcher refWatcher) {
         Application application = (Application) context.getApplicationContext();
         ActivityRefWatcher activityRefWatcher = new ActivityRefWatcher(application, refWatcher);
@@ -43,10 +44,12 @@ public final class ActivityRefWatcher {
         application.registerActivityLifecycleCallbacks(activityRefWatcher.lifecycleCallbacks);
     }
 
+    // 用来监控应用的被destroy的Activity
     private final Application.ActivityLifecycleCallbacks lifecycleCallbacks =
             new ActivityLifecycleCallbacksAdapter() {
                 @Override
                 public void onActivityDestroyed(Activity activity) {
+                    // 监控应用的被destroy的Activity
                     refWatcher.watch(activity);
                 }
             };

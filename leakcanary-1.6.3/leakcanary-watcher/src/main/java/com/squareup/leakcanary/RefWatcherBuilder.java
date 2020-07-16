@@ -90,7 +90,7 @@ public class RefWatcherBuilder<T extends RefWatcherBuilder<T>> {
      * Creates a {@link RefWatcher}.
      */
     public final RefWatcher build() {
-        if (isDisabled()) {
+        if (isDisabled()) {// 分析进程需要在一个独立进程，在一个进程就禁用
             return RefWatcher.DISABLED;
         }
 
