@@ -12,10 +12,10 @@ dependencies {
     androidTestImplementation project(':library')
     androidTestImplementation project(':mocks')
     androidTestImplementation "org.mockito:mockito-android:${MOCKITO_ANDROID_VERSION}"
-    androidTestImplementation "androidx.test.ext:junit:${ANDROIDX_TEST_VERSION}"
-    androidTestImplementation "androidx.test:rules:${ANDROIDX_TEST_VERSION}"
-    androidTestImplementation "androidx.test:core:${ANDROIDX_TEST_VERSION}"
-    androidTestImplementation "com.google.truth:truth:${TRUTH_VERSION}"
+    androidTestImplementation "androidx.test.ext:junit:1.1.1"
+    androidTestImplementation "androidx.test:rules:1.2.0"
+    androidTestImplementation "androidx.test:core:1.2.0"
+    androidTestImplementation "com.google.truth:truth:1.0.1"
     androidTestImplementation "junit:junit:${JUNIT_VERSION}"
     androidTestImplementation "androidx.exifinterface:exifinterface:${EXIF_INTERFACE_VERSION}"
 
