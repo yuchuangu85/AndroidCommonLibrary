@@ -51,6 +51,7 @@
 
 * [「Leakcanary 源码分析」看这一篇就够了](https://www.jianshu.com/p/9cc0db9f7c52)
 * [LeakCanary 源码分析](https://www.jianshu.com/p/18b04ff44c5f)
+* [LeakCanary 原理解析](https://my.oschina.net/u/3146965/blog/1797236)
 
 ##  5.结构流程图
 
