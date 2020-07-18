@@ -151,8 +151,17 @@ public final class RefWatcher {
         if (gone(reference)) {
             return DONE;
         }
-        // 如果包含，并不会立即判定发生内存泄漏，可能存在某个对象已经不可达，但是尚未进入引用队列 queue。
-        // 这时会主动执行一次 GC 操作之后再次进行判断。
+
+        /**
+         * 如果包含，并不会立即判定发生内存泄漏，可能存在某个对象已经不可达，但是尚未进入引用队列 queue。
+         * 这时会主动执行一次 GC 操作之后再次进行判断。
+         *
+         * 注意这里调用 GC 的写法，并不是使用 System.gc。System.gc 仅仅只是通知系统在合适的时间进行
+         * 一次垃圾回收操作，实际上并不能保证一定执行。这里调用是  Runtime.getRuntime().gc();
+         *
+         * 主动进行 GC 之后会再次进行判定，过程同上。首先调用 removeWeaklyReachableReferences()
+         * 清除 retainedKeys 中弱引用的 key 值，再判断是否移除。如果仍然没有移除，判定为内存泄漏。
+         */
         gcTrigger.runGc();
         // 再次 清理下 retainedKeys
         removeWeaklyReachableReferences();
