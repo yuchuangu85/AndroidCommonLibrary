@@ -85,11 +85,11 @@ public final class RefWatcher {
         final long watchStartNanoTime = System.nanoTime();
         String key = UUID.randomUUID().toString();
         retainedKeys.add(key);
-        //这个一个弱引用的子类拓展类 用于我们之前所说的 watchedReference 和  queue 的联合使用
+        //这是一个弱引用的子类拓展类 用于 watchedReference 和  queue 的联合使用
         final KeyedWeakReference reference =
                 new KeyedWeakReference(watchedReference, key, referenceName, queue);
 
-        // 确然是否 内存泄漏
+        // 确定是否 内存泄漏
         ensureGoneAsync(watchStartNanoTime, reference);
     }
 
@@ -138,11 +138,21 @@ public final class RefWatcher {
             // The debugger can create false leaks.
             return RETRY;
         }
-        // 如果内存没有泄漏
+
+        /**
+         * 判断 retainedKeys 中是否包含当前 Activity 引用的 key 值。
+         * <p>
+         * 如果不包含，说明上一步操作中 retainedKeys 移除了该引用的 key 值，也就说上一步操作之前引用队列
+         * queue 中包含该引用，GC 处理了该引用，未发生内存泄漏，返回 DONE，不再往下执行。
+         * <p>
+         * 如果包含，并不会立即判定发生内存泄漏，可能存在某个对象已经不可达，但是尚未进入引用队列 queue。
+         * 这时会主动执行一次 GC 操作之后再次进行判断。
+         */
         if (gone(reference)) {
             return DONE;
         }
-        // 如果内存依旧没有被释放 那么在 GC 一次
+        // 如果包含，并不会立即判定发生内存泄漏，可能存在某个对象已经不可达，但是尚未进入引用队列 queue。
+        // 这时会主动执行一次 GC 操作之后再次进行判断。
         gcTrigger.runGc();
         // 再次 清理下 retainedKeys
         removeWeaklyReachableReferences();
@@ -175,10 +185,17 @@ public final class RefWatcher {
         return !retainedKeys.contains(reference.key);
     }
 
+    /**
+     * 这里有个小知识点，弱引用和引用队列 ReferenceQueue 联合使用时，如果弱引用持有的对象被垃圾回收，
+     * Java 虚拟机就会把这个弱引用加入到与之关联的引用队列中。即 KeyedWeakReference 持有的 Activity
+     * 对象如果被垃圾回收，该对象 (KeyedWeakReference) 就会加入到引用队列 queue 中。
+     */
     private void removeWeaklyReachableReferences() {
         // WeakReferences are enqueued as soon as the object to which they point to becomes weakly
         // reachable. This is before finalization or garbage collection has actually happened.
         KeyedWeakReference ref;
+        // 如果queue中存在了某个弱引用，说明该弱引用中的对象被回收了，所以要从retainedKeys中移除，
+        // 剩下的是没有被回收的
         while ((ref = (KeyedWeakReference) queue.poll()) != null) {
             retainedKeys.remove(ref.key);
         }
