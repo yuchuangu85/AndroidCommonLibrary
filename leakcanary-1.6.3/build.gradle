@@ -10,11 +10,21 @@ buildscript {
     google()
     maven { url 'https://plugins.gradle.org/m2/' }
     jcenter()
+    mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.2.0'
+    classpath 'com.android.tools.build:gradle:4.0.0'
     classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.16'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.23.0'
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
+    maven { url 'https://plugins.gradle.org/m2/' }
+    mavenCentral()
   }
 }
 

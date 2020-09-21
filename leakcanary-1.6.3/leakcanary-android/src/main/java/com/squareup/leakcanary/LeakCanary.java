@@ -32,6 +32,24 @@ import static com.squareup.leakcanary.BuildConfig.GIT_SHA;
 import static com.squareup.leakcanary.BuildConfig.LIBRARY_VERSION;
 import static com.squareup.leakcanary.internal.LeakCanaryInternals.isInServiceProcess;
 
+/**
+ * 1、监听 Activity 的生命周期，在 onDestroy 方法里调用 RefWatcher 的 watch 方法。
+ * watch 方法监控的是 Activity 对象
+ * <p>
+ * 2、给Activity 的 Reference 生成唯一性的 key 添加到 retainedKeys 。生成 KeyedWeakReference 对象 ，
+ * Activity 的弱引用和 ReferenceQueue 关联。执行 ensureGone 方法。
+ * <p>
+ * 3、如果 retainedKeys 中没有 该 Reference 的 key 那么就说明没有内存泄漏。
+ * <p>
+ * 4、如果有，那么 analyze 分析我们 HeadDump 文件。建立导致泄漏的引用链。
+ * <p>
+ * 5、引用链传递给 APP 进程的 DisplayLeakService，以通知的形式展示出来。
+ * <p>
+ * 主要方法：
+ * LeakCanary.install(Application application); // 注册
+ * AndroidRefWatcherBuilder.buildAndInstall(); // 注册监听Application中的Activity，Fragment的生命周期
+ * RefWatcher.watch(Object watchedReference); // 观察是否被回收
+ */
 public final class LeakCanary {
 
     /**
@@ -179,6 +197,8 @@ public final class LeakCanary {
     }
 
     /**
+     * // 分析进程需要在一个独立进程
+     * <p>
      * Whether the current process is the process running the {@link HeapAnalyzerService}, which is
      * a different process than the normal app process.
      */

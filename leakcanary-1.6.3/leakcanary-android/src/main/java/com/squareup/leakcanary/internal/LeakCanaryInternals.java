@@ -96,6 +96,7 @@ public final class LeakCanaryInternals {
         packageManager.setComponentEnabledSetting(component, newState, DONT_KILL_APP);
     }
 
+    // 判断该进程是否和Service在一个进程
     public static boolean isInServiceProcess(Context context, Class<? extends Service> serviceClass) {
         PackageManager packageManager = context.getPackageManager();
         PackageInfo packageInfo;

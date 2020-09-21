@@ -59,25 +59,25 @@ dependencies {
     testImplementation project(':glide')
     testImplementation project(':annotation:compiler')
     testImplementation "junit:junit:${JUNIT_VERSION}"
-    testImplementation "com.squareup:javapoet:${JAVAPOET_VERSION}"
+    testImplementation "com.squareup:javapoet:1.13.0"
     testImplementation "com.google.code.findbugs:jsr305:${JSR_305_VERSION}"
     // Using 0.10 of compile-testing is required for Android Studio to function, but not for the
     // gradle build. Not yet clear why, but it looks like some kind of version conflict between
     // javapoet, guava and/or truth.
     //noinspection GradleDependency
-    testImplementation ("com.google.testing.compile:compile-testing:0.10") {
+    testImplementation ('com.google.testing.compile:compile-testing:0.18') {
         // We don't use this and including it requires us to list it separatel which would be
         // confusing.
         exclude group: "com.google.auto.value", module: "auto-value"
     }
-    testImplementation "androidx.annotation:annotation:${ANDROID_X_VERSION}"
-    testImplementation "androidx.fragment:fragment:${ANDROID_X_VERSION}"
+    testImplementation "androidx.annotation:annotation:1.1.0"
+    testImplementation "androidx.fragment:fragment:1.2.5"
     testImplementation "androidx.legacy:legacy-support-v4:${ANDROID_X_VERSION}"
     // TODO: this seems excessive, but it works...
     testImplementation files(Jvm.current().getJre().homeDir.getAbsolutePath()+'/lib/rt.jar')
 
     testAnnotationProcessor project(':annotation:compiler')
-    testAnnotationProcessor "com.google.auto.service:auto-service:${AUTO_SERVICE_VERSION}"
+    testAnnotationProcessor "com.google.auto.service:auto-service:1.0-rc7"
 }
 
 task regenerateTestResources {

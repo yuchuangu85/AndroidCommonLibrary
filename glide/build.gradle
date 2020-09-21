@@ -143,7 +143,6 @@ subprojects { project ->
         // Formats are listed here: https://github.com/tomasbjerre/violations-lib
         def dir = projectDir.absolutePath
         violations = [
-                ["FINDBUGS",    dir, ".*/findbugs/.*\\.xml\$",   "Findbugs"],
                 ["PMD",         dir, ".*/pmd/.*\\.xml\$",        "PMD"],
                 ["ANDROIDLINT", dir, ".*/lint-results\\.xml\$",  "AndroidLint"],
                 ["CHECKSTYLE",  dir, ".*/checkstyle/.*\\.xml\$", "Checkstyle"],

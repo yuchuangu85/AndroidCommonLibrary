@@ -20,7 +20,7 @@
 | RxAndroid                | https://github.com/ReactiveX/RxAndroid                       |    2.1.1     |    AS    |          |
 | RxJava                   | https://github.com/ReactiveX/RxJava                          |     3.x      |   Idea   |          |
 | Dagger2                  | https://github.com/google/dagger                             |     2.x      |   Idea   |          |
-| leakcanary               | https://github.com/square/leakcanary                         |    1.6.3     |    AS    |          |
+| leakcanary               | https://github.com/square/leakcanary                         |    1.6.3     |    AS    | 完成 |
 | guava                    | https://github.com/google/guava                              |    28-jre    |   Idea   |          |
 | VirtualXposed            | https://github.com/android-hacker/VirtualXposed              |    master    |    AS    |          |
 | dexposed                 | https://github.com/alibaba/dexposed                          |    master    |    AS    |          |
@@ -40,17 +40,42 @@
 
 
 
-## 3．项目涉及知识
+## 3.项目涉及知识
 
 * [自定义注解](/AndroidAnnotation/README.md)
 
-  
 
-  
 
-##  4.结构流程图
 
-![](/media/Picasso/Picasso.jpg)
+## 4.参考文章
+
+* [「Leakcanary 源码分析」看这一篇就够了](https://www.jianshu.com/p/9cc0db9f7c52)
+* [LeakCanary 源码分析](https://www.jianshu.com/p/18b04ff44c5f)
+* [LeakCanary 原理解析](https://my.oschina.net/u/3146965/blog/1797236)
+
+##  5.结构流程图
+
+![EventBus](./media/EventBus.jpg)
+
+<center>EventBus</center>
+
+
+
+![](./media/Picasso.jpg)
+
+<center>Picasso</center>
+
+![Retrofit](./media/retrofit.jpg)
+
+<center>Retrofit</center>
+
+
+
+![](./media/leakcanary.png)
+
+<center>leakcanary</center>
+
+
 
 
 
