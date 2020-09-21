@@ -1,20 +1,12 @@
 package com.bumptech.glide;
 
-import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
-import static com.bumptech.glide.request.RequestOptions.signatureOf;
-import static com.bumptech.glide.request.RequestOptions.skipMemoryCacheOf;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
-import androidx.annotation.CheckResult;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RawRes;
+
 import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.BaseRequestOptions;
@@ -35,11 +27,22 @@ import com.bumptech.glide.util.Executors;
 import com.bumptech.glide.util.Preconditions;
 import com.bumptech.glide.util.Synthetic;
 import com.bumptech.glide.util.Util;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
+import androidx.annotation.CheckResult;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
+
+import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
+import static com.bumptech.glide.request.RequestOptions.signatureOf;
+import static com.bumptech.glide.request.RequestOptions.skipMemoryCacheOf;
 
 /**
  * A generic class that can handle setting options and staring loads for generic resource types.
@@ -608,7 +611,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
   }
 
   private <Y extends Target<TranscodeType>> Y into(
-      @NonNull Y target,
+      @NonNull Y target,// BitmapImageViewTarget 或者 DrawableImageViewTarget
       @Nullable RequestListener<TranscodeType> targetListener,
       BaseRequestOptions<?> options,
       Executor callbackExecutor) {
@@ -619,6 +622,7 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
 
     Request request = buildRequest(target, targetListener, options, callbackExecutor);
 
+    // 通过setTag设置的Request
     Request previous = target.getRequest();
     if (request.isEquivalentTo(previous)
         && !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) {
@@ -635,7 +639,9 @@ public class RequestBuilder<TranscodeType> extends BaseRequestOptions<RequestBui
       return target;
     }
 
+    // 如果没有调用setTag
     requestManager.clear(target);
+    // 最终调用View.setTag(request);
     target.setRequest(request);
     requestManager.track(target, request);
 
