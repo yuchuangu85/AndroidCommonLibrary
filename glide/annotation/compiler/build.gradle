@@ -1,4 +1,3 @@
-import org.gradle.internal.jvm.Jvm
 import proguard.gradle.ProGuardTask
 
 apply plugin: 'java'
@@ -18,7 +17,7 @@ dependencies {
     compileOnly "com.google.code.findbugs:jsr305:${JSR_305_VERSION}"
     compile project(':annotation')
     // This is to support com.sun.tools.javac.util.List, currently used in RootModuleGenerator.
-    compile files(Jvm.current().getToolsJar())
+//    compile files(Jvm.current().getToolsJar())
     annotationProcessor "com.google.auto.service:auto-service:${AUTO_SERVICE_VERSION}"
 }
 

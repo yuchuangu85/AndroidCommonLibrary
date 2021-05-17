@@ -25,7 +25,7 @@ android {
 
 afterEvaluate {
     lint.enabled = false
-    compileDebugJavaWithJavac.enabled = false
+//    compileDebugJavaWithJavac.enabled = false
 }
 
 android {
@@ -74,7 +74,7 @@ dependencies {
     testImplementation "androidx.fragment:fragment:${ANDROID_X_FRAGMENT_VERSION}"
     testImplementation "androidx.legacy:legacy-support-v4:${ANDROID_X_VERSION}"
     // TODO: this seems excessive, but it works...
-    testImplementation files(Jvm.current().getJre().homeDir.getAbsolutePath()+'/lib/rt.jar')
+//    testImplementation files(Jvm.current().getJre().homeDir.getAbsolutePath()+'/lib/rt.jar')
 
     testAnnotationProcessor project(':annotation:compiler')
     testAnnotationProcessor "com.google.auto.service:auto-service:${AUTO_SERVICE_VERSION}"
