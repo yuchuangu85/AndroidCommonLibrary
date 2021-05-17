@@ -8,6 +8,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.bumptech.glide.GlideBuilder.LogRequestOrigins;
 import com.bumptech.glide.GlideContext;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
@@ -21,6 +22,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.request.transition.TransitionFactory;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Util;
+import com.bumptech.glide.util.pool.GlideTrace;
 import com.bumptech.glide.util.pool.StateVerifier;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -33,11 +35,12 @@ import java.util.concurrent.Executor;
  */
 public final class SingleRequest<R> implements Request, SizeReadyCallback, ResourceCallback {
   /** Tag for logging internal events, not generally suitable for public use. */
-  private static final String TAG = "Request";
+  private static final String TAG = "GlideRequest";
   /** Tag for logging externally useful events (request completion, timing etc). */
   private static final String GLIDE_TAG = "Glide";
 
   private static final boolean IS_VERBOSE_LOGGABLE = Log.isLoggable(TAG, Log.VERBOSE);
+  private int cookie;
 
   private enum Status {
     /** Created but not yet running. */
@@ -203,7 +206,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     this.callbackExecutor = callbackExecutor;
     status = Status.PENDING;
 
-    if (requestOrigin == null && glideContext.isLoggingRequestOriginsEnabled()) {
+    if (requestOrigin == null && glideContext.getExperiments().isEnabled(LogRequestOrigins.class)) {
       requestOrigin = new RuntimeException("Glide request origin trace");
     }
   }
@@ -245,6 +248,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       // Restarts for requests that are neither complete nor running can be treated as new requests
       // and can run again from the beginning.
 
+      cookie = GlideTrace.beginSectionAsync(TAG);
       status = Status.WAITING_FOR_SIZE;
       if (Util.isValidDimensions(overrideWidth, overrideHeight)) {
         onSizeReady(overrideWidth, overrideHeight);
@@ -320,6 +324,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
         target.onLoadCleared(getPlaceholderDrawable());
       }
 
+      GlideTrace.endSectionAsync(TAG, cookie);
       status = Status.CLEARED;
     }
 
@@ -571,6 +576,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
           this.resource = null;
           // We can't put the status to complete before asking canSetResource().
           status = Status.COMPLETE;
+          GlideTrace.endSectionAsync(TAG, cookie);
           return;
         }
 
@@ -642,6 +648,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     }
 
     notifyLoadSuccess();
+    GlideTrace.endSectionAsync(TAG, cookie);
   }
 
   /** A callback method that should never be invoked directly. */
@@ -694,6 +701,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       }
 
       notifyLoadFailed();
+      GlideTrace.endSectionAsync(TAG, cookie);
     }
   }
 
@@ -706,7 +714,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     int localOverrideWidth;
     int localOverrideHeight;
     Object localModel;
-    Class<?> localTransocdeClass;
+    Class<?> localTranscodeClass;
     BaseRequestOptions<?> localRequestOptions;
     Priority localPriority;
     int localListenerCount;
@@ -714,7 +722,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       localOverrideWidth = overrideWidth;
       localOverrideHeight = overrideHeight;
       localModel = model;
-      localTransocdeClass = transcodeClass;
+      localTranscodeClass = transcodeClass;
       localRequestOptions = requestOptions;
       localPriority = priority;
       localListenerCount = requestListeners != null ? requestListeners.size() : 0;
@@ -724,7 +732,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     int otherLocalOverrideWidth;
     int otherLocalOverrideHeight;
     Object otherLocalModel;
-    Class<?> otherLocalTransocdeClass;
+    Class<?> otherLocalTranscodeClass;
     BaseRequestOptions<?> otherLocalRequestOptions;
     Priority otherLocalPriority;
     int otherLocalListenerCount;
@@ -732,7 +740,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
       otherLocalOverrideWidth = other.overrideWidth;
       otherLocalOverrideHeight = other.overrideHeight;
       otherLocalModel = other.model;
-      otherLocalTransocdeClass = other.transcodeClass;
+      otherLocalTranscodeClass = other.transcodeClass;
       otherLocalRequestOptions = other.requestOptions;
       otherLocalPriority = other.priority;
       otherLocalListenerCount = other.requestListeners != null ? other.requestListeners.size() : 0;
@@ -744,7 +752,7 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
     return localOverrideWidth == otherLocalOverrideWidth
         && localOverrideHeight == otherLocalOverrideHeight
         && Util.bothModelsNullEquivalentOrEquals(localModel, otherLocalModel)
-        && localTransocdeClass.equals(otherLocalTransocdeClass)
+        && localTranscodeClass.equals(otherLocalTranscodeClass)
         && localRequestOptions.equals(otherLocalRequestOptions)
         && localPriority == otherLocalPriority
         // We do not want to require that RequestListeners implement equals/hashcode, so we
@@ -755,5 +763,21 @@ public final class SingleRequest<R> implements Request, SizeReadyCallback, Resou
 
   private void logV(String message) {
     Log.v(TAG, message + " this: " + tag);
+  }
+
+  @Override
+  public String toString() {
+    Object localModel;
+    Class<?> localTranscodeClass;
+    synchronized (requestLock) {
+      localModel = model;
+      localTranscodeClass = transcodeClass;
+    }
+    return super.toString()
+        + "[model="
+        + localModel
+        + ", transcodeClass="
+        + localTranscodeClass
+        + "]";
   }
 }

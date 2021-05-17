@@ -441,6 +441,22 @@ public class GlideRequest<TranscodeType> extends RequestBuilder<TranscodeType> i
     return (GlideRequest<TranscodeType>) super.dontAnimate();
   }
 
+  /**
+   * @see GlideOptions#lock()
+   */
+  @NonNull
+  public GlideRequest<TranscodeType> lock() {
+    return (GlideRequest<TranscodeType>) super.lock();
+  }
+
+  /**
+   * @see GlideOptions#autoClone()
+   */
+  @NonNull
+  public GlideRequest<TranscodeType> autoClone() {
+    return (GlideRequest<TranscodeType>) super.autoClone();
+  }
+
   @Override
   @NonNull
   @CheckResult
@@ -473,6 +489,13 @@ public class GlideRequest<TranscodeType> extends RequestBuilder<TranscodeType> i
   @NonNull
   public GlideRequest<TranscodeType> error(@Nullable RequestBuilder<TranscodeType> builder) {
     return (GlideRequest<TranscodeType>) super.error(builder);
+  }
+
+  @Override
+  @NonNull
+  @CheckResult
+  public GlideRequest<TranscodeType> error(Object o) {
+    return (GlideRequest<TranscodeType>) super.error(o);
   }
 
   @Override

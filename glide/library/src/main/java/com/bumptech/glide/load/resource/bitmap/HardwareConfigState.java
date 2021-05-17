@@ -7,14 +7,31 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
+import com.bumptech.glide.util.Util;
 import java.io.File;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * State and constants for interacting with {@link android.graphics.Bitmap.Config#HARDWARE} on
  * Android O+.
  */
 public final class HardwareConfigState {
+  private static final String TAG = "HardwareConfig";
+
+  /**
+   * Force the state to wait until a call to allow hardware Bitmaps to be used when they'd otherwise
+   * be eligible to work around a framework issue pre Q that can cause a native crash when
+   * allocating a hardware Bitmap in this specific circumstance. See b/126573603#comment12 for
+   * details.
+   */
+  public static final boolean BLOCK_HARDWARE_BITMAPS_WHEN_GL_CONTEXT_MIGHT_NOT_BE_INITIALIZED =
+      Build.VERSION.SDK_INT < Build.VERSION_CODES.Q;
+
+  /** Support for the hardware bitmap config was added in Android O. */
+  public static final boolean HARDWARE_BITMAPS_SUPPORTED =
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+
   /**
    * The minimum size in pixels a {@link Bitmap} must be in both dimensions to be created with the
    * {@link Bitmap.Config#HARDWARE} configuration.
@@ -66,7 +83,6 @@ public final class HardwareConfigState {
   public static final int NO_MAX_FD_COUNT = -1;
 
   private static volatile HardwareConfigState instance;
-  private static volatile boolean waitForFirstFrame;
   private static volatile int manualOverrideMaxFdCount = NO_MAX_FD_COUNT;
 
   private final boolean isHardwareConfigAllowedByDeviceModel;
@@ -79,7 +95,13 @@ public final class HardwareConfigState {
   @GuardedBy("this")
   private boolean isFdSizeBelowHardwareLimit = true;
 
-  private volatile boolean isFirstFrameDrawn;
+  /**
+   * Only mutated on the main thread. Read by any number of background threads concurrently.
+   *
+   * <p>Defaults to {@code false} because we need to wait for the GL context to be initialized and
+   * it defaults to not initialized (https://b.corp.google.com/issues/126573603#comment12).
+   */
+  private final AtomicBoolean isHardwareConfigAllowedByAppState = new AtomicBoolean(false);
 
   public static HardwareConfigState getInstance() {
     if (instance == null) {
@@ -104,23 +126,82 @@ public final class HardwareConfigState {
     }
   }
 
+  public boolean areHardwareBitmapsBlocked() {
+    Util.assertMainThread();
+    return !isHardwareConfigAllowedByAppState.get();
+  }
+
+  public void blockHardwareBitmaps() {
+    Util.assertMainThread();
+    isHardwareConfigAllowedByAppState.set(false);
+  }
+
+  public void unblockHardwareBitmaps() {
+    Util.assertMainThread();
+    isHardwareConfigAllowedByAppState.set(true);
+  }
+
   public boolean isHardwareConfigAllowed(
       int targetWidth,
       int targetHeight,
       boolean isHardwareConfigAllowed,
       boolean isExifOrientationRequired) {
-    if (!isHardwareConfigAllowed
-        || !isHardwareConfigAllowedByDeviceModel
-        || Build.VERSION.SDK_INT < Build.VERSION_CODES.O
-        || (waitForFirstFrame && !isFirstFrameDrawn)
-        || isExifOrientationRequired) {
+    if (!isHardwareConfigAllowed) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed by caller");
+      }
+      return false;
+    }
+    if (!isHardwareConfigAllowedByDeviceModel) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed by device model");
+      }
+      return false;
+    }
+    if (!HARDWARE_BITMAPS_SUPPORTED) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed by sdk");
+      }
+      return false;
+    }
+    if (areHardwareBitmapsBlockedByAppState()) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed by app state");
+      }
+      return false;
+    }
+    if (isExifOrientationRequired) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed because exif orientation is required");
+      }
+      return false;
+    }
+    if (targetWidth < minHardwareDimension) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed because width is too small");
+      }
+      return false;
+    }
+    if (targetHeight < minHardwareDimension) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed because height is too small");
+      }
+      return false;
+    }
+    // Make sure to call isFdSizeBelowHardwareLimit last because it has side affects.
+    if (!isFdSizeBelowHardwareLimit()) {
+      if (Log.isLoggable(TAG, Log.VERBOSE)) {
+        Log.v(TAG, "Hardware config disallowed because there are insufficient FDs");
+      }
       return false;
     }
 
-    return targetWidth >= minHardwareDimension
-        && targetHeight >= minHardwareDimension
-        // Make sure to call isFdSizeBelowHardwareLimit last because it has side affects.
-        && isFdSizeBelowHardwareLimit();
+    return true;
+  }
+
+  private boolean areHardwareBitmapsBlockedByAppState() {
+    return BLOCK_HARDWARE_BITMAPS_WHEN_GL_CONTEXT_MIGHT_NOT_BE_INITIALIZED
+        && !isHardwareConfigAllowedByAppState.get();
   }
 
   @TargetApi(Build.VERSION_CODES.O)
@@ -150,7 +231,6 @@ public final class HardwareConfigState {
     }
     // This method will only be called once, so simple iteration is reasonable.
     return Arrays.asList(
-            "ILA X1",
             "LG-M250",
             "LG-M320",
             "LG-Q710AL",
@@ -171,34 +251,43 @@ public final class HardwareConfigState {
             "LM-Q710.FGN",
             "LM-X220PM",
             "LM-X220QMA",
-            "LM-X410PM",
-            "SGINO")
+            "LM-X410PM")
         .contains(Build.MODEL);
   }
 
   private static boolean isHardwareConfigDisallowedByB112551574() {
-    if (Build.MODEL == null || Build.MODEL.length() < 7) {
+    if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
       return false;
     }
-    switch (Build.MODEL.substring(0, 7)) {
-      case "SM-N935":
-        // Fall through
-      case "SM-J720":
-        // Fall through
-      case "SM-G960":
-        // Fall through
-      case "SM-G965":
-        // Fall through
-      case "SM-G935":
-        // Fall through
-      case "SM-G930":
-        // Fall through
-      case "SM-A520":
-        // Fall through
-        return Build.VERSION.SDK_INT == Build.VERSION_CODES.O;
-      default:
-        return false;
+    // This method will only be called once, so simple iteration is reasonable.
+    for (String prefixOrModelName :
+        // This is sadly a list of prefixes, not models. We no longer have the data that shows us
+        // all the explicit models, so we have to live with the prefixes.
+        Arrays.asList(
+            // Samsung
+            "SC-04J",
+            "SM-N935",
+            "SM-J720",
+            "SM-G570F",
+            "SM-G570M",
+            "SM-G960",
+            "SM-G965",
+            "SM-G935",
+            "SM-G930",
+            "SM-A520",
+            "SM-A720F",
+            // Moto
+            "moto e5",
+            "moto e5 play",
+            "moto e5 plus",
+            "moto e5 cruise",
+            "moto g(6) forge",
+            "moto g(6) play")) {
+      if (Build.MODEL.startsWith(prefixOrModelName)) {
+        return true;
+      }
     }
+    return false;
   }
 
   private int getMaxFdCount() {

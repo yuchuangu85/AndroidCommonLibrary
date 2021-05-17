@@ -1,8 +1,12 @@
 package com.bumptech.glide.manager;
 
 import android.app.Activity;
+import android.os.Build;
+import androidx.annotation.RequiresApi;
 
-final class FirstFrameWaiter {
+@RequiresApi(Build.VERSION_CODES.O)
+final class FirstFrameWaiter implements FrameWaiter {
 
-  void registerSelf(Activity activity) {}
+  @Override
+  public void registerSelf(Activity activity) {}
 }

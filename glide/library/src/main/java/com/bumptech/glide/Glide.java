@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import com.bumptech.glide.GlideBuilder.EnableImageDecoderForBitmaps;
 import com.bumptech.glide.gifdecoder.GifDecoder;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.ImageHeaderParser;
@@ -50,7 +51,6 @@ import com.bumptech.glide.load.model.UnitModelLoader;
 import com.bumptech.glide.load.model.UriLoader;
 import com.bumptech.glide.load.model.UrlUriLoader;
 import com.bumptech.glide.load.model.stream.HttpGlideUrlLoader;
-import com.bumptech.glide.load.model.stream.HttpUriLoader;
 import com.bumptech.glide.load.model.stream.MediaStoreImageThumbLoader;
 import com.bumptech.glide.load.model.stream.MediaStoreVideoThumbLoader;
 import com.bumptech.glide.load.model.stream.QMediaStoreUriLoader;
@@ -63,6 +63,7 @@ import com.bumptech.glide.load.resource.bitmap.ByteBufferBitmapImageDecoderResou
 import com.bumptech.glide.load.resource.bitmap.DefaultImageHeaderParser;
 import com.bumptech.glide.load.resource.bitmap.Downsampler;
 import com.bumptech.glide.load.resource.bitmap.ExifInterfaceImageHeaderParser;
+import com.bumptech.glide.load.resource.bitmap.HardwareConfigState;
 import com.bumptech.glide.load.resource.bitmap.InputStreamBitmapImageDecoderResourceDecoder;
 import com.bumptech.glide.load.resource.bitmap.ParcelFileDescriptorBitmapDecoder;
 import com.bumptech.glide.load.resource.bitmap.ResourceBitmapDecoder;
@@ -161,11 +162,11 @@ public class Glide implements ComponentCallbacks2 {
     File cacheDir = context.getCacheDir();
     if (cacheDir != null) {
       File result = new File(cacheDir, cacheName);
-      if (!result.mkdirs() && (!result.exists() || !result.isDirectory())) {
-        // File wasn't able to create a directory, or the result exists but not a directory
-        return null;
+      if (result.isDirectory() || result.mkdirs()) {
+        return result;
       }
-      return result;
+      // File wasn't able to create a directory, or the result exists but not a directory
+      return null;
     }
     if (Log.isLoggable(TAG, Log.ERROR)) {
       Log.e(TAG, "default disk cache dir is null");
@@ -233,6 +234,19 @@ public class Glide implements ComponentCallbacks2 {
       }
       initializeGlide(context, builder, annotationGeneratedModule);
     }
+  }
+
+  /**
+   * Allows hardware Bitmaps to be used prior to the first frame in the app being drawn as soon as
+   * this method is called.
+   *
+   * <p>If you use this method in non-test code, your app will experience native crashes on some
+   * versions of Android if you try to decode a hardware Bitmap. This method is only useful for
+   * testing.
+   */
+  @VisibleForTesting
+  public static void enableHardwareBitmaps() {
+    HardwareConfigState.getInstance().unblockHardwareBitmaps();
   }
 
   @VisibleForTesting
@@ -371,10 +385,7 @@ public class Glide implements ComponentCallbacks2 {
       @NonNull RequestOptionsFactory defaultRequestOptionsFactory,
       @NonNull Map<Class<?>, TransitionOptions<?, ?>> defaultTransitionOptions,
       @NonNull List<RequestListener<Object>> defaultRequestListeners,
-      boolean isLoggingRequestOriginsEnabled,
-      boolean isImageDecoderEnabledForBitmaps,
-      boolean waitForFirstFrameBeforeEnablingHardwareBitmaps,
-      int manualOverrideHardwareBitmapMaxFdCount) {
+      GlideExperiments experiments) {
     this.engine = engine;
     this.bitmapPool = bitmapPool;
     this.arrayPool = arrayPool;
@@ -407,7 +418,8 @@ public class Glide implements ComponentCallbacks2 {
 
     ResourceDecoder<ByteBuffer, Bitmap> byteBufferBitmapDecoder;
     ResourceDecoder<InputStream, Bitmap> streamBitmapDecoder;
-    if (isImageDecoderEnabledForBitmaps && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    if (experiments.isEnabled(EnableImageDecoderForBitmaps.class)
+        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       streamBitmapDecoder = new InputStreamBitmapImageDecoderResourceDecoder();
       byteBufferBitmapDecoder = new ByteBufferBitmapImageDecoderResourceDecoder();
     } else {
@@ -527,7 +539,6 @@ public class Glide implements ComponentCallbacks2 {
         .append(String.class, ParcelFileDescriptor.class, new StringLoader.FileDescriptorFactory())
         .append(
             String.class, AssetFileDescriptor.class, new StringLoader.AssetFileDescriptorFactory())
-        .append(Uri.class, InputStream.class, new HttpUriLoader.Factory())
         .append(Uri.class, InputStream.class, new AssetUriLoader.StreamFactory(context.getAssets()))
         .append(
             Uri.class,
@@ -593,7 +604,7 @@ public class Glide implements ComponentCallbacks2 {
             defaultTransitionOptions,
             defaultRequestListeners,
             engine,
-            isLoggingRequestOriginsEnabled,
+            experiments,
             logLevel);
   }
 

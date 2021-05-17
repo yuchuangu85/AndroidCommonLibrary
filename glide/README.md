@@ -27,12 +27,12 @@ Or use Gradle:
 ```gradle
 repositories {
   google()
-  jcenter()
+  mavenCentral()
 }
 
 dependencies {
-  implementation 'com.github.bumptech.glide:glide:4.11.0'
-  annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+  implementation 'com.github.bumptech.glide:glide:4.12.0'
+  annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 }
 ```
 
@@ -42,12 +42,12 @@ Or Maven:
 <dependency>
   <groupId>com.github.bumptech.glide</groupId>
   <artifactId>glide</artifactId>
-  <version>4.11.0</version>
+  <version>4.12.0</version>
 </dependency>
 <dependency>
   <groupId>com.github.bumptech.glide</groupId>
   <artifactId>compiler</artifactId>
-  <version>4.11.0</version>
+  <version>4.12.0</version>
   <optional>true</optional>
 </dependency>
 ```
