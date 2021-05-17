@@ -33,7 +33,7 @@ class AsyncPoster implements Runnable, Poster {
 
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        // 入对
+        // 入队
         queue.enqueue(pendingPost);
         // 通过线程池发送事件
         eventBus.getExecutorService().execute(this);
@@ -41,7 +41,7 @@ class AsyncPoster implements Runnable, Poster {
 
     @Override
     public void run() {
-        // 出对
+        // 出队
         PendingPost pendingPost = queue.poll();
         if(pendingPost == null) {
             throw new IllegalStateException("No pending post available");
